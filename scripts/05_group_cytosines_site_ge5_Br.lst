@@ -1,0 +1,685 @@
+                                                           The SAS System                           13:30 Monday, April 17, 2023   1
+
+                                                         The FREQ Procedure
+
+                                                                               Cumulative    Cumulative
+                             comparison               Frequency     Percent     Frequency      Percent
+                             --------------------------------------------------------------------------
+                             brass_10cGy_0cGy_1h        384337       14.57        384337        14.57  
+                             brass_10cGy_0cGy_72h       596295       22.60        980632        37.16  
+                             brass_1p4cGy_0cGy_1h       375163       14.22       1355795        51.38  
+                             brass_1p4cGy_0cGy_72h      502274       19.03       1858069        70.42  
+                             long_1p4cGy_0cGy_72h       780669       29.58       2638738       100.00  
+                                                           The SAS System                           13:30 Monday, April 17, 2023   2
+
+                                         flag_fet_
+                                  Obs      fdr05           comparison             COUNT    PERCENT
+
+                                    1        0        brass_10cGy_0cGy_1h      23721344    15.8217
+                                    2        0        brass_10cGy_0cGy_72h     26952195    17.9767
+                                    3        0        brass_1p4cGy_0cGy_1h     22855503    15.2442
+                                    4        0        brass_1p4cGy_0cGy_72h    31194098    20.8059
+                                    5        0        long_1p4cGy_0cGy_72h     45161850    30.1222
+                                    6        1        brass_10cGy_0cGy_1h             3     0.0000
+                                    7        1        brass_10cGy_0cGy_72h         6495     0.0043
+                                    8        1        brass_1p4cGy_0cGy_1h            7     0.0000
+                                    9        1        brass_1p4cGy_0cGy_72h        3115     0.0021
+                                   10        1        long_1p4cGy_0cGy_72h        34151     0.0228
+                                                           The SAS System                           13:30 Monday, April 17, 2023   3
+
+                                                         The FREQ Procedure
+
+                                                                               Cumulative    Cumulative
+                             comparison               Frequency     Percent     Frequency      Percent
+                             --------------------------------------------------------------------------
+                             brass_10cGy_0cGy_1h      24367376       15.93      24367376        15.93  
+                             brass_10cGy_0cGy_72h     27507216       17.98      51874592        33.91  
+                             brass_1p4cGy_0cGy_1h     23606687       15.43      75481279        49.34  
+                             brass_1p4cGy_0cGy_72h    31895638       20.85      1.0738E8        70.19  
+                             long_1p4cGy_0cGy_72h     45596200       29.81      1.5297E8       100.00  
+                                                           The SAS System                           13:30 Monday, April 17, 2023   4
+
+                                                         The FREQ Procedure
+
+                                                                               Cumulative    Cumulative
+                             comparison               Frequency     Percent     Frequency      Percent
+                             --------------------------------------------------------------------------
+                             brass_10cGy_0cGy_1h      23721347       15.82      23721347        15.82  
+                             brass_10cGy_0cGy_72h     26958690       17.98      50680037        33.80  
+                             brass_1p4cGy_0cGy_1h     22855510       15.24      73535547        49.05  
+                             brass_1p4cGy_0cGy_72h    31197213       20.81      1.0473E8        69.86  
+                             long_1p4cGy_0cGy_72h     45196001       30.14      1.4993E8       100.00  
+                                                           The SAS System                           13:30 Monday, April 17, 2023   5
+
+                                                         The FREQ Procedure
+
+                                                                               Cumulative    Cumulative
+                             comparison               Frequency     Percent     Frequency      Percent
+                             --------------------------------------------------------------------------
+                             brass_10cGy_0cGy_1h      24367376       15.93      24367376        15.93  
+                             brass_10cGy_0cGy_72h     27507216       17.98      51874592        33.91  
+                             brass_1p4cGy_0cGy_1h     23606687       15.43      75481279        49.34  
+                             brass_1p4cGy_0cGy_72h    31895638       20.85      1.0738E8        70.19  
+                             long_1p4cGy_0cGy_72h     45596200       29.81      1.5297E8       100.00  
+                                                           The SAS System                           13:30 Monday, April 17, 2023   6
+
+                                                           flag_meth_    flag_fet_
+                          Obs         comparison          diff_10perc      fdr05         COUNT    PERCENT
+
+                            1    brass_10cGy_0cGy_1h           0             .          646029      .    
+                            2    brass_10cGy_0cGy_1h           0             0        16777122    11.1901
+                            3    brass_10cGy_0cGy_1h           1             0         6944222     4.6317
+                            4    brass_10cGy_0cGy_1h           1             1               3     0.0000
+                            5    brass_10cGy_0cGy_72h          0             .          548526      .    
+                            6    brass_10cGy_0cGy_72h          0             0        19183049    12.7948
+                            7    brass_10cGy_0cGy_72h          0             1             361     0.0002
+                            8    brass_10cGy_0cGy_72h          1             0         7769146     5.1819
+                            9    brass_10cGy_0cGy_72h          1             1            6134     0.0041
+                           10    brass_1p4cGy_0cGy_1h          0             .          751177      .    
+                           11    brass_1p4cGy_0cGy_1h          0             0        15866644    10.5828
+                           12    brass_1p4cGy_0cGy_1h          1             0         6988859     4.6615
+                           13    brass_1p4cGy_0cGy_1h          1             1               7     0.0000
+                           14    brass_1p4cGy_0cGy_72h         0             .          698425      .    
+                           15    brass_1p4cGy_0cGy_72h         0             0        20769118    13.8527
+                           16    brass_1p4cGy_0cGy_72h         0             1            2978     0.0020
+                           17    brass_1p4cGy_0cGy_72h         1             0        10424980     6.9533
+                           18    brass_1p4cGy_0cGy_72h         1             1             137     0.0001
+                           19    long_1p4cGy_0cGy_72h          0             .          400199      .    
+                           20    long_1p4cGy_0cGy_72h          0             0        37796074    25.2094
+                           21    long_1p4cGy_0cGy_72h          0             1              78     0.0001
+                           22    long_1p4cGy_0cGy_72h          1             0         7365776     4.9129
+                           23    long_1p4cGy_0cGy_72h          1             1           34073     0.0227
+                                                           The SAS System                           13:30 Monday, April 17, 2023   7
+
+                                                              site_    flag_num_
+                              Obs         comparison          type     sites_ge2     COUNT     PERCENT
+
+                                1    brass_10cGy_0cGy_1h       CG          0         448495    2.35874
+                                2    brass_10cGy_0cGy_1h       CG          1         263066    1.38352
+                                3    brass_10cGy_0cGy_1h       CHG         0         680165    3.57714
+                                4    brass_10cGy_0cGy_1h       CHG         1         487674    2.56479
+                                5    brass_10cGy_0cGy_1h       CHH         0         777334    4.08818
+                                6    brass_10cGy_0cGy_1h       CHH         1         748503    3.93655
+                                7    brass_10cGy_0cGy_72h      CG          0         454625    2.39098
+                                8    brass_10cGy_0cGy_72h      CG          1         294100    1.54674
+                                9    brass_10cGy_0cGy_72h      CHG         0         713055    3.75012
+                               10    brass_10cGy_0cGy_72h      CHG         1         495821    2.60764
+                               11    brass_10cGy_0cGy_72h      CHH         0         952295    5.00834
+                               12    brass_10cGy_0cGy_72h      CHH         1         882706    4.64235
+                               13    brass_1p4cGy_0cGy_1h      CG          0         443099    2.33036
+                               14    brass_1p4cGy_0cGy_1h      CG          1         265563    1.39666
+                               15    brass_1p4cGy_0cGy_1h      CHG         0         682584    3.58987
+                               16    brass_1p4cGy_0cGy_1h      CHG         1         490129    2.57770
+                               17    brass_1p4cGy_0cGy_1h      CHH         0         783961    4.12303
+                               18    brass_1p4cGy_0cGy_1h      CHH         1         754509    3.96814
+                               19    brass_1p4cGy_0cGy_72h     CG          0         527172    2.77252
+                               20    brass_1p4cGy_0cGy_72h     CG          1         304715    1.60257
+                               21    brass_1p4cGy_0cGy_72h     CHG         0         873048    4.59156
+                               22    brass_1p4cGy_0cGy_72h     CHG         1         563428    2.96320
+                               23    brass_1p4cGy_0cGy_72h     CHH         0        1208978    6.35829
+                               24    brass_1p4cGy_0cGy_72h     CHH         1        1310872    6.89418
+                               25    long_1p4cGy_0cGy_72h      CG          0         472085    2.48280
+                               26    long_1p4cGy_0cGy_72h      CG          1         306223    1.61050
+                               27    long_1p4cGy_0cGy_72h      CHG         0         651157    3.42458
+                               28    long_1p4cGy_0cGy_72h      CHG         1         456186    2.39919
+                               29    long_1p4cGy_0cGy_72h      CHH         0         929056    4.88612
+                               30    long_1p4cGy_0cGy_72h      CHH         1         793590    4.17367
+                                                           The SAS System                           13:30 Monday, April 17, 2023   8
+
+                                                              site_    flag_num_
+                              Obs         comparison          type     sites_ge3     COUNT     PERCENT
+
+                                1    brass_10cGy_0cGy_1h       CG          0         595298    3.13081
+                                2    brass_10cGy_0cGy_1h       CG          1         116263    0.61145
+                                3    brass_10cGy_0cGy_1h       CHG         0         932858    4.90611
+                                4    brass_10cGy_0cGy_1h       CHG         1         234981    1.23582
+                                5    brass_10cGy_0cGy_1h       CHH         0        1098522    5.77738
+                                6    brass_10cGy_0cGy_1h       CHH         1         427315    2.24735
+                                7    brass_10cGy_0cGy_72h      CG          0         617593    3.24806
+                                8    brass_10cGy_0cGy_72h      CG          1         131132    0.68965
+                                9    brass_10cGy_0cGy_72h      CHG         0         968644    5.09432
+                               10    brass_10cGy_0cGy_72h      CHG         1         240232    1.26344
+                               11    brass_10cGy_0cGy_72h      CHH         0        1337547    7.03447
+                               12    brass_10cGy_0cGy_72h      CHH         1         497454    2.61622
+                               13    brass_1p4cGy_0cGy_1h      CG          0         590638    3.10630
+                               14    brass_1p4cGy_0cGy_1h      CG          1         118024    0.62072
+                               15    brass_1p4cGy_0cGy_1h      CHG         0         936060    4.92295
+                               16    brass_1p4cGy_0cGy_1h      CHG         1         236653    1.24461
+                               17    brass_1p4cGy_0cGy_1h      CHH         0        1107363    5.82388
+                               18    brass_1p4cGy_0cGy_1h      CHH         1         431107    2.26729
+                               19    brass_1p4cGy_0cGy_72h     CG          0         697074    3.66607
+                               20    brass_1p4cGy_0cGy_72h     CG          1         134813    0.70901
+                               21    brass_1p4cGy_0cGy_72h     CHG         0        1169992    6.15326
+                               22    brass_1p4cGy_0cGy_72h     CHG         1         266484    1.40150
+                               23    brass_1p4cGy_0cGy_72h     CHH         0        1727045    9.08293
+                               24    brass_1p4cGy_0cGy_72h     CHH         1         792805    4.16954
+                               25    long_1p4cGy_0cGy_72h      CG          0         647322    3.40441
+                               26    long_1p4cGy_0cGy_72h      CG          1         130986    0.68889
+                               27    long_1p4cGy_0cGy_72h      CHG         0         878285    4.61910
+                               28    long_1p4cGy_0cGy_72h      CHG         1         229058    1.20467
+                               29    long_1p4cGy_0cGy_72h      CHH         0        1280829    6.73617
+                               30    long_1p4cGy_0cGy_72h      CHH         1         441817    2.32362
+                                                           The SAS System                           13:30 Monday, April 17, 2023   9
+
+                                                              site_    flag_num_
+                              Obs         comparison          type     sites_ge5     COUNT     PERCENT
+
+                                1    brass_10cGy_0cGy_1h       CG          0         678924     3.5706
+                                2    brass_10cGy_0cGy_1h       CG          1          32637     0.1716
+                                3    brass_10cGy_0cGy_1h       CHG         0        1102844     5.8001
+                                4    brass_10cGy_0cGy_1h       CHG         1          64995     0.3418
+                                5    brass_10cGy_0cGy_1h       CHH         0        1356771     7.1356
+                                6    brass_10cGy_0cGy_1h       CHH         1         169066     0.8892
+                                7    brass_10cGy_0cGy_72h      CG          0         710043     3.7343
+                                8    brass_10cGy_0cGy_72h      CG          1          38682     0.2034
+                                9    brass_10cGy_0cGy_72h      CHG         0        1140163     5.9964
+                               10    brass_10cGy_0cGy_72h      CHG         1          68713     0.3614
+                               11    brass_10cGy_0cGy_72h      CHH         0        1639394     8.6219
+                               12    brass_10cGy_0cGy_72h      CHH         1         195607     1.0287
+                               13    brass_1p4cGy_0cGy_1h      CG          0         674873     3.5493
+                               14    brass_1p4cGy_0cGy_1h      CG          1          33789     0.1777
+                               15    brass_1p4cGy_0cGy_1h      CHG         0        1107236     5.8232
+                               16    brass_1p4cGy_0cGy_1h      CHG         1          65477     0.3444
+                               17    brass_1p4cGy_0cGy_1h      CHH         0        1368274     7.1961
+                               18    brass_1p4cGy_0cGy_1h      CHH         1         170196     0.8951
+                               19    brass_1p4cGy_0cGy_72h     CG          0         792339     4.1671
+                               20    brass_1p4cGy_0cGy_72h     CG          1          39548     0.2080
+                               21    brass_1p4cGy_0cGy_72h     CHG         0        1360091     7.1530
+                               22    brass_1p4cGy_0cGy_72h     CHG         1          76385     0.4017
+                               23    brass_1p4cGy_0cGy_72h     CHH         0        2174144    11.4343
+                               24    brass_1p4cGy_0cGy_72h     CHH         1         345706     1.8181
+                               25    long_1p4cGy_0cGy_72h      CG          0         739248     3.8879
+                               26    long_1p4cGy_0cGy_72h      CG          1          39060     0.2054
+                               27    long_1p4cGy_0cGy_72h      CHG         0        1034377     5.4400
+                               28    long_1p4cGy_0cGy_72h      CHG         1          72966     0.3837
+                               29    long_1p4cGy_0cGy_72h      CHH         0        1547468     8.1385
+                               30    long_1p4cGy_0cGy_72h      CHH         1         175178     0.9213
+                                                           The SAS System                           13:30 Monday, April 17, 2023  10
+
+                                                             site_     flag_num_
+                             Obs         comparison          type     sites_ge10      COUNT    PERCENT
+
+                               1    brass_10cGy_0cGy_1h       CG           0         708361     3.7254
+                               2    brass_10cGy_0cGy_1h       CG           1           3200     0.0168
+                               3    brass_10cGy_0cGy_1h       CHG          0        1163656     6.1199
+                               4    brass_10cGy_0cGy_1h       CHG          1           4183     0.0220
+                               5    brass_10cGy_0cGy_1h       CHH          0        1497384     7.8751
+                               6    brass_10cGy_0cGy_1h       CHH          1          28453     0.1496
+                               7    brass_10cGy_0cGy_72h      CG           0         744697     3.9165
+                               8    brass_10cGy_0cGy_72h      CG           1           4028     0.0212
+                               9    brass_10cGy_0cGy_72h      CHG          0        1203895     6.3316
+                              10    brass_10cGy_0cGy_72h      CHG          1           4981     0.0262
+                              11    brass_10cGy_0cGy_72h      CHH          0        1801830     9.4762
+                              12    brass_10cGy_0cGy_72h      CHH          1          33171     0.1745
+                              13    brass_1p4cGy_0cGy_1h      CG           0         705417     3.7099
+                              14    brass_1p4cGy_0cGy_1h      CG           1           3245     0.0171
+                              15    brass_1p4cGy_0cGy_1h      CHG          0        1168556     6.1457
+                              16    brass_1p4cGy_0cGy_1h      CHG          1           4157     0.0219
+                              17    brass_1p4cGy_0cGy_1h      CHH          0        1509876     7.9408
+                              18    brass_1p4cGy_0cGy_1h      CHH          1          28594     0.1504
+                              19    brass_1p4cGy_0cGy_72h     CG           0         827297     4.3509
+                              20    brass_1p4cGy_0cGy_72h     CG           1           4590     0.0241
+                              21    brass_1p4cGy_0cGy_72h     CHG          0        1429768     7.5195
+                              22    brass_1p4cGy_0cGy_72h     CHG          1           6708     0.0353
+                              23    brass_1p4cGy_0cGy_72h     CHH          0        2455729    12.9152
+                              24    brass_1p4cGy_0cGy_72h     CHH          1          64121     0.3372
+                              25    long_1p4cGy_0cGy_72h      CG           0         773300     4.0670
+                              26    long_1p4cGy_0cGy_72h      CG           1           5008     0.0263
+                              27    long_1p4cGy_0cGy_72h      CHG          0        1099712     5.7836
+                              28    long_1p4cGy_0cGy_72h      CHG          1           7631     0.0401
+                              29    long_1p4cGy_0cGy_72h      CHH          0        1688725     8.8814
+                              30    long_1p4cGy_0cGy_72h      CHH          1          33921     0.1784
+                                                           The SAS System                           13:30 Monday, April 17, 2023  11
+
+                                                         The FREQ Procedure
+
+                                             Table 1 of site_type by flag_num_sites_ge2
+                                           Controlling for comparison=brass_10cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge2
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 686084 | 333666 |1019750
+                                                         |  67.28 |  32.72 | 100.00
+                                                         |  67.28 |  32.72 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      686084   333666  1019750
+                                                            67.28    32.72   100.00
+
+
+                                             Table 2 of site_type by flag_num_sites_ge2
+                                          Controlling for comparison=brass_10cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge2
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 669126 | 330557 | 999683
+                                                         |  66.93 |  33.07 | 100.00
+                                                         |  66.93 |  33.07 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      669126   330557   999683
+                                                            66.93    33.07   100.00
+
+
+                                             Table 3 of site_type by flag_num_sites_ge2
+                                          Controlling for comparison=brass_1p4cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge2
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 649530 | 332261 | 981791
+                                                         |  66.16 |  33.84 | 100.00
+                                                         |  66.16 |  33.84 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      649530   332261   981791
+                                                            66.16    33.84   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  12
+
+                                                         The FREQ Procedure
+
+                                             Table 4 of site_type by flag_num_sites_ge2
+                                          Controlling for comparison=brass_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge2
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 722505 | 357659 |1080164
+                                                         |  66.89 |  33.11 | 100.00
+                                                         |  66.89 |  33.11 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      722505   357659  1080164
+                                                            66.89    33.11   100.00
+
+
+                                             Table 5 of site_type by flag_num_sites_ge2
+                                          Controlling for comparison=long_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge2
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 255884 |  72678 | 328562
+                                                         |  77.88 |  22.12 | 100.00
+                                                         |  77.88 |  22.12 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      255884    72678   328562
+                                                            77.88    22.12   100.00
+
+
+                                             Table 1 of site_type by flag_num_sites_ge3
+                                           Controlling for comparison=brass_10cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge3
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 889119 | 130631 |1019750
+                                                         |  87.19 |  12.81 | 100.00
+                                                         |  87.19 |  12.81 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      889119   130631  1019750
+                                                            87.19    12.81   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  13
+
+                                                         The FREQ Procedure
+
+                                             Table 2 of site_type by flag_num_sites_ge3
+                                          Controlling for comparison=brass_10cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge3
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 866523 | 133160 | 999683
+                                                         |  86.68 |  13.32 | 100.00
+                                                         |  86.68 |  13.32 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      866523   133160   999683
+                                                            86.68    13.32   100.00
+
+
+                                             Table 3 of site_type by flag_num_sites_ge3
+                                          Controlling for comparison=brass_1p4cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge3
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 846967 | 134824 | 981791
+                                                         |  86.27 |  13.73 | 100.00
+                                                         |  86.27 |  13.73 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      846967   134824   981791
+                                                            86.27    13.73   100.00
+
+
+                                             Table 4 of site_type by flag_num_sites_ge3
+                                          Controlling for comparison=brass_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge3
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 940450 | 139714 |1080164
+                                                         |  87.07 |  12.93 | 100.00
+                                                         |  87.07 |  12.93 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      940450   139714  1080164
+                                                            87.07    12.93   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  14
+
+                                                         The FREQ Procedure
+
+                                             Table 5 of site_type by flag_num_sites_ge3
+                                          Controlling for comparison=long_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge3
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 307513 |  21049 | 328562
+                                                         |  93.59 |   6.41 | 100.00
+                                                         |  93.59 |   6.41 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      307513    21049   328562
+                                                            93.59     6.41   100.00
+
+
+                                             Table 1 of site_type by flag_num_sites_ge5
+                                           Controlling for comparison=brass_10cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge5
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 993944 |  25806 |1019750
+                                                         |  97.47 |   2.53 | 100.00
+                                                         |  97.47 |   2.53 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      993944    25806  1019750
+                                                            97.47     2.53   100.00
+
+
+                                             Table 2 of site_type by flag_num_sites_ge5
+                                          Controlling for comparison=brass_10cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge5
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 970792 |  28891 | 999683
+                                                         |  97.11 |   2.89 | 100.00
+                                                         |  97.11 |   2.89 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      970792    28891   999683
+                                                            97.11     2.89   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  15
+
+                                                         The FREQ Procedure
+
+                                             Table 3 of site_type by flag_num_sites_ge5
+                                          Controlling for comparison=brass_1p4cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge5
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 953430 |  28361 | 981791
+                                                         |  97.11 |   2.89 | 100.00
+                                                         |  97.11 |   2.89 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      953430    28361   981791
+                                                            97.11     2.89   100.00
+
+
+                                             Table 4 of site_type by flag_num_sites_ge5
+                                          Controlling for comparison=brass_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge5
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       |1053151 |  27013 |1080164
+                                                         |  97.50 |   2.50 | 100.00
+                                                         |  97.50 |   2.50 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total     1053151    27013  1080164
+                                                            97.50     2.50   100.00
+
+
+                                             Table 5 of site_type by flag_num_sites_ge5
+                                          Controlling for comparison=long_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge5
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 326012 |   2550 | 328562
+                                                         |  99.22 |   0.78 | 100.00
+                                                         |  99.22 |   0.78 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      326012     2550   328562
+                                                            99.22     0.78   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  16
+
+                                                         The FREQ Procedure
+
+                                            Table 1 of site_type by flag_num_sites_ge10
+                                           Controlling for comparison=brass_10cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge10
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       |1018898 |    852 |1019750
+                                                         |  99.92 |   0.08 | 100.00
+                                                         |  99.92 |   0.08 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total     1018898      852  1019750
+                                                            99.92     0.08   100.00
+
+
+                                            Table 2 of site_type by flag_num_sites_ge10
+                                          Controlling for comparison=brass_10cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge10
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 998435 |   1248 | 999683
+                                                         |  99.88 |   0.12 | 100.00
+                                                         |  99.88 |   0.12 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      998435     1248   999683
+                                                            99.88     0.12   100.00
+
+
+                                            Table 3 of site_type by flag_num_sites_ge10
+                                          Controlling for comparison=brass_1p4cGy_0cGy_1h
+
+                                                site_type     flag_num_sites_ge10
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 980709 |   1082 | 981791
+                                                         |  99.89 |   0.11 | 100.00
+                                                         |  99.89 |   0.11 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      980709     1082   981791
+                                                            99.89     0.11   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  17
+
+                                                         The FREQ Procedure
+
+                                            Table 4 of site_type by flag_num_sites_ge10
+                                          Controlling for comparison=brass_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge10
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       |1079347 |    817 |1080164
+                                                         |  99.92 |   0.08 | 100.00
+                                                         |  99.92 |   0.08 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total     1079347      817  1080164
+                                                            99.92     0.08   100.00
+
+
+                                            Table 5 of site_type by flag_num_sites_ge10
+                                          Controlling for comparison=long_1p4cGy_0cGy_72h
+
+                                                site_type     flag_num_sites_ge10
+
+                                                Frequency|
+                                                Percent  |
+                                                Row Pct  |
+                                                Col Pct  |       0|       1|  Total
+                                                ---------+--------+--------+
+                                                GC       | 328529 |     33 | 328562
+                                                         |  99.99 |   0.01 | 100.00
+                                                         |  99.99 |   0.01 |
+                                                         | 100.00 | 100.00 |
+                                                ---------+--------+--------+
+                                                Total      328529       33   328562
+                                                            99.99     0.01   100.00
+                                                           The SAS System                           13:30 Monday, April 17, 2023  18
+
+                                                              site_    flag_num_
+                              Obs         comparison          type     sites_ge2     COUNT    PERCENT
+
+                                1    brass_10cGy_0cGy_1h       GC          0        686084    15.5576
+                                2    brass_10cGy_0cGy_1h       GC          1        333666     7.5662
+                                3    brass_10cGy_0cGy_72h      GC          0        669126    15.1731
+                                4    brass_10cGy_0cGy_72h      GC          1        330557     7.4957
+                                5    brass_1p4cGy_0cGy_1h      GC          0        649530    14.7287
+                                6    brass_1p4cGy_0cGy_1h      GC          1        332261     7.5343
+                                7    brass_1p4cGy_0cGy_72h     GC          0        722505    16.3835
+                                8    brass_1p4cGy_0cGy_72h     GC          1        357659     8.1103
+                                9    long_1p4cGy_0cGy_72h      GC          0        255884     5.8024
+                               10    long_1p4cGy_0cGy_72h      GC          1         72678     1.6480
+                                                           The SAS System                           13:30 Monday, April 17, 2023  19
+
+                                                              site_    flag_num_
+                              Obs         comparison          type     sites_ge3     COUNT    PERCENT
+
+                                1    brass_10cGy_0cGy_1h       GC          0        889119    20.1617
+                                2    brass_10cGy_0cGy_1h       GC          1        130631     2.9622
+                                3    brass_10cGy_0cGy_72h      GC          0        866523    19.6493
+                                4    brass_10cGy_0cGy_72h      GC          1        133160     3.0195
+                                5    brass_1p4cGy_0cGy_1h      GC          0        846967    19.2058
+                                6    brass_1p4cGy_0cGy_1h      GC          1        134824     3.0573
+                                7    brass_1p4cGy_0cGy_72h     GC          0        940450    21.3256
+                                8    brass_1p4cGy_0cGy_72h     GC          1        139714     3.1682
+                                9    long_1p4cGy_0cGy_72h      GC          0        307513     6.9732
+                               10    long_1p4cGy_0cGy_72h      GC          1         21049     0.4773
+                                                           The SAS System                           13:30 Monday, April 17, 2023  20
+
+                                                              site_    flag_num_
+                              Obs         comparison          type     sites_ge5      COUNT    PERCENT
+
+                                1    brass_10cGy_0cGy_1h       GC          0         993944    22.5387
+                                2    brass_10cGy_0cGy_1h       GC          1          25806     0.5852
+                                3    brass_10cGy_0cGy_72h      GC          0         970792    22.0137
+                                4    brass_10cGy_0cGy_72h      GC          1          28891     0.6551
+                                5    brass_1p4cGy_0cGy_1h      GC          0         953430    21.6200
+                                6    brass_1p4cGy_0cGy_1h      GC          1          28361     0.6431
+                                7    brass_1p4cGy_0cGy_72h     GC          0        1053151    23.8812
+                                8    brass_1p4cGy_0cGy_72h     GC          1          27013     0.6125
+                                9    long_1p4cGy_0cGy_72h      GC          0         326012     7.3926
+                               10    long_1p4cGy_0cGy_72h      GC          1           2550     0.0578
+                                                           The SAS System                           13:30 Monday, April 17, 2023  21
+
+                                                             site_     flag_num_
+                             Obs         comparison          type     sites_ge10      COUNT    PERCENT
+
+                               1    brass_10cGy_0cGy_1h       GC           0        1018898    23.1045
+                               2    brass_10cGy_0cGy_1h       GC           1            852     0.0193
+                               3    brass_10cGy_0cGy_72h      GC           0         998435    22.6405
+                               4    brass_10cGy_0cGy_72h      GC           1           1248     0.0283
+                               5    brass_1p4cGy_0cGy_1h      GC           0         980709    22.2386
+                               6    brass_1p4cGy_0cGy_1h      GC           1           1082     0.0245
+                               7    brass_1p4cGy_0cGy_72h     GC           0        1079347    24.4753
+                               8    brass_1p4cGy_0cGy_72h     GC           1            817     0.0185
+                               9    long_1p4cGy_0cGy_72h      GC           0         328529     7.4497
+                              10    long_1p4cGy_0cGy_72h      GC           1             33     0.0007

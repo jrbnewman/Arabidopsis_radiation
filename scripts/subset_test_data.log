@@ -1,0 +1,306 @@
+1                                                          The SAS System                            16:29 Wednesday, April 19, 2023
+
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M1 MBCS3170) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 3.10.0-1160.88.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 13.1
+      SAS/ETS 13.1
+      SAS/OR 13.1
+      SAS/IML 13.1
+      SAS/QC 13.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.88.1.el7.x86_64 #1 SMP Sat Feb 18 13:27:00 UTC 2023 x86_64 Red Hat Enterprise Linux Server release 7.9 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.38 seconds
+      cpu time            0.02 seconds
+      
+1          libname wgbslocB "/blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data";
+NOTE: Libref WGBSLOCB was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data
+2          libname test "/blue/concannon/share/jrbnewman/idaho/test_sas_data";
+NOTE: Libref TEST was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/test_sas_data
+3          
+4          data test.acc_region_flag_site_ge5_v4;
+5            set wgbslocB.acc_region_flag_site_ge5_v4_a10;
+6          run;
+
+NOTE: There were 274381 observations read from the data set WGBSLOCB.ACC_REGION_FLAG_SITE_GE5_V4_A10.
+NOTE: The data set TEST.ACC_REGION_FLAG_SITE_GE5_V4 has 274381 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+2                                                          The SAS System                            16:29 Wednesday, April 19, 2023
+
+      real time           0.33 seconds
+      cpu time            0.23 seconds
+      
+
+7          
+8          
+9          data test.meth_region_flag_site_ge5_v4;
+10           set wgbslocB.meth_region_flag_site_ge5_v4;
+11           where chr="A10";
+12         run;
+
+NOTE: There were 1053291 observations read from the data set WGBSLOCB.METH_REGION_FLAG_SITE_GE5_V4.
+      WHERE chr='A10';
+NOTE: The data set TEST.METH_REGION_FLAG_SITE_GE5_V4 has 1053291 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.26 seconds
+      cpu time            0.82 seconds
+      
+
+13         
+14         
+15         data test.cytosine_to_acc_region_ge2_v4;
+16           set wgbslocB.cyto2acc_region_index_v4_a10;
+17         run;
+
+NOTE: There were 430162 observations read from the data set WGBSLOCB.CYTO2ACC_REGION_INDEX_V4_A10.
+NOTE: The data set TEST.CYTOSINE_TO_ACC_REGION_GE2_V4 has 430162 observations and 23 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.29 seconds
+      cpu time            0.11 seconds
+      
+
+18         
+19         
+20         data test.cytosine_to_meth_region_ge2_v4;
+21           set wgbslocB.cyto2meth_region_index_v4_a10;
+22         run;
+
+NOTE: There were 2203652 observations read from the data set WGBSLOCB.CYTO2METH_REGION_INDEX_V4_A10.
+NOTE: The data set TEST.CYTOSINE_TO_METH_REGION_GE2_V4 has 2203652 observations and 116 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.41 seconds
+      cpu time            2.12 seconds
+      
+
+23         
+24         data test.results_by_DMC_w_meth_v4;
+25           set wgbslocB.results_by_DMC_w_meth_v4;
+26           where chr="A10";
+27         run;
+
+NOTE: There were 8475083 observations read from the data set WGBSLOCB.RESULTS_BY_DMC_W_METH_V4.
+      WHERE chr='A10';
+NOTE: The data set TEST.RESULTS_BY_DMC_W_METH_V4 has 8475083 observations and 114 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:22.80
+      cpu time            44.58 seconds
+      
+3                                                          The SAS System                            16:29 Wednesday, April 19, 2023
+
+
+28         
+29         
+30         
+31         
+32         data test.dac_tests1;
+33         set wgbslocB.CMH_DAC_brass_1p4cGy_0cGy_1h   (in=in1)
+34             wgbslocB.CMH_DAC_brass_10cGy_0cGy_1h    (in=in2)
+35             wgbslocB.CMH_DAC_brass_1p4cGy_0cGy_72h  (in=in3)
+36             wgbslocB.CMH_DAC_brass_10cGy_0cGy_72h   (in=in4)
+37             wgbslocB.CMH_DAC_long_1p4cGy_0cGy_72h   (in=in5);
+38         where chr="A10";
+39         length comparison $32.;
+40         if in1 then comparison = "brass_1p4cGy_0cGy_1h";
+41         if in2 then comparison = "brass_10cGy_0cGy_1h";
+42         if in3 then comparison = "brass_1p4cGy_0cGy_72h";
+43         if in4 then comparison = "brass_10cGy_0cGy_72h";
+44         if in5 then comparison = "long_1p4cGy_0cGy_72h";
+45         run;
+
+NOTE: There were 2572641 observations read from the data set WGBSLOCB.CMH_DAC_BRASS_1P4CGY_0CGY_1H.
+      WHERE chr='A10';
+NOTE: There were 2637006 observations read from the data set WGBSLOCB.CMH_DAC_BRASS_10CGY_0CGY_1H.
+      WHERE chr='A10';
+NOTE: There were 2408286 observations read from the data set WGBSLOCB.CMH_DAC_BRASS_1P4CGY_0CGY_72H.
+      WHERE chr='A10';
+NOTE: There were 2451462 observations read from the data set WGBSLOCB.CMH_DAC_BRASS_10CGY_0CGY_72H.
+      WHERE chr='A10';
+NOTE: There were 2700798 observations read from the data set WGBSLOCB.CMH_DAC_LONG_1P4CGY_0CGY_72H.
+      WHERE chr='A10';
+NOTE: The data set TEST.DAC_TESTS1 has 12770193 observations and 56 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:06.88
+      cpu time            30.78 seconds
+      
+
+46         
+47         
+48         data test.dac_tests2;
+49         set wgbslocB.CMH2_DAC_brass_1p4cGy_0cGy_1h   (in=in1)
+50             wgbslocB.CMH2_DAC_brass_10cGy_0cGy_1h    (in=in2)
+51             wgbslocB.CMH2_DAC_brass_1p4cGy_0cGy_72h  (in=in3)
+52             wgbslocB.CMH2_DAC_brass_10cGy_0cGy_72h   (in=in4)
+53             wgbslocB.CMH2_DAC_long_1p4cGy_0cGy_72h   (in=in5);
+54         where chr="A10";
+55         length comparison $32.;
+56         if in1 then comparison = "brass_1p4cGy_0cGy_1h";
+57         if in2 then comparison = "brass_10cGy_0cGy_1h";
+58         if in3 then comparison = "brass_1p4cGy_0cGy_72h";
+59         if in4 then comparison = "brass_10cGy_0cGy_72h";
+60         if in5 then comparison = "long_1p4cGy_0cGy_72h";
+61         run;
+
+NOTE: There were 2572641 observations read from the data set WGBSLOCB.CMH2_DAC_BRASS_1P4CGY_0CGY_1H.
+      WHERE chr='A10';
+NOTE: There were 2637006 observations read from the data set WGBSLOCB.CMH2_DAC_BRASS_10CGY_0CGY_1H.
+      WHERE chr='A10';
+NOTE: There were 2408286 observations read from the data set WGBSLOCB.CMH2_DAC_BRASS_1P4CGY_0CGY_72H.
+4                                                          The SAS System                            16:29 Wednesday, April 19, 2023
+
+      WHERE chr='A10';
+NOTE: There were 2451462 observations read from the data set WGBSLOCB.CMH2_DAC_BRASS_10CGY_0CGY_72H.
+      WHERE chr='A10';
+NOTE: There were 2700798 observations read from the data set WGBSLOCB.CMH2_DAC_LONG_1P4CGY_0CGY_72H.
+      WHERE chr='A10';
+NOTE: The data set TEST.DAC_TESTS2 has 12770193 observations and 56 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:01.08
+      cpu time            22.79 seconds
+      
+
+62         
+63         data test.dac_tests3;
+64         set wgbslocB.FET_DAC_brass_0cGy_1h_100U_0U    (in=in1)
+65         wgbslocB.FET_DAC_brass_0cGy_72h_100U_0U   (in=in2)
+66         wgbslocB.FET_DAC_brass_1p4cGy_1h_100U_0U  (in=in3)
+67         wgbslocB.FET_DAC_brass_1p4cGy_72h_100U_0U (in=in4)
+68         wgbslocB.FET_DAC_brass_10cGy_1h_100U_0U   (in=in5)
+69         wgbslocB.FET_DAC_brass_10cGy_72h_100U_0U  (in=in6)
+70         wgbslocB.FET_DAC_long_0cGy_72h_100U_0U    (in=in7)
+71         wgbslocB.FET_DAC_long_1p4cGy_72h_100U_0U  (in=in8);
+72         where chr="A10";
+73         length comparison $32.;
+74         if in1 then comparison = "brass_0cGy_1h_100U_0U";
+75         if in2 then comparison = "brass_0cGy_72h_100U_0U";
+76         if in3 then comparison = "brass_1p4cGy_1h_100U_0U";
+77         if in4 then comparison = "brass_1p4cGy_72h_100U_0U";
+78         if in5 then comparison = "brass_10cGy_1h_100U_0U";
+79         if in6 then comparison = "brass_10cGy_72h_100U_0U";
+80         if in7 then comparison = "long_0cGy_72h_100U_0U";
+81         if in8 then comparison = "long_1p4cGy_72h_100U_0U";
+82         run;
+
+NOTE: There were 777551 observations read from the data set WGBSLOCB.FET_DAC_BRASS_0CGY_1H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 709090 observations read from the data set WGBSLOCB.FET_DAC_BRASS_0CGY_72H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 852151 observations read from the data set WGBSLOCB.FET_DAC_BRASS_1P4CGY_1H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 911602 observations read from the data set WGBSLOCB.FET_DAC_BRASS_1P4CGY_72H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 840084 observations read from the data set WGBSLOCB.FET_DAC_BRASS_10CGY_1H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 856070 observations read from the data set WGBSLOCB.FET_DAC_BRASS_10CGY_72H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 938609 observations read from the data set WGBSLOCB.FET_DAC_LONG_0CGY_72H_100U_0U.
+      WHERE chr='A10';
+NOTE: There were 922076 observations read from the data set WGBSLOCB.FET_DAC_LONG_1P4CGY_72H_100U_0U.
+      WHERE chr='A10';
+NOTE: The data set TEST.DAC_TESTS3 has 6807233 observations and 25 variables.
+NOTE: DATA statement used (Total process time):
+      real time           12.82 seconds
+      cpu time            7.51 seconds
+      
+
+83         
+84         
+85         
+5                                                          The SAS System                            16:29 Wednesday, April 19, 2023
+
+86         data test.binomial_dar;
+87           set wgbslocB.bin2_dar_anova2_all_a10;
+88         run;
+
+NOTE: There were 13323 observations read from the data set WGBSLOCB.BIN2_DAR_ANOVA2_ALL_A10.
+NOTE: The data set TEST.BINOMIAL_DAR has 13323 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+89         
+90         data test.binomial_dmr;
+91           set wgbslocB.bin2_dmr_anova_a10_:;
+92         run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.BIN2_DMR_ANOVA_A10_.
+NOTE: There were 7433 observations read from the data set WGBSLOCB.BIN2_DMR_ANOVA_A10_CG.
+NOTE: There were 17112 observations read from the data set WGBSLOCB.BIN2_DMR_ANOVA_A10_CHG.
+NOTE: There were 57491 observations read from the data set WGBSLOCB.BIN2_DMR_ANOVA_A10_CHH.
+NOTE: The data set TEST.BINOMIAL_DMR has 82036 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.03 seconds
+      
+
+93         
+94         
+95         data test.binomial_dar_LDrep;
+96           set wgbslocB.binLD_dar_anova2_all_a10;
+97         run;
+
+NOTE: There were 1788 observations read from the data set WGBSLOCB.BINLD_DAR_ANOVA2_ALL_A10.
+NOTE: The data set TEST.BINOMIAL_DAR_LDREP has 1788 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+98         
+99         data test.binomial_dmr_LDrep;
+100          set wgbslocB.binLD_dmr_anova_a10_:;
+101        run;
+
+NOTE: There were 1733 observations read from the data set WGBSLOCB.BINLD_DMR_ANOVA_A10_CG.
+NOTE: There were 3625 observations read from the data set WGBSLOCB.BINLD_DMR_ANOVA_A10_CHG.
+NOTE: There were 21026 observations read from the data set WGBSLOCB.BINLD_DMR_ANOVA_A10_CHH.
+NOTE: The data set TEST.BINOMIAL_DMR_LDREP has 26384 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.02 seconds
+      
+
+102        
+103        
+104        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+6                                                          The SAS System                            16:29 Wednesday, April 19, 2023
+
+NOTE: The SAS System used:
+      real time           3:48.48
+      cpu time            1:49.03
+      

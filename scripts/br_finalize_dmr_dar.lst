@@ -1,0 +1,121 @@
+                                                           The SAS System                         16:42 Thursday, April 20, 2023   1
+
+                                                                             site_
+                              Obs     analysis           comparison          type     COUNT    PERCENT
+
+                                1    original       brass_10cGy_0cGy_1h       CG       7349     1.9603
+                                2    original       brass_10cGy_0cGy_1h       CHG      1445     0.3854
+                                3    original       brass_10cGy_0cGy_1h       CHH     28713     7.6591
+                                4    original       brass_10cGy_0cGy_72h      CG      15092     4.0257
+                                5    original       brass_10cGy_0cGy_72h      CHG      8879     2.3684
+                                6    original       brass_10cGy_0cGy_72h      CHH     38337    10.2263
+                                7    original       brass_1p4cGy_0cGy_1h      CG      10194     2.7192
+                                8    original       brass_1p4cGy_0cGy_1h      CHG      1550     0.4135
+                                9    original       brass_1p4cGy_0cGy_1h      CHH     27480     7.3302
+                               10    original       brass_1p4cGy_0cGy_72h     CG      14042     3.7457
+                               11    original       brass_1p4cGy_0cGy_72h     CHG     10596     2.8265
+                               12    original       brass_1p4cGy_0cGy_72h     CHH     66318    17.6901
+                               13    original       long_1p4cGy_0cGy_72h      CG      20528     5.4758
+                               14    original       long_1p4cGy_0cGy_72h      CHG     35726     9.5298
+                               15    original       long_1p4cGy_0cGy_72h      CHH     80562    21.4897
+                               16    replication    long_1p4cGy_0cGy_72h      CG       1682     0.4487
+                               17    replication    long_1p4cGy_0cGy_72h      CHG       195     0.0520
+                               18    replication    long_1p4cGy_0cGy_72h      CHH      6199     1.6536
+                                                           The SAS System                         16:42 Thursday, April 20, 2023   2
+
+                                                                             site_
+                              Obs     analysis           comparison          type     COUNT    PERCENT
+
+                                1    original       brass_10cGy_0cGy_1h       CG       7349     1.9824
+                                2    original       brass_10cGy_0cGy_1h       CHG      1445     0.3898
+                                3    original       brass_10cGy_0cGy_1h       CHH     28713     7.7454
+                                4    original       brass_10cGy_0cGy_72h      CG      15092     4.0711
+                                5    original       brass_10cGy_0cGy_72h      CHG      8879     2.3951
+                                6    original       brass_10cGy_0cGy_72h      CHH     38337    10.3415
+                                7    original       brass_1p4cGy_0cGy_1h      CG      10194     2.7499
+                                8    original       brass_1p4cGy_0cGy_1h      CHG      1550     0.4181
+                                9    original       brass_1p4cGy_0cGy_1h      CHH     27480     7.4128
+                               10    original       brass_1p4cGy_0cGy_72h     CG      14042     3.7879
+                               11    original       brass_1p4cGy_0cGy_72h     CHG     10596     2.8583
+                               12    original       brass_1p4cGy_0cGy_72h     CHH     66318    17.8894
+                               13    original       long_1p4cGy_0cGy_72h      CG      20528     5.5375
+                               14    original       long_1p4cGy_0cGy_72h      CHG     35726     9.6372
+                               15    original       long_1p4cGy_0cGy_72h      CHH     80562    21.7318
+                               16    replication    long_1p4cGy_0cGy_72h      CG        834     0.2250
+                               17    replication    long_1p4cGy_0cGy_72h      CHG        81     0.0218
+                               18    replication    long_1p4cGy_0cGy_72h      CHH      2985     0.8052
+                                                           The SAS System                         16:42 Thursday, April 20, 2023   3
+
+                                                         The FREQ Procedure
+
+                                                  Table of analysis by comparison
+
+                                 analysis     comparison
+
+                                 Frequency   |
+                                 Percent     |
+                                 Row Pct     |
+                                 Col Pct     |brass_10|brass_10|brass_1p|brass_1p|long_1p4|  Total
+                                             |cGy_0cGy|cGy_0cGy|4cGy_0cG|4cGy_0cG|cGy_0cGy|
+                                             |_1h     |_72h    |y_1h    |y_72h   |_72h    |
+                                 ------------+--------+--------+--------+--------+--------+
+                                 original    |  25806 |  28891 |  28361 |  27013 |   2550 | 112621
+                                             |  21.09 |  23.62 |  23.18 |  22.08 |   2.08 |  92.06
+                                             |  22.91 |  25.65 |  25.18 |  23.99 |   2.26 |
+                                             | 100.00 | 100.00 | 100.00 | 100.00 |  20.79 |
+                                 ------------+--------+--------+--------+--------+--------+
+                                 replication |      0 |      0 |      0 |      0 |   9715 |   9715
+                                             |   0.00 |   0.00 |   0.00 |   0.00 |   7.94 |   7.94
+                                             |   0.00 |   0.00 |   0.00 |   0.00 | 100.00 |
+                                             |   0.00 |   0.00 |   0.00 |   0.00 |  79.21 |
+                                 ------------+--------+--------+--------+--------+--------+
+                                 Total          25806    28891    28361    27013    12265   122336
+                                                21.09    23.62    23.18    22.08    10.03   100.00
+                                                           The SAS System                         16:42 Thursday, April 20, 2023   4
+
+                                                         The FREQ Procedure
+
+                                                  Table of analysis by comparison
+
+                                 analysis     comparison
+
+                                 Frequency   |
+                                 Percent     |
+                                 Row Pct     |
+                                 Col Pct     |brass_10|brass_10|brass_1p|brass_1p|long_1p4|  Total
+                                             |cGy_0cGy|cGy_0cGy|4cGy_0cG|4cGy_0cG|cGy_0cGy|
+                                             |_1h     |_72h    |y_1h    |y_72h   |_72h    |
+                                 ------------+--------+--------+--------+--------+--------+
+                                 original    |  16803 |  19843 |  17318 |  19178 |   2511 |  75653
+                                             |  20.23 |  23.89 |  20.85 |  23.09 |   3.02 |  91.07
+                                             |  22.21 |  26.23 |  22.89 |  25.35 |   3.32 |
+                                             | 100.00 | 100.00 | 100.00 | 100.00 |  25.29 |
+                                 ------------+--------+--------+--------+--------+--------+
+                                 replication |      0 |      0 |      0 |      0 |   7416 |   7416
+                                             |   0.00 |   0.00 |   0.00 |   0.00 |   8.93 |   8.93
+                                             |   0.00 |   0.00 |   0.00 |   0.00 | 100.00 |
+                                             |   0.00 |   0.00 |   0.00 |   0.00 |  74.71 |
+                                 ------------+--------+--------+--------+--------+--------+
+                                 Total          16803    19843    17318    19178     9927    83069
+                                                20.23    23.89    20.85    23.09    11.95   100.00
+                                                           The SAS System                         16:42 Thursday, April 20, 2023   5
+
+                                                                           site_
+                               Obs    analysis         comparison          type     COUNT    PERCENT
+
+                                1     original    brass_10cGy_0cGy_1h       GC       6681    25.8313
+                                2     original    brass_10cGy_0cGy_72h      GC      11565    44.7147
+                                3     original    brass_1p4cGy_0cGy_1h      GC       2884    11.1506
+                                4     original    brass_1p4cGy_0cGy_72h     GC       2885    11.1545
+                                5     original    long_1p4cGy_0cGy_72h      GC       1849     7.1489
+                                                           The SAS System                         16:42 Thursday, April 20, 2023   6
+
+                                                                             site_
+                              Obs     analysis           comparison          type     COUNT    PERCENT
+
+                               1     original       brass_10cGy_0cGy_1h       GC       6681    25.7984
+                               2     original       brass_10cGy_0cGy_72h      GC      11565    44.6577
+                               3     original       brass_1p4cGy_0cGy_1h      GC       2884    11.1364
+                               4     original       brass_1p4cGy_0cGy_72h     GC       2885    11.1403
+                               5     original       long_1p4cGy_0cGy_72h      GC       1849     7.1398
+                               6     replication    long_1p4cGy_0cGy_72h      GC         33     0.1274

@@ -1,0 +1,342 @@
+1                                                          The SAS System                             12:54 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.16 seconds
+      cpu time            0.02 seconds
+      
+1          ods listing; ods html close;
+2          
+3          libname tair '!PATCON/useful_arabidopsis_data/TAIR10/sas_data';
+NOTE: Libref TAIR was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/useful_arabidopsis_data/TAIR10/sas_data
+4          libname rs '!PATCON/arabidopsis/sas_data';
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+2                                                          The SAS System                             12:54 Sunday, December 3, 2017
+
+5          
+6          /* For each comparison, flag fusion up/down
+7          
+8          Going to use the estimates from contrasts to decide what is up/down.
+9          
+10         If P<0.05 and estimate is negative, then fusion is "down"
+11         If P<0.05 and estimate is positive, then fusion is "up"
+12         else fusion is not diff
+13         
+14         */
+15         data estimates;
+16           set rs.arab_fus_cntrs_estim_non;
+17           keep fusion_id label estimate;
+18         run;
+
+NOTE: There were 4258152 observations read from the data set RS.ARAB_FUS_CNTRS_ESTIM_NON.
+NOTE: The data set WORK.ESTIMATES has 4258152 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           5.68 seconds
+      cpu time            1.02 seconds
+      
+
+19         
+20         data contrasts;
+21           set rs.arab_fus_cntrs_constr_non;
+22           keep fusion_id label ProbF;
+23         run;
+
+NOTE: There were 4258152 observations read from the data set RS.ARAB_FUS_CNTRS_CONSTR_NON.
+NOTE: The data set WORK.CONTRASTS has 4258152 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           5.42 seconds
+      cpu time            1.18 seconds
+      
+
+24         
+25         proc sort data=estimates;
+26            by fusion_id label;
+
+NOTE: There were 4258152 observations read from the data set WORK.ESTIMATES.
+NOTE: The data set WORK.ESTIMATES has 4258152 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.64 seconds
+      cpu time            3.35 seconds
+      
+
+27         proc sort data=contrasts;
+28            by fusion_id label;
+29         run;
+
+NOTE: There were 4258152 observations read from the data set WORK.CONTRASTS.
+NOTE: The data set WORK.CONTRASTS has 4258152 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.43 seconds
+      cpu time            3.31 seconds
+      
+
+30         
+3                                                          The SAS System                             12:54 Sunday, December 3, 2017
+
+31         data contrast_estim;
+32           merge contrasts (in=in1) estimates (in=in2);
+33           by fusion_id label;
+34           if in1 and in2;
+35         run;
+
+NOTE: There were 4258152 observations read from the data set WORK.CONTRASTS.
+NOTE: There were 4258152 observations read from the data set WORK.ESTIMATES.
+NOTE: The data set WORK.CONTRAST_ESTIM has 4258152 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.04 seconds
+      cpu time            4.05 seconds
+      
+
+36         
+37         /* Flag if up/down */
+38         
+39         data up_down;
+40            set contrast_estim;
+41            length sign $1.;
+42            if ProbF = . then sign="";
+43            else if ProbF < 0.05 then do;
+44               if estimate < 0 then sign="D";
+45               else sign = "U";
+46               end;
+47            else sign="N";
+48         run;
+
+NOTE: There were 4258152 observations read from the data set WORK.CONTRAST_ESTIM.
+NOTE: The data set WORK.UP_DOWN has 4258152 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.86 seconds
+      cpu time            0.86 seconds
+      
+
+49         
+50         /* Add in a variable name to transpose on */
+51         
+52         data sign_varname;
+53            set up_down;
+54            length sign_label $32.;
+55         
+56           if label="0.1gy-Mock: 1h" then sign_label="sign_01gy_v_Mock_1h";
+57           if label= "0.1gy-Mock: 3h" then sign_label="sign_01gy_v_Mock_3h";
+58           if label= "0.1gy-Mock: 24h" then sign_label="sign_01gy_v_Mock_24h";
+59           if label= "0.1gy-Mock: 72h" then sign_label="sign_01gy_v_Mock_72h";
+60         
+61           if label= "1gy-Mock: 1h" then sign_label="sign_1gy_v_Mock_1h";
+62           if label= "1gy-Mock: 3h" then sign_label="sign_1gy_v_Mock_3h";
+63           if label= "1gy-Mock: 24h" then sign_label="sign_1gy_v_Mock_24h";
+64           if label= "1gy-Mock: 72h" then sign_label="sign_1gy_v_Mock_72h";
+65         
+66           if label="1gy-0.1gy: 1h" then sign_label="sign_1gy_v_01gy_1h";
+67           if label="1gy-0.1gy: 3h" then sign_label="sign_1gy_v_01gy_3h";
+68           if label="1gy-0.1gy: 24h" then sign_label="sign_1gy_v_01gy_24h";
+69           if label="1gy-0.1gy: 72h" then sign_label="sign_1gy_v_01gy_72h";
+70         
+71           if label="Mock: 3h-1h" then sign_label="sign_mock_3h_v_1h";
+4                                                          The SAS System                             12:54 Sunday, December 3, 2017
+
+72           if label="Mock: 24h-1h" then sign_label="sign_mock_24h_v_1h";
+73           if label="Mock: 72h-1h" then sign_label="sign_mock_72h_v_1h";
+74           if label="Mock: 24h-3h" then sign_label="sign_mock_24h_v_3h";
+75           if label="Mock: 72h-3h" then sign_label="sign_mock_72h_v_3h";
+76           if label="Mock: 72h-24h" then sign_label="sign_mock_72h_v_24h";
+77         
+78           if label="0.1gy: 3h-1h" then sign_label="sign_01gy_3h_v_1h";
+79           if label="0.1gy: 24h-1h" then sign_label="sign_01gy_24h_v_1h";
+80           if label="0.1gy: 72h-1h" then sign_label="sign_01gy_72h_v_1h";
+81           if label="0.1gy: 24h-3h" then sign_label="sign_01gy_24h_v_3h";
+82           if label="0.1gy: 72h-3h" then sign_label="sign_01gy_72h_v_3h";
+83           if label="0.1gy: 72h-24h" then sign_label="sign_01gy_72h_v_24h";
+84         
+85           if label="1gy: 3h-1h" then sign_label="sign_1gy_3h_v_1h";
+86           if label="1gy: 24h-1h" then sign_label="sign_1gy_24h_v_1h";
+87           if label="1gy: 72h-1h" then sign_label="sign_1gy_72h_v_1h";
+88           if label="1gy: 24h-3h" then sign_label="sign_1gy_24h_v_3h";
+89           if label="1gy: 72h-3h" then sign_label="sign_1gy_72h_v_3h";
+90           if label="1gy: 72h-24h" then sign_label="sign_1gy_72h_v_24h";
+91         
+92           if label="0.1gy 3h-1h = Mock 3h-1h" then sign_label="sign_01gy_v_Mock_3h_sub_1h";
+93           if label="0.1gy 24h-1h = Mock 24h-1h" then sign_label="sign_01gy_v_Mock_24h_sub_1h";
+94           if label="0.1gy 72h-1h = Mock 72h-1h" then sign_label="sign_01gy_v_Mock_72h_sub_1h";
+95           if label="1gy 3h-1h = Mock 3h-1h" then sign_label="sign_1gy_v_Mock_3h_sub_1h";
+96           if label="1gy 24h-1h = Mock 24h-1h" then sign_label="sign_1gy_v_Mock_24h_sub_1h";
+97           if label="1gy 72h-1h = Mock 72h-1h" then sign_label="sign_1gy_v_Mock_72h_sub_1h";
+98         
+99         keep fusion_id sign sign_label;
+100        run;
+
+NOTE: There were 4258152 observations read from the data set WORK.UP_DOWN.
+NOTE: The data set WORK.SIGN_VARNAME has 4258152 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           3.02 seconds
+      cpu time            3.04 seconds
+      
+
+101        
+102        proc sort data= sign_varname;
+103           by fusion_id sign_label;
+
+NOTE: There were 4258152 observations read from the data set WORK.SIGN_VARNAME.
+NOTE: The data set WORK.SIGN_VARNAME has 4258152 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2.11 seconds
+      cpu time            3.40 seconds
+      
+
+104        proc transpose data=sign_varname out=sign_sbys;
+105           by fusion_id;
+106           id sign_label;
+107           var sign;
+108        run;
+
+NOTE: There were 4258152 observations read from the data set WORK.SIGN_VARNAME.
+NOTE: The data set WORK.SIGN_SBYS has 118282 observations and 38 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           25.44 seconds
+5                                                          The SAS System                             12:54 Sunday, December 3, 2017
+
+      cpu time            25.45 seconds
+      
+
+109        
+110        
+111        data rs.arab_sign_by_contrast;
+112           set sign_sbys;
+113           drop _NAME_;
+114        run;
+
+NOTE: There were 118282 observations read from the data set WORK.SIGN_SBYS.
+NOTE: The data set RS.ARAB_SIGN_BY_CONTRAST has 118282 observations and 37 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.30 seconds
+      cpu time            0.03 seconds
+      
+
+115        
+116        
+117        proc freq data=sign_sbys noprint;
+118           tables sign_01gy_v_Mock_3h_sub_1h*sign_01gy_v_Mock_24h_sub_1h*sign_01gy_v_Mock_72h_sub_1h
+119                    / out=sign_check;
+120        run;
+
+NOTE: There were 118282 observations read from the data set WORK.SIGN_SBYS.
+NOTE: The data set WORK.SIGN_CHECK has 23 observations and 5 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.04 seconds
+      
+
+121        
+122        proc print data=sign_check;
+123        run;
+
+NOTE: There were 23 observations read from the data set WORK.SIGN_CHECK.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.01 seconds
+      
+
+124        
+125        /*
+126        sign_01gy_    sign_01gy_    sign_01gy_
+127        v_Mock_3h_     v_Mock_       v_Mock_
+128          sub_1h      24h_sub_1h    72h_sub_1h    COUNT
+129        
+130        Consistent response:
+131            D             D             D          2338
+132            U             U             U          2993
+133        
+134        Early response:
+135            D             D             N           899
+136            D             N             N          3512
+137            U             N             N          3382
+138            U             U             N           914
+139        
+6                                                          The SAS System                             12:54 Sunday, December 3, 2017
+
+140        Late response:
+141            N             D             D           974
+142            N             N             D          2920
+143            N             N             U          2979
+144            N             U             U          1656
+145        
+146        No response:
+147            N             N             N         86225
+148        
+149        Diff early and late response:
+150            D             N             U           108
+151            D             U             U             7
+152            U             N             D             3
+153        
+154        Other:
+155            D             N             D          1234
+156            D             U             N            12
+157            N             D             N          2114
+158            N             D             U             5
+159            N             U             D             6
+160            N             U             N          3439
+161            U             D             N             7
+162            U             D             U             1
+163            U             N             U          1468
+164        
+165        
+166        */
+167        
+168        
+169        
+170        
+171        
+172        
+173        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           50.42 seconds
+      cpu time            45.80 seconds
+      

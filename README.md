@@ -1,0 +1,5 @@
+# Analysis code for "Multi-omics profiling reveals ethylene signalling as a key pathway underlying both genetic and epigenetic responses to low-dose ionizing radiation in Arabidopsis"
+
+This repository contains the analysis code used for the paper "Multi-omics profiling reveals ethylene signalling as a key pathway underlying both genetic and epigenetic responses to low-dose ionizing radiation in Arabidopsis" by Jeremy R B Newman, Mingqi Zhoi, J Chris Piers, Rhonda L Bacher, Michael Kladde, and Patrick Concannon as deposited on bioRxiv. This study combines epigenetic data generated using MAPit (Pardo et al, 2011, Curr Protoc Mol Biol), a DNA methylation-based approach to simultaneously assay endogenous methylation and chromatin accessibility, with bulk RNA sequencing to investigate the molecular response to low-dose ionizing radiation at different doses and time points.
+
+2023-10-03: Repository created for initial manuscript submission. This repo is being actively re-organized and documented

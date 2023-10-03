@@ -1,0 +1,276 @@
+1                                                          The SAS System                              22:24 Saturday, April 8, 2023
+
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M1 MBCS3170) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 3.10.0-1160.80.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 13.1
+      SAS/ETS 13.1
+      SAS/OR 13.1
+      SAS/IML 13.1
+      SAS/QC 13.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.80.1.el7.x86_64 #1 SMP Sat Oct 8 18:13:21 UTC 2022 x86_64 Red Hat Enterprise Linux Server release 7.9 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           3.52 seconds
+      cpu time            0.02 seconds
+      
+1          libname test "/blue/concannon/share/jrbnewman/idaho/brass_test";
+NOTE: Libref TEST was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brass_test
+2          libname wgbslocL "/blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data";
+NOTE: Libref WGBSLOCL was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data
+3          libname wgbslocB "/blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data";
+NOTE: Libref WGBSLOCB was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data
+4          
+5          
+6          data test.dmc_brass_10cgy1h_0cgy1h;     set wgbslocB.dmc_brass_10cgy1h_0cgy1h;     where chr="A01" and stop_pos < 10000;
+6        ! run;
+2                                                          The SAS System                              22:24 Saturday, April 8, 2023
+
+
+NOTE: There were 508 observations read from the data set WGBSLOCB.DMC_BRASS_10CGY1H_0CGY1H.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.DMC_BRASS_10CGY1H_0CGY1H has 508 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           18.76 seconds
+      cpu time            8.59 seconds
+      
+
+7          data test.dmc_brass_10cgy72h_0cgy72h;     set wgbslocB.dmc_brass_10cgy72h_0cgy72h;     where chr="A01" and stop_pos <
+7        ! 10000; run;
+
+NOTE: There were 780 observations read from the data set WGBSLOCB.DMC_BRASS_10CGY72H_0CGY72H.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.DMC_BRASS_10CGY72H_0CGY72H has 780 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           18.13 seconds
+      cpu time            9.77 seconds
+      
+
+8          data test.dmc_brass_1p4cgy1h_0cgy1h;     set wgbslocB.dmc_brass_1p4cgy1h_0cgy1h;     where chr="A01" and stop_pos < 10000
+8        ! ; run;
+
+NOTE: There were 538 observations read from the data set WGBSLOCB.DMC_BRASS_1P4CGY1H_0CGY1H.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.DMC_BRASS_1P4CGY1H_0CGY1H has 538 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           21.02 seconds
+      cpu time            9.78 seconds
+      
+
+9          data test.dmc_brass_1p4cgy72h_0cgy72h;     set wgbslocB.dmc_brass_1p4cgy72h_0cgy72h;     where chr="A01" and stop_pos <
+9        ! 10000; run;
+
+NOTE: There were 1154 observations read from the data set WGBSLOCB.DMC_BRASS_1P4CGY72H_0CGY72H.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.DMC_BRASS_1P4CGY72H_0CGY72H has 1154 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           24.83 seconds
+      cpu time            12.79 seconds
+      
+
+10         data test.dmc_long_1p4cgy72h_0cgy72h;     set wgbslocB.dmc_long_1p4cgy72h_0cgy72h;     where chr="A01" and stop_pos <
+10       ! 10000; run;
+
+NOTE: There were 2496 observations read from the data set WGBSLOCB.DMC_LONG_1P4CGY72H_0CGY72H.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.DMC_LONG_1P4CGY72H_0CGY72H has 2496 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           28.98 seconds
+      cpu time            17.05 seconds
+      
+
+11         
+12         
+13         data test.meth_data_brass_cg_chg_chh; set wgbslocB.methylation_data_cg_chg_chh;   where chr="A01" and stop_pos < 10000;
+13       ! run;
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+3                                                          The SAS System                              22:24 Saturday, April 8, 2023
+
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 42367 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.METH_DATA_BRASS_CG_CHG_CHH has 42367 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:35.70
+      cpu time            22:24.31
+      
+
+14         data test.meth_data_long_cg_chg_chh;  set wgbslocL.methylation_data_cg_chg_chh;   where chr="A01" and stop_pos < 10000;
+14       ! run;
+
+NOTE: There were 14109 observations read from the data set WGBSLOCL.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.METH_DATA_LONG_CG_CHG_CHH has 14109 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           16.65 seconds
+      cpu time            13.75 seconds
+      
+
+15         
+16         
+17         data test.meth_data_brass_gc; set wgbslocB.methylation_data_gc;   where chr="A01" and stop_pos < 10000; run;
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_GC.DATA is in a format that is native to another host, or the file encoding does not 
+      match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 13525 observations read from the data set WGBSLOCB.METHYLATION_DATA_GC.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.METH_DATA_BRASS_GC has 13525 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           9:42.61
+      cpu time            9:41.45
+      
+
+18         data test.meth_data_long_gc;  set wgbslocL.methylation_data_gc;   where chr="A01" and stop_pos < 10000; run;
+
+NOTE: There were 4512 observations read from the data set WGBSLOCL.METHYLATION_DATA_GC.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.METH_DATA_LONG_GC has 4512 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           6.83 seconds
+      cpu time            5.26 seconds
+      
+
+19         
+20         
+21         
+22         
+23         data test.fet_dac_brass_0cgy_1h_100u_0u ; set wgbslocB.fet_dac_brass_0cgy_1h_100u_0u ; where chr="A01" and stop_pos <
+23       ! 10000; run;
+
+NOTE: There were 479 observations read from the data set WGBSLOCB.FET_DAC_BRASS_0CGY_1H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_BRASS_0CGY_1H_100U_0U has 479 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+4                                                          The SAS System                              22:24 Saturday, April 8, 2023
+
+      real time           1.11 seconds
+      cpu time            0.80 seconds
+      
+
+24         data test.fet_dac_brass_0cgy_72h_100u_0u ; set wgbslocB.fet_dac_brass_0cgy_72h_100u_0u ; where chr="A01" and stop_pos <
+24       ! 10000; run;
+
+NOTE: There were 414 observations read from the data set WGBSLOCB.FET_DAC_BRASS_0CGY_72H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_BRASS_0CGY_72H_100U_0U has 414 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.03 seconds
+      cpu time            0.69 seconds
+      
+
+25         data test.fet_dac_brass_1p4cgy_1h_100u_0u ; set wgbslocB.fet_dac_brass_1p4cgy_1h_100u_0u ; where chr="A01" and stop_pos <
+25       !  10000; run;
+
+NOTE: There were 521 observations read from the data set WGBSLOCB.FET_DAC_BRASS_1P4CGY_1H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_BRASS_1P4CGY_1H_100U_0U has 521 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.18 seconds
+      cpu time            0.86 seconds
+      
+
+26         
+27         data test.fet_dac_brass_1p4cgy_72h_100u_0u ; set wgbslocB.fet_dac_brass_1p4cgy_72h_100u_0u ; where chr="A01" and stop_pos
+27       !  < 10000; run;
+
+NOTE: There were 542 observations read from the data set WGBSLOCB.FET_DAC_BRASS_1P4CGY_72H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_BRASS_1P4CGY_72H_100U_0U has 542 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.26 seconds
+      cpu time            0.79 seconds
+      
+
+28         data test.fet_dac_brass_10cgy_1h_100u_0u ; set wgbslocB.fet_dac_brass_10cgy_1h_100u_0u ; where chr="A01" and stop_pos <
+28       ! 10000; run;
+
+NOTE: There were 479 observations read from the data set WGBSLOCB.FET_DAC_BRASS_10CGY_1H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_BRASS_10CGY_1H_100U_0U has 479 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.99 seconds
+      cpu time            0.75 seconds
+      
+
+29         data test.fet_dac_brass_10cgy_72h_100u_0u ; set wgbslocB.fet_dac_brass_10cgy_72h_100u_0u ; where chr="A01" and stop_pos <
+29       !  10000; run;
+
+NOTE: There were 453 observations read from the data set WGBSLOCB.FET_DAC_BRASS_10CGY_72H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_BRASS_10CGY_72H_100U_0U has 453 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.09 seconds
+      cpu time            0.79 seconds
+5                                                          The SAS System                              22:24 Saturday, April 8, 2023
+
+      
+
+30         
+31         data test.fet_dac_long_0cgy_72h_100u_0u ; set wgbslocB.fet_dac_long_0cgy_72h_100u_0u ; where chr="A01" and stop_pos <
+31       ! 10000; run;
+
+NOTE: There were 547 observations read from the data set WGBSLOCB.FET_DAC_LONG_0CGY_72H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_LONG_0CGY_72H_100U_0U has 547 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.29 seconds
+      cpu time            0.92 seconds
+      
+
+32         data test.fet_dac_long_1p4cgy_72h_100u_0u ; set wgbslocB.fet_dac_long_1p4cgy_72h_100u_0u ; where chr="A01" and stop_pos <
+32       !  10000; run;
+
+NOTE: There were 547 observations read from the data set WGBSLOCB.FET_DAC_LONG_1P4CGY_72H_100U_0U.
+      WHERE (chr='A01') and (stop_pos<10000);
+NOTE: The data set TEST.FET_DAC_LONG_1P4CGY_72H_100U_0U has 547 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.82 seconds
+      cpu time            0.96 seconds
+      
+
+33         
+34         
+35         
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           34:46.93
+      cpu time            33:29.33
+      

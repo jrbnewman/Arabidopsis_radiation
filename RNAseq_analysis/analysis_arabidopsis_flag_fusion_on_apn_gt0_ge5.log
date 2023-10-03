@@ -1,0 +1,580 @@
+1                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.16 seconds
+      cpu time            0.02 seconds
+      
+1          ods listing; ods html close;
+2          
+3          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+4          
+5          /* Flag fusions on/off at APN>0 and APN>5 */
+6          
+7          data counts_w_key;
+2                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+8            set rs.arab_fusion_counts_w_key;
+9            if apn > 0 then flag_apn_gt0=1;
+10           else flag_apn_gt0=0;
+11         
+12           if apn ge 5 then flag_apn_ge5=1;
+13           else flag_apn_ge5=0;
+14         run;
+
+NOTE: There were 5134716 observations read from the data set RS.ARAB_FUSION_COUNTS_W_KEY.
+NOTE: The data set WORK.COUNTS_W_KEY has 5134716 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.11 seconds
+      cpu time            1.36 seconds
+      
+
+15         
+16         /* Flag on per treatment */
+17         
+18         proc sort data=counts_w_key;
+19            by treatment fusion_id;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.COUNTS_W_KEY has 5134716 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2.53 seconds
+      cpu time            3.74 seconds
+      
+
+20         proc means data=counts_w_key noprint;
+21            by treatment fusion_id;
+22            var flag_apn_gt0 flag_apn_ge5;
+23            output out=mean_on_by_trt mean=;
+24         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.MEAN_ON_BY_TRT has 427893 observations and 6 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           1.68 seconds
+      cpu time            1.68 seconds
+      
+
+25         
+26         data flag_fus_on_by_trt;
+27           set mean_on_by_trt;
+28         
+29           /* For APN > 0 */
+30           if flag_apn_gt0 ge 0.5 then flag_fusion_on_gt0=1;
+31           else if flag_apn_gt0 = 0 then flag_fusion_on_gt0=0;
+32           else flag_fusion_on_gt0=.;
+33         
+34           /* For APN ge 5 */
+35           if flag_apn_ge5 ge 0.5 then flag_fusion_on_ge5=1;
+36           else if flag_apn_ge5 = 0 then flag_fusion_on_ge5=0;
+37           else flag_fusion_on_ge5=.;
+38         
+39           keep fusion_id treatment flag_fusion_on_gt0 flag_fusion_on_ge5;
+40         run;
+
+3                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+NOTE: There were 427893 observations read from the data set WORK.MEAN_ON_BY_TRT.
+NOTE: The data set WORK.FLAG_FUS_ON_BY_TRT has 427893 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.08 seconds
+      
+
+41         
+42         proc sort data=flag_fus_on_by_trt;
+43            by fusion_id treatment;
+
+NOTE: There were 427893 observations read from the data set WORK.FLAG_FUS_ON_BY_TRT.
+NOTE: The data set WORK.FLAG_FUS_ON_BY_TRT has 427893 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.28 seconds
+      
+
+44         proc transpose data=flag_fus_on_by_trt out=flag_fus_trt_sbys_apn0;
+45            by fusion_id;
+46            id treatment;
+47            var flag_fusion_on_gt0;
+48         run;
+
+NOTE: There were 427893 observations read from the data set WORK.FLAG_FUS_ON_BY_TRT.
+NOTE: The data set WORK.FLAG_FUS_TRT_SBYS_APN0 has 142631 observations and 5 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1.33 seconds
+      cpu time            1.33 seconds
+      
+
+49         
+50         proc transpose data=flag_fus_on_by_trt out=flag_fus_trt_sbys_apn5;
+51            by fusion_id;
+52            id treatment;
+53            var flag_fusion_on_ge5;
+54         run;
+
+NOTE: There were 427893 observations read from the data set WORK.FLAG_FUS_ON_BY_TRT.
+NOTE: The data set WORK.FLAG_FUS_TRT_SBYS_APN5 has 142631 observations and 5 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1.30 seconds
+      cpu time            1.31 seconds
+      
+
+55         
+56         data treat_apn0;
+57            set flag_fus_trt_sbys_apn0;
+58            drop _NAME_;
+59            rename _0_1gy=flag_fusion_on_01gy_apn0
+60                   _1gy=flag_fusion_on_1gy_apn0
+61                   Mock=flag_fusion_on_mock_apn0;
+62         run;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_FUS_TRT_SBYS_APN0.
+NOTE: The data set WORK.TREAT_APN0 has 142631 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+4                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+      cpu time            0.03 seconds
+      
+
+63         
+64         data treat_apn5;
+65            set flag_fus_trt_sbys_apn5;
+66            drop _NAME_;
+67            rename _0_1gy=flag_fusion_on_01gy_apn5
+68                   _1gy=flag_fusion_on_1gy_apn5
+69                   Mock=flag_fusion_on_mock_apn5;
+70         run;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_FUS_TRT_SBYS_APN5.
+NOTE: The data set WORK.TREAT_APN5 has 142631 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+71         
+72         /* Flag on per time */
+73         
+74         proc sort data=counts_w_key;
+75            by time fusion_id;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.COUNTS_W_KEY has 5134716 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2.40 seconds
+      cpu time            4.62 seconds
+      
+
+76         proc means data=counts_w_key noprint;
+77            by time fusion_id;
+78            var flag_apn_gt0 flag_apn_ge5;
+79            output out=mean_on_by_time mean=;
+80         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.MEAN_ON_BY_TIME has 570524 observations and 6 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2.07 seconds
+      cpu time            2.07 seconds
+      
+
+81         
+82         data flag_fus_on_by_time;
+83           set mean_on_by_time;
+84         
+85           /* For APN > 0 */
+86           if flag_apn_gt0 ge 0.5 then flag_fusion_on_gt0=1;
+87           else if flag_apn_gt0 = 0 then flag_fusion_on_gt0=0;
+88           else flag_fusion_on_gt0=.;
+89         
+90           /* For APN ge 5 */
+91           if flag_apn_ge5 ge 0.5 then flag_fusion_on_ge5=1;
+92           else if flag_apn_ge5 = 0 then flag_fusion_on_ge5=0;
+93           else flag_fusion_on_ge5=.;
+5                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+94         
+95           keep fusion_id time flag_fusion_on_gt0 flag_fusion_on_ge5;
+96         run;
+
+NOTE: There were 570524 observations read from the data set WORK.MEAN_ON_BY_TIME.
+NOTE: The data set WORK.FLAG_FUS_ON_BY_TIME has 570524 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.11 seconds
+      
+
+97         
+98         proc sort data=flag_fus_on_by_time;
+99            by fusion_id time;
+
+NOTE: There were 570524 observations read from the data set WORK.FLAG_FUS_ON_BY_TIME.
+NOTE: The data set WORK.FLAG_FUS_ON_BY_TIME has 570524 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.40 seconds
+      
+
+100        proc transpose data=flag_fus_on_by_time out=flag_fus_time_sbys_apn0;
+101           by fusion_id;
+102           id time;
+103           var flag_fusion_on_gt0;
+104        run;
+
+NOTE: There were 570524 observations read from the data set WORK.FLAG_FUS_ON_BY_TIME.
+NOTE: The data set WORK.FLAG_FUS_TIME_SBYS_APN0 has 142631 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1.58 seconds
+      cpu time            1.59 seconds
+      
+
+105        
+106        proc transpose data=flag_fus_on_by_time out=flag_fus_time_sbys_apn5;
+107           by fusion_id;
+108           id time;
+109           var flag_fusion_on_ge5;
+110        run;
+
+NOTE: There were 570524 observations read from the data set WORK.FLAG_FUS_ON_BY_TIME.
+NOTE: The data set WORK.FLAG_FUS_TIME_SBYS_APN5 has 142631 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1.59 seconds
+      cpu time            1.59 seconds
+      
+
+111        
+112        data time_apn0;
+113           set flag_fus_time_sbys_apn0;
+114           drop _NAME_;
+115           rename _1=flag_fusion_on_1hr_apn0
+116                  _3=flag_fusion_on_3hr_apn0
+117                  _24=flag_fusion_on_34hr_apn0
+118                  _72=flag_fusion_on_72hr_apn0;
+119        run;
+6                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_FUS_TIME_SBYS_APN0.
+NOTE: The data set WORK.TIME_APN0 has 142631 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+120        
+121        data time_apn5;
+122           set flag_fus_time_sbys_apn5;
+123           drop _NAME_;
+124           rename _1=flag_fusion_on_1hr_apn5
+125                  _3=flag_fusion_on_3hr_apn5
+126                  _24=flag_fusion_on_34hr_apn5
+127                  _72=flag_fusion_on_72hr_apn5;
+128        run;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_FUS_TIME_SBYS_APN5.
+NOTE: The data set WORK.TIME_APN5 has 142631 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+129        
+130        /* Flag on per treatment-by-time */
+131        
+132        proc sort data=counts_w_key;
+133           by treatment time fusion_id;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.COUNTS_W_KEY has 5134716 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2.43 seconds
+      cpu time            4.63 seconds
+      
+
+134        proc means data=counts_w_key noprint;
+135           by treatment time fusion_id;
+136           var flag_apn_gt0 flag_apn_ge5;
+137           output out=mean_on_by_trttime mean=;
+138        run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.MEAN_ON_BY_TRTTIME has 1711572 observations and 7 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           4.68 seconds
+      cpu time            4.68 seconds
+      
+
+139        
+140        data flag_fus_on_by_trttime;
+141          length condition $10.;
+142          set mean_on_by_trttime;
+143          condition=catx("_",treatment,time);
+144        
+145          /* For APN > 0 */
+7                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+146          if flag_apn_gt0 ge 0.5 then flag_fusion_on_gt0=1;
+147          else if flag_apn_gt0 = 0 then flag_fusion_on_gt0=0;
+148          else flag_fusion_on_gt0=.;
+149        
+150          /* For APN ge 5 */
+151          if flag_apn_ge5 ge 0.5 then flag_fusion_on_ge5=1;
+152          else if flag_apn_ge5 = 0 then flag_fusion_on_ge5=0;
+153          else flag_fusion_on_ge5=.;
+154        
+155          keep fusion_id condition flag_fusion_on_gt0 flag_fusion_on_ge5;
+156        run;
+
+NOTE: There were 1711572 observations read from the data set WORK.MEAN_ON_BY_TRTTIME.
+NOTE: The data set WORK.FLAG_FUS_ON_BY_TRTTIME has 1711572 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.56 seconds
+      cpu time            0.57 seconds
+      
+
+157        
+158        proc sort data=flag_fus_on_by_trttime;
+159           by fusion_id condition;
+
+NOTE: There were 1711572 observations read from the data set WORK.FLAG_FUS_ON_BY_TRTTIME.
+NOTE: The data set WORK.FLAG_FUS_ON_BY_TRTTIME has 1711572 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.35 seconds
+      cpu time            1.07 seconds
+      
+
+160        proc transpose data=flag_fus_on_by_trttime out=flag_fus_trttime_sbys_apn0;
+161           by fusion_id;
+162           id condition;
+163           var flag_fusion_on_gt0;
+164        run;
+
+NOTE: There were 1711572 observations read from the data set WORK.FLAG_FUS_ON_BY_TRTTIME.
+NOTE: The data set WORK.FLAG_FUS_TRTTIME_SBYS_APN0 has 142631 observations and 14 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           5.80 seconds
+      cpu time            5.81 seconds
+      
+
+165        
+166        proc transpose data=flag_fus_on_by_trttime out=flag_fus_trttime_sbys_apn5;
+167           by fusion_id;
+168           id condition;
+169           var flag_fusion_on_ge5;
+170        run;
+
+NOTE: There were 1711572 observations read from the data set WORK.FLAG_FUS_ON_BY_TRTTIME.
+NOTE: The data set WORK.FLAG_FUS_TRTTIME_SBYS_APN5 has 142631 observations and 14 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           5.77 seconds
+      cpu time            5.77 seconds
+      
+
+171        
+8                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+172        data trttime_apn0;
+173           set flag_fus_trttime_sbys_apn0;
+174           drop _NAME_;
+175           rename _0_1gy_1=flag_fusion_on_01gy_1hr_apn0
+176                  _0_1gy_3=flag_fusion_on_01gy_3hr_apn0
+177                  _0_1gy_24=flag_fusion_on_01gy_24hr_apn0
+178                  _0_1gy_72=flag_fusion_on_01gy_72hr_apn0
+179                  _1gy_1=flag_fusion_on_1gy_1hr_apn0
+180                  _1gy_3=flag_fusion_on_1gy_3hr_apn0
+181                  _1gy_24=flag_fusion_on_1gy_24hr_apn0
+182                  _1gy_72=flag_fusion_on_1gy_72hr_apn0
+183                  Mock_1=flag_fusion_on_mock_1hr_apn0
+184                  Mock_3=flag_fusion_on_mock_3hr_apn0
+185                  Mock_24=flag_fusion_on_mock_24hr_apn0
+186                  Mock_72=flag_fusion_on_mock_72hr_apn0;
+187        run;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_FUS_TRTTIME_SBYS_APN0.
+NOTE: The data set WORK.TRTTIME_APN0 has 142631 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.06 seconds
+      
+
+188        
+189        data trttime_apn5;
+190           set flag_fus_trttime_sbys_apn5;
+191           drop _NAME_;
+192           rename _0_1gy_1=flag_fusion_on_01gy_1hr_apn5
+193                  _0_1gy_3=flag_fusion_on_01gy_3hr_apn5
+194                  _0_1gy_24=flag_fusion_on_01gy_24hr_apn5
+195                  _0_1gy_72=flag_fusion_on_01gy_72hr_apn5
+196                  _1gy_1=flag_fusion_on_1gy_1hr_apn5
+197                  _1gy_3=flag_fusion_on_1gy_3hr_apn5
+198                  _1gy_24=flag_fusion_on_1gy_24hr_apn5
+199                  _1gy_72=flag_fusion_on_1gy_72hr_apn5
+200                  Mock_1=flag_fusion_on_mock_1hr_apn5
+201                  Mock_3=flag_fusion_on_mock_3hr_apn5
+202                  Mock_24=flag_fusion_on_mock_24hr_apn5
+203                  Mock_72=flag_fusion_on_mock_72hr_apn5;
+204        run;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_FUS_TRTTIME_SBYS_APN5.
+NOTE: The data set WORK.TRTTIME_APN5 has 142631 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.05 seconds
+      
+
+205        
+206        /* Merge and make permenant */
+207        
+208        proc sort data=treat_apn0;
+209           by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.TREAT_APN0.
+NOTE: The data set WORK.TREAT_APN0 has 142631 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+9                                                          The SAS System                             11:40 Sunday, December 3, 2017
+
+      real time           0.07 seconds
+      cpu time            0.07 seconds
+      
+
+210        proc sort data=time_apn0;
+211           by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.TIME_APN0.
+NOTE: The data set WORK.TIME_APN0 has 142631 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.09 seconds
+      
+
+212        proc sort data=trttime_apn0;
+213           by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.TRTTIME_APN0.
+NOTE: The data set WORK.TRTTIME_APN0 has 142631 observations and 13 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+      
+
+214        proc sort data=treat_apn5;
+215           by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.TREAT_APN5.
+NOTE: The data set WORK.TREAT_APN5 has 142631 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.08 seconds
+      
+
+216        proc sort data=time_apn5;
+217           by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.TIME_APN5.
+NOTE: The data set WORK.TIME_APN5 has 142631 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.09 seconds
+      
+
+218        proc sort data=trttime_apn5;
+219           by fusion_id;
+220        run;
+
+NOTE: There were 142631 observations read from the data set WORK.TRTTIME_APN5.
+NOTE: The data set WORK.TRTTIME_APN5 has 142631 observations and 13 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.11 seconds
+      
+
+221        
+222        data rs.arab_flag_fusion_on_gt0;
+223          merge treat_apn0 (in=in1) time_apn0 (in=in2) trttime_apn0 (in=in3);
+10                                                         The SAS System                             11:40 Sunday, December 3, 2017
+
+224          by fusion_id;
+225          if in1 and in2 and in3;
+226        run;
+
+NOTE: There were 142631 observations read from the data set WORK.TREAT_APN0.
+NOTE: There were 142631 observations read from the data set WORK.TIME_APN0.
+NOTE: There were 142631 observations read from the data set WORK.TRTTIME_APN0.
+NOTE: The data set RS.ARAB_FLAG_FUSION_ON_GT0 has 142631 observations and 20 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.74 seconds
+      cpu time            0.13 seconds
+      
+
+227        
+228        data rs.arab_flag_fusion_on_ge5;
+229          merge treat_apn5 (in=in1) time_apn5 (in=in2) trttime_apn5 (in=in3);
+230          by fusion_id;
+231          if in1 and in2 and in3;
+232        run;
+
+NOTE: There were 142631 observations read from the data set WORK.TREAT_APN5.
+NOTE: There were 142631 observations read from the data set WORK.TIME_APN5.
+NOTE: There were 142631 observations read from the data set WORK.TRTTIME_APN5.
+NOTE: The data set RS.ARAB_FLAG_FUSION_ON_GE5 has 142631 observations and 20 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.73 seconds
+      cpu time            0.14 seconds
+      
+
+233        
+234        
+235        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           41.24 seconds
+      cpu time            43.80 seconds
+      

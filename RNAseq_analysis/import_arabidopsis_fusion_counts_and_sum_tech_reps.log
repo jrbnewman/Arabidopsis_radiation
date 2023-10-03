@@ -1,0 +1,226 @@
+1                                                          The SAS System                             11:33 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.15 seconds
+      cpu time            0.02 seconds
+      
+1          ods listing; ods html close;
+2          
+3          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+4          
+5           /* Import coverage counts for fusions and sum tech reps */
+6          
+7              data WORK.FUSION_COUNTS    ;
+2                                                          The SAS System                             11:33 Sunday, December 3, 2017
+
+8              %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+9              infile
+10         '!PATCON/arabidopsis/alignment_output/coverage_counts_fusions_arab.csv' delimiter = ',' MISSOVER DSD
+11         lrecl=32767 firstobs=2 ;
+12                informat sample_id $78. ;
+13                informat fusion_id $10. ;
+14                informat mapped_reads best32. ;
+15                informat read_length best32. ;
+16                informat region_length best32. ;
+17                informat region_depth best32. ;
+18                informat reads_in_region best32. ;
+19                informat apn best32. ;
+20                informat rpkm best32. ;
+21                informat mean best32. ;
+22                informat std best32. ;
+23                informat cv best32. ;
+24                format sample_id $78. ;
+25                format fusion_id $10. ;
+26                format mapped_reads best12. ;
+27                format read_length best12. ;
+28                format region_length best12. ;
+29                format region_depth best12. ;
+30                format reads_in_region best12. ;
+31                format apn best12. ;
+32                format rpkm best12. ;
+33                format mean best12. ;
+34                format std best12. ;
+35                format cv best12. ;
+36              input
+37                          sample_id $
+38                          fusion_id $
+39                          mapped_reads
+40                          read_length
+41                          region_length
+42                          region_depth
+43                          reads_in_region
+44                          apn
+45                          rpkm
+46                          mean
+47                          std
+48                          cv
+49              ;
+50              if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+51              run;
+
+NOTE: The infile '!PATCON/arabidopsis/alignment_output/coverage_counts_fusions_arab.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/alignment_output/coverage_counts_fusions_arab.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Sun Dec  3 11:26:36 2017,
+      File Size (bytes)=4349834373
+
+NOTE: 25673579 records were read from the infile '!PATCON/arabidopsis/alignment_output/coverage_counts_fusions_arab.csv'.
+      The minimum record length was 106.
+      The maximum record length was 205.
+NOTE: The data set WORK.FUSION_COUNTS has 25673579 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:38.44
+3                                                          The SAS System                             11:33 Sunday, December 3, 2017
+
+      cpu time            56.02 seconds
+      
+
+52         
+53         /* Merge in design file */
+54         
+55         data design;
+56            set rs.arab_design_file;
+57            keep sample_id sample_number treatment time replicate;
+58         run;
+
+NOTE: There were 180 observations read from the data set RS.ARAB_DESIGN_FILE.
+NOTE: The data set WORK.DESIGN has 180 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.01 seconds
+      
+
+59         
+60         proc sort data=design nodup;
+61           by sample_id;
+
+NOTE: There were 180 observations read from the data set WORK.DESIGN.
+NOTE: 0 duplicate observations were deleted.
+NOTE: The data set WORK.DESIGN has 180 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+62         proc sort data=fusion_counts;
+63           by sample_id;
+64         run;
+
+NOTE: There were 25673579 observations read from the data set WORK.FUSION_COUNTS.
+NOTE: The data set WORK.FUSION_COUNTS has 25673579 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:12.81
+      cpu time            50.89 seconds
+      
+
+65         
+66         data counts_w_key;
+67           merge design (in=in1) fusion_counts (in=in2);
+68           by sample_id;
+69           if in1 and in2;
+70         run;
+
+WARNING: Multiple lengths were specified for the BY variable sample_id by input data sets. This might cause unexpected results.
+NOTE: There were 180 observations read from the data set WORK.DESIGN.
+NOTE: There were 25673579 observations read from the data set WORK.FUSION_COUNTS.
+NOTE: The data set WORK.COUNTS_W_KEY has 25673579 observations and 16 variables.
+NOTE: DATA statement used (Total process time):
+      real time           14.21 seconds
+      cpu time            14.22 seconds
+      
+
+71         
+4                                                          The SAS System                             11:33 Sunday, December 3, 2017
+
+72         proc sort data=counts_w_key;
+73            by sample_number treatment time replicate fusion_id;
+
+NOTE: There were 25673579 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.COUNTS_W_KEY has 25673579 observations and 16 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:42.82
+      cpu time            1:04.26
+      
+
+74         proc means data=counts_w_key noprint;
+75            by sample_number treatment time replicate  fusion_id;
+76            var apn;
+77            output out=summed_counts_w_key sum=;
+78         run;
+
+NOTE: There were 25673579 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.SUMMED_COUNTS_W_KEY has 5134716 observations and 8 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           16.56 seconds
+      cpu time            16.56 seconds
+      
+
+79         
+80         data rs.arab_fusion_counts_w_key;
+81           set summed_counts_w_key;
+82           drop _TYPE_ _FREQ_;
+83         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.SUMMED_COUNTS_W_KEY.
+NOTE: The data set RS.ARAB_FUSION_COUNTS_W_KEY has 5134716 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           6.14 seconds
+      cpu time            0.98 seconds
+      
+
+84         
+85         
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           5:11.53
+      cpu time            3:23.01
+      

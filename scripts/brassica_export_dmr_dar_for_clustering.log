@@ -1,0 +1,1548 @@
+1                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M1 MBCS3170) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 3.10.0-1160.88.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 13.1
+      SAS/ETS 13.1
+      SAS/OR 13.1
+      SAS/IML 13.1
+      SAS/QC 13.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.88.1.el7.x86_64 #1 SMP Sat Feb 18 13:27:00 UTC 2023 x86_64 Red Hat Enterprise Linux Server release 7.9 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           3.30 seconds
+      cpu time            0.02 seconds
+      
+1          
+2          
+3          /* Data for clustering all 5 conditions
+4             Skip the replication results
+5              -> need to redo: select signficant DMRs/DARs from original data set (instead of all regions)
+6              -> then test in long-day data
+7          */
+8          
+9          *libname wgbslocB "/TB14/TB14/sandbox/dtra_sandbox/brass_wgbs";
+10         *libname wgbslocL "/TB14/TB14/sandbox/idaho_sandbox/brass_long_wgbs";
+11         
+12         
+13         libname wgbslocB "/blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data";
+NOTE: Libref WGBSLOCB was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data
+2                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+14         libname wgbslocL "/blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data";
+NOTE: Libref WGBSLOCL was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data
+15         
+16         data dmr_cg dmr_chg dmr_chh;
+17            set wgbslocB.results_by_dmr_5sites;
+18            where analysis = "original";
+19            if site_type="CG" and (flag_DMC10_ge2 = 1 or (flag_fdr05=1 and flag_methdiff10=1)) then output dmr_cg;
+20            if site_type="CHG" and (flag_DMC10_ge2 = 1 or (flag_fdr05=1 and flag_methdiff10=1)) then output dmr_chg;
+21            if site_type="CHH" and (flag_DMC10_ge2 = 1 or (flag_fdr05=1 and flag_methdiff10=1)) then output dmr_chh;
+22            keep chr region_start region_stop ;
+23         run;
+
+NOTE: There were 1588005 observations read from the data set WGBSLOCB.RESULTS_BY_DMR_5SITES.
+      WHERE analysis='original';
+NOTE: The data set WORK.DMR_CG has 68164 observations and 3 variables.
+NOTE: The data set WORK.DMR_CHG has 58212 observations and 3 variables.
+NOTE: The data set WORK.DMR_CHH has 241473 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.63 seconds
+      cpu time            0.39 seconds
+      
+
+24         
+25         
+26         
+27         proc sort data=dmr_cg nodup;
+28           by chr region_start region_stop;
+
+NOTE: There were 68164 observations read from the data set WORK.DMR_CG.
+NOTE: 1389 duplicate observations were deleted.
+NOTE: The data set WORK.DMR_CG has 66775 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.03 seconds
+      
+
+29         proc sort data=dmr_chg nodup;
+30           by chr region_start region_stop;
+
+NOTE: There were 58212 observations read from the data set WORK.DMR_CHG.
+NOTE: 147 duplicate observations were deleted.
+NOTE: The data set WORK.DMR_CHG has 58065 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+31         proc sort data=dmr_chh nodup;
+32           by chr region_start region_stop;
+33         run;
+
+NOTE: There were 241473 observations read from the data set WORK.DMR_CHH.
+NOTE: 837 duplicate observations were deleted.
+NOTE: The data set WORK.DMR_CHH has 240636 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.11 seconds
+3                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+      cpu time            0.09 seconds
+      
+
+34         
+35         
+36         data dmr_cg2;
+37           retain region_num;
+38           set dmr_cg;
+39           by chr;
+40            prev_start=lag1(region_start);
+41            prev_stop=lag1(region_stop);
+42           if first.chr then region_num=1;
+43           else do;
+44             if region_start < prev_stop then region_num=region_num;
+45             else region_num = region_num + 1;
+46           end;
+47         run;
+
+NOTE: There were 66775 observations read from the data set WORK.DMR_CG.
+NOTE: The data set WORK.DMR_CG2 has 66775 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+48         
+49         
+50         
+51         data dmr_chg2;
+52           retain region_num;
+53           set dmr_chg;
+54           by chr;
+55            prev_start=lag1(region_start);
+56            prev_stop=lag1(region_stop);
+57           if first.chr then region_num=1;
+58           else do;
+59             if region_start < prev_stop then region_num=region_num;
+60             else region_num = region_num + 1;
+61           end;
+62         run;
+
+NOTE: There were 58065 observations read from the data set WORK.DMR_CHG.
+NOTE: The data set WORK.DMR_CHG2 has 58065 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.02 seconds
+      
+
+63         
+64         
+65         
+66         data dmr_chh2;
+67           retain region_num;
+68           set dmr_chh;
+69           by chr;
+70            prev_start=lag1(region_start);
+71            prev_stop=lag1(region_stop);
+72           if first.chr then region_num=1;
+4                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+73           else do;
+74             if region_start < prev_stop then region_num=region_num;
+75             else region_num = region_num + 1;
+76           end;
+77         run;
+
+NOTE: There were 240636 observations read from the data set WORK.DMR_CHH.
+NOTE: The data set WORK.DMR_CHH2 has 240636 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.05 seconds
+      
+
+78         
+79         proc sort data=dmr_cg2;
+80           by chr region_num region_start region_stop;
+
+NOTE: There were 66775 observations read from the data set WORK.DMR_CG2.
+NOTE: The data set WORK.DMR_CG2 has 66775 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+81         proc means data=dmr_cg2 noprint;
+82           by chr region_num;
+83           var region_start region_stop;
+84           output out=cg_regions(drop=_TYPE_ _FREQ_) min(region_Start)=region_start max(region_stop)=region_stop;
+85         run;
+
+NOTE: There were 66775 observations read from the data set WORK.DMR_CG2.
+NOTE: The data set WORK.CG_REGIONS has 47209 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.04 seconds
+      
+
+86         
+87         proc sort data=dmr_chg2;
+88           by chr region_num region_start region_stop;
+
+NOTE: There were 58065 observations read from the data set WORK.DMR_CHG2.
+NOTE: The data set WORK.DMR_CHG2 has 58065 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+89         proc means data=dmr_chg2 noprint;
+90           by chr region_num;
+91           var region_start region_stop;
+92           output out=chg_regions(drop=_TYPE_ _FREQ_) min(region_Start)=region_start max(region_stop)=region_stop;
+93         run;
+
+NOTE: There were 58065 observations read from the data set WORK.DMR_CHG2.
+NOTE: The data set WORK.CHG_REGIONS has 49690 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.05 seconds
+5                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+      cpu time            0.05 seconds
+      
+
+94         
+95         proc sort data=dmr_chh2;
+96           by chr region_num region_start region_stop;
+
+NOTE: There were 240636 observations read from the data set WORK.DMR_CHH2.
+NOTE: The data set WORK.DMR_CHH2 has 240636 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.08 seconds
+      
+
+97         proc means data=dmr_chh2 noprint;
+98           by chr region_num;
+99           var region_start region_stop;
+100          output out=chh_regions(drop=_TYPE_ _FREQ_) min(region_Start)=region_start max(region_stop)=region_stop;
+101        run;
+
+NOTE: There were 240636 observations read from the data set WORK.DMR_CHH2.
+NOTE: The data set WORK.CHH_REGIONS has 165964 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.18 seconds
+      
+
+102        
+103        
+104        
+105        
+106        data dar_gc ;
+107           set wgbslocB.results_by_dar_5sites;
+108           where analysis = "original";
+109           if (flag_DAC10_ge2 = 1 or (flag_fdr05=1 and flag_methdiff10=1)) then output dar_gc;
+110           keep chr region_start region_stop ;
+111        run;
+
+NOTE: There were 112621 observations read from the data set WGBSLOCB.RESULTS_BY_DAR_5SITES.
+      WHERE analysis='original';
+NOTE: The data set WORK.DAR_GC has 25864 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.35 seconds
+      cpu time            0.29 seconds
+      
+
+112        
+113        
+114        proc sort data=dar_gc nodup;
+115          by chr region_start region_stop;
+116        run;
+
+NOTE: There were 25864 observations read from the data set WORK.DAR_GC.
+NOTE: 108 duplicate observations were deleted.
+NOTE: The data set WORK.DAR_GC has 25756 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+6                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+      
+
+117        
+118        
+119        data dar_gc2;
+120          retain region_num;
+121          set dar_gc;
+122          by chr;
+123           prev_start=lag1(region_start);
+124           prev_stop=lag1(region_stop);
+125          if first.chr then region_num=1;
+126          else do;
+127            if region_start < prev_stop then region_num=region_num;
+128            else region_num = region_num + 1;
+129          end;
+130        run;
+
+NOTE: There were 25756 observations read from the data set WORK.DAR_GC.
+NOTE: The data set WORK.DAR_GC2 has 25756 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.02 seconds
+      
+
+131        
+132        proc sort data=dar_gc2;
+133          by chr region_num region_start region_stop;
+
+NOTE: There were 25756 observations read from the data set WORK.DAR_GC2.
+NOTE: The data set WORK.DAR_GC2 has 25756 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+134        proc means data=dar_gc2 noprint;
+135          by chr region_num;
+136          var region_start region_stop;
+137          output out=gc_regions(drop=_TYPE_ _FREQ_) min(region_Start)=region_start max(region_stop)=region_stop;
+138        run;
+
+NOTE: There were 25756 observations read from the data set WORK.DAR_GC2.
+NOTE: The data set WORK.GC_REGIONS has 22632 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+139        
+140        
+141        
+142        /* regions:
+143        
+144        cg_regions
+145        chg_regions
+146        chh_regions
+147        gc_regions */
+148        
+7                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+149        /* CG regions */
+150        
+151        data cg_data;
+152          set wgbslocB.methylation_data_cg_chg_chh (in=in1)
+153              wgbslocL.methylation_data_cg_chg_chh (in=in2);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+154              where site_type="CG" ;
+155              length dataset $20.;
+156              if in1 then dataset = "brassica";
+157              if in2 then dataset = "longday";
+158              if in2 then time="72h";
+159          keep chr dataset start_pos stop_pos perc_methyl total_C treatment time rep site_type;
+160        run;
+
+NOTE: There were 178001603 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE site_type='CG';
+NOTE: There were 58930441 observations read from the data set WGBSLOCL.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE site_type='CG';
+NOTE: The data set WORK.CG_DATA has 236932044 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20:14.21
+      cpu time            19:47.60
+      
+
+161        
+162        proc sort data=cg_data;
+163          by dataset treatment site_type time chr start_pos stop_pos;
+
+NOTE: There were 236932044 observations read from the data set WORK.CG_DATA.
+NOTE: The data set WORK.CG_DATA has 236932044 observations and 10 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           5:06.21
+      cpu time            4:41.77
+      
+
+164        proc means data=cg_data noprint;
+165          by dataset treatment site_type time chr start_pos stop_pos;
+166          var perc_methyl total_C;
+167          output out=cg_data2 sum(total_C)=total_C mean(perc_methyl)=perc_methyl;
+168        run;
+
+NOTE: There were 236932044 observations read from the data set WORK.CG_DATA.
+NOTE: The data set WORK.CG_DATA2 has 122722176 observations and 11 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:50.61
+      cpu time            2:49.06
+      
+
+169        
+170        
+171        proc sort data=cg_data2;
+172          by site_type chr start_pos stop_pos dataset treatment time;
+
+NOTE: There were 122722176 observations read from the data set WORK.CG_DATA2.
+NOTE: The data set WORK.CG_DATA2 has 122722176 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+8                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+      real time           2:56.63
+      cpu time            2:46.86
+      
+
+173        proc transpose data=cg_data2 out=cg_sbys;
+174          by site_type chr start_pos stop_pos;
+175          where total_C >= 10;
+176          id dataset treatment time;
+177          var perc_methyl;
+178        run;
+
+NOTE: There were 97731772 observations read from the data set WORK.CG_DATA2.
+      WHERE total_C>=10;
+NOTE: The data set WORK.CG_SBYS has 13637616 observations and 13 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           8:28.09
+      cpu time            8:27.88
+      
+
+179        
+180        data cg_sbys2;
+181          set cg_Sbys;
+182          if brassica10cGy72h ne . and  brassica0cGy72h ne . then brass_10cGy_0cGy_72h= brassica10cGy72h -  brassica0cGy72h;
+183          if brassica1p4cGy72h ne . and  brassica0cGy72h ne . then brass_1p4cGy_0cGy_72h= brassica1p4cGy72h -  brassica0cGy72h;
+184          if brassica10cGy1h ne . and  brassica0cGy1h ne . then brass_10cGy_0cGy_1h= brassica10cGy1h -  brassica0cGy1h;
+185          if brassica1p4cGy1h ne . and  brassica0cGy1h ne . then brass_1p4cGy_0cGy_1h= brassica1p4cGy1h -  brassica0cGy1h;
+186          if longday1_4cGy72h ne . and  longday0cGy72h ne . then long_1p4cGy_0cGy_72h= longday1_4cGy72h -  longday0cGy72h;
+187          keep site_type chr start_pos stop_pos brass_: long_: ;
+188        run;
+
+NOTE: There were 13637616 observations read from the data set WORK.CG_SBYS.
+NOTE: The data set WORK.CG_SBYS2 has 13637616 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.52 seconds
+      cpu time            2.44 seconds
+      
+
+189        
+190        
+191        data cg_site2region;
+192          set cg_regions;
+193          do start_pos = region_start to (region_stop-1);
+194          output;
+195          end;
+196        run;
+
+NOTE: There were 47209 observations read from the data set WORK.CG_REGIONS.
+NOTE: The data set WORK.CG_SITE2REGION has 8222121 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.48 seconds
+      cpu time            0.48 seconds
+      
+
+197        
+198         proc sort data=cg_sbys2;
+199          by chr start_pos;
+
+NOTE: There were 13637616 observations read from the data set WORK.CG_SBYS2.
+9                                                          The SAS System                               14:46 Friday, April 21, 2023
+
+NOTE: The data set WORK.CG_SBYS2 has 13637616 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           7.08 seconds
+      cpu time            6.82 seconds
+      
+
+200         proc sort data=cg_site2region;
+201          by chr start_pos;
+202        run;
+
+NOTE: There were 8222121 observations read from the data set WORK.CG_SITE2REGION.
+NOTE: The data set WORK.CG_SITE2REGION has 8222121 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2.76 seconds
+      cpu time            2.65 seconds
+      
+
+203        
+204        data cg_site2region_2;
+205          merge cg_site2region (in=in1) cg_sbys2 (in=in2);
+206          by chr start_pos;
+207          if in1 and in2;
+208        run;
+
+NOTE: There were 8222121 observations read from the data set WORK.CG_SITE2REGION.
+NOTE: There were 13637616 observations read from the data set WORK.CG_SBYS2.
+NOTE: The data set WORK.CG_SITE2REGION_2 has 1044178 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           7.06 seconds
+      cpu time            7.01 seconds
+      
+
+209        
+210        proc sort data=cg_site2region_2;
+211          by site_type chr region_num region_start region_stop;
+
+NOTE: There were 1044178 observations read from the data set WORK.CG_SITE2REGION_2.
+NOTE: The data set WORK.CG_SITE2REGION_2 has 1044178 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.59 seconds
+      cpu time            0.55 seconds
+      
+
+212        proc means data=cg_site2region_2 noprint;
+213          by site_type chr region_num region_start region_stop;
+214          var brass_10cGy_0cGy_72h brass_1p4cGy_0cGy_72h
+215              brass_10cGy_0cGy_1h brass_1p4cGy_0cGy_1h long_1p4cGy_0cGy_72h;
+216          output out=cg_region_mean mean=;
+217        run;
+
+NOTE: There were 1044178 observations read from the data set WORK.CG_SITE2REGION_2.
+NOTE: The data set WORK.CG_REGION_MEAN has 47209 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.34 seconds
+      cpu time            0.32 seconds
+      
+
+218        
+10                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+219        
+220        
+221        /* CHG regions */
+222        
+223        data chg_data;
+224          set wgbslocB.methylation_data_cg_chg_chh (in=in1)
+225              wgbslocL.methylation_data_cg_chg_chh (in=in2);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+226              where site_type="CHG" ;
+227              length dataset $20.;
+228              if in1 then dataset = "brassica";
+229              if in2 then dataset = "longday";
+230              if in2 then time="72h";
+231          keep chr dataset start_pos stop_pos perc_methyl total_C treatment time rep site_type;
+232        run;
+
+NOTE: There were 192318244 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE site_type='CHG';
+NOTE: There were 63768670 observations read from the data set WGBSLOCL.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE site_type='CHG';
+NOTE: The data set WORK.CHG_DATA has 256086914 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20:37.15
+      cpu time            20:25.34
+      
+
+233        
+234        proc sort data=chg_data;
+235          by dataset treatment site_type time chr start_pos stop_pos;
+
+NOTE: There were 256086914 observations read from the data set WORK.CHG_DATA.
+NOTE: The data set WORK.CHG_DATA has 256086914 observations and 10 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           5:06.06
+      cpu time            4:55.65
+      
+
+236        proc means data=chg_data noprint;
+237          by dataset treatment site_type time chr start_pos stop_pos;
+238          var perc_methyl total_C;
+239          output out=chg_data2 sum(total_C)=total_C mean(perc_methyl)=perc_methyl;
+240        run;
+
+NOTE: There were 256086914 observations read from the data set WORK.CHG_DATA.
+NOTE: The data set WORK.CHG_DATA2 has 132569786 observations and 11 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           3:12.70
+      cpu time            3:11.81
+      
+
+241        
+242        
+243        proc sort data=chg_data2;
+244          by site_type chr start_pos stop_pos dataset treatment time;
+
+NOTE: There were 132569786 observations read from the data set WORK.CHG_DATA2.
+11                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+NOTE: The data set WORK.CHG_DATA2 has 132569786 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:55.21
+      cpu time            3:38.77
+      
+
+245        proc transpose data=chg_data2 out=chg_sbys;
+246          by site_type chr start_pos stop_pos;
+247          where total_C >= 10;
+248          id dataset treatment time;
+249          var perc_methyl;
+250        run;
+
+NOTE: There were 106248721 observations read from the data set WORK.CHG_DATA2.
+      WHERE total_C>=10;
+NOTE: The data set WORK.CHG_SBYS has 14751069 observations and 13 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           9:35.18
+      cpu time            9:34.28
+      
+
+251        
+252        data chg_sbys2;
+253          set chg_Sbys;
+254          if brassica10cGy72h ne . and  brassica0cGy72h ne . then brass_10cGy_0cGy_72h= brassica10cGy72h -  brassica0cGy72h;
+255          if brassica1p4cGy72h ne . and  brassica0cGy72h ne . then brass_1p4cGy_0cGy_72h= brassica1p4cGy72h -  brassica0cGy72h;
+256          if brassica10cGy1h ne . and  brassica0cGy1h ne . then brass_10cGy_0cGy_1h= brassica10cGy1h -  brassica0cGy1h;
+257          if brassica1p4cGy1h ne . and  brassica0cGy1h ne . then brass_1p4cGy_0cGy_1h= brassica1p4cGy1h -  brassica0cGy1h;
+258          if longday1_4cGy72h ne . and  longday0cGy72h ne . then long_1p4cGy_0cGy_72h= longday1_4cGy72h -  longday0cGy72h;
+259          keep site_type chr start_pos stop_pos brass_: long_: ;
+260        run;
+
+NOTE: There were 14751069 observations read from the data set WORK.CHG_SBYS.
+NOTE: The data set WORK.CHG_SBYS2 has 14751069 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.75 seconds
+      cpu time            2.60 seconds
+      
+
+261        
+262        
+263        data chg_site2region;
+264          set chg_regions;
+265          do start_pos = region_start to (region_stop-1);
+266          output;
+267          end;
+268        run;
+
+NOTE: There were 49690 observations read from the data set WORK.CHG_REGIONS.
+NOTE: The data set WORK.CHG_SITE2REGION has 8455444 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.50 seconds
+      cpu time            0.48 seconds
+      
+
+269        
+270         proc sort data=chg_sbys2;
+271          by chr start_pos;
+12                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+
+NOTE: There were 14751069 observations read from the data set WORK.CHG_SBYS2.
+NOTE: The data set WORK.CHG_SBYS2 has 14751069 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           7.81 seconds
+      cpu time            7.68 seconds
+      
+
+272         proc sort data=chg_site2region;
+273          by chr start_pos;
+274        run;
+
+NOTE: There were 8455444 observations read from the data set WORK.CHG_SITE2REGION.
+NOTE: The data set WORK.CHG_SITE2REGION has 8455444 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2.90 seconds
+      cpu time            2.83 seconds
+      
+
+275        
+276        data chg_site2region_2;
+277          merge chg_site2region (in=in1) chg_sbys2 (in=in2);
+278          by chr start_pos;
+279          if in1 and in2;
+280        run;
+
+NOTE: There were 8455444 observations read from the data set WORK.CHG_SITE2REGION.
+NOTE: There were 14751069 observations read from the data set WORK.CHG_SBYS2.
+NOTE: The data set WORK.CHG_SITE2REGION_2 has 867884 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           7.59 seconds
+      cpu time            7.56 seconds
+      
+
+281        
+282        proc sort data=chg_site2region_2;
+283          by site_type chr region_num region_start region_stop;
+
+NOTE: There were 867884 observations read from the data set WORK.CHG_SITE2REGION_2.
+NOTE: The data set WORK.CHG_SITE2REGION_2 has 867884 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.49 seconds
+      cpu time            0.43 seconds
+      
+
+284        proc means data=chg_site2region_2 noprint;
+285          by site_type chr region_num region_start region_stop;
+286          var brass_10cGy_0cGy_72h brass_1p4cGy_0cGy_72h
+287              brass_10cGy_0cGy_1h brass_1p4cGy_0cGy_1h long_1p4cGy_0cGy_72h;
+288          output out=chg_region_mean mean=;
+289        run;
+
+NOTE: There were 867884 observations read from the data set WORK.CHG_SITE2REGION_2.
+NOTE: The data set WORK.CHG_REGION_MEAN has 49690 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.32 seconds
+      cpu time            0.29 seconds
+      
+13                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+
+290        
+291        
+292        
+293        
+294        
+295        
+296        /* CHH regions */
+297        
+298        data chh_data;
+299          set wgbslocB.methylation_data_cg_chg_chh (in=in1)
+300              wgbslocL.methylation_data_cg_chg_chh (in=in2);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+301              where site_type="CHH" ;
+302              length dataset $20.;
+303              if in1 then dataset = "brassica";
+304              if in2 then dataset = "longday";
+305              if in2 then time="72h";
+306          keep chr dataset start_pos stop_pos perc_methyl total_C treatment time rep site_type;
+307        run;
+
+NOTE: There were 899296836 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE site_type='CHH';
+NOTE: There were 299384489 observations read from the data set WGBSLOCL.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE site_type='CHH';
+NOTE: The data set WORK.CHH_DATA has 1198681325 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           24:35.89
+      cpu time            23:55.33
+      
+
+308        
+309        proc sort data=chh_data;
+310          by dataset treatment site_type time chr start_pos stop_pos;
+
+NOTE: There were 1198681325 observations read from the data set WORK.CHH_DATA.
+NOTE: The data set WORK.CHH_DATA has 1198681325 observations and 10 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           34:17.80
+      cpu time            33:06.94
+      
+
+311        proc means data=chh_data noprint;
+312          by dataset treatment site_type time chr start_pos stop_pos;
+313          var perc_methyl total_C;
+314          output out=chh_data2 sum(total_C)=total_C mean(perc_methyl)=perc_methyl;
+315        run;
+
+NOTE: There were 1198681325 observations read from the data set WORK.CHH_DATA.
+NOTE: The data set WORK.CHH_DATA2 has 619226746 observations and 11 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           15:52.34
+      cpu time            15:01.41
+      
+
+316        
+14                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+317        
+318        proc sort data=chh_data2;
+319          by site_type chr start_pos stop_pos dataset treatment time;
+
+NOTE: There were 619226746 observations read from the data set WORK.CHH_DATA2.
+NOTE: The data set WORK.CHH_DATA2 has 619226746 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           18:00.99
+      cpu time            16:47.66
+      
+
+320        proc transpose data=chh_data2 out=chh_sbys;
+321          by site_type chr start_pos stop_pos;
+322          where total_C >= 10;
+323          id dataset treatment time;
+324          var perc_methyl;
+325        run;
+
+NOTE: There were 497000118 observations read from the data set WORK.CHH_DATA2.
+      WHERE total_C>=10;
+NOTE: The data set WORK.CHH_SBYS has 69519786 observations and 13 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           43:43.76
+      cpu time            43:30.44
+      
+
+326        
+327        data chh_sbys2;
+328          set chh_Sbys;
+329          if brassica10cGy72h ne . and  brassica0cGy72h ne . then brass_10cGy_0cGy_72h= brassica10cGy72h -  brassica0cGy72h;
+330          if brassica1p4cGy72h ne . and  brassica0cGy72h ne . then brass_1p4cGy_0cGy_72h= brassica1p4cGy72h -  brassica0cGy72h;
+331          if brassica10cGy1h ne . and  brassica0cGy1h ne . then brass_10cGy_0cGy_1h= brassica10cGy1h -  brassica0cGy1h;
+332          if brassica1p4cGy1h ne . and  brassica0cGy1h ne . then brass_1p4cGy_0cGy_1h= brassica1p4cGy1h -  brassica0cGy1h;
+333          if longday1_4cGy72h ne . and  longday0cGy72h ne . then long_1p4cGy_0cGy_72h= longday1_4cGy72h -  longday0cGy72h;
+334          keep site_type chr start_pos stop_pos brass_: long_: ;
+335        run;
+
+NOTE: There were 69519786 observations read from the data set WORK.CHH_SBYS.
+NOTE: The data set WORK.CHH_SBYS2 has 69519786 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           17.09 seconds
+      cpu time            14.32 seconds
+      
+
+336        
+337        
+338        data chh_site2region;
+339          set chh_regions;
+340          do start_pos = region_start to (region_stop-1);
+341          output;
+342          end;
+343        run;
+
+NOTE: There were 165964 observations read from the data set WORK.CHH_REGIONS.
+NOTE: The data set WORK.CHH_SITE2REGION has 27105208 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.94 seconds
+      cpu time            1.86 seconds
+15                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+      
+
+344        
+345         proc sort data=chh_sbys2;
+346          by chr start_pos;
+
+NOTE: There were 69519786 observations read from the data set WORK.CHH_SBYS2.
+NOTE: The data set WORK.CHH_SBYS2 has 69519786 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           44.32 seconds
+      cpu time            39.31 seconds
+      
+
+347         proc sort data=chh_site2region;
+348          by chr start_pos;
+349        run;
+
+NOTE: There were 27105208 observations read from the data set WORK.CHH_SITE2REGION.
+NOTE: The data set WORK.CHH_SITE2REGION has 27105208 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           11.89 seconds
+      cpu time            11.18 seconds
+      
+
+350        
+351        data chh_site2region_2;
+352          merge chh_site2region (in=in1) chh_sbys2 (in=in2);
+353          by chr start_pos;
+354          if in1 and in2;
+355        run;
+
+NOTE: There were 27105208 observations read from the data set WORK.CHH_SITE2REGION.
+NOTE: There were 69519786 observations read from the data set WORK.CHH_SBYS2.
+NOTE: The data set WORK.CHH_SITE2REGION_2 has 7167905 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           31.55 seconds
+      cpu time            31.19 seconds
+      
+
+356        
+357        proc sort data=chh_site2region_2;
+358          by site_type chr region_num region_start region_stop;
+
+NOTE: There were 7167905 observations read from the data set WORK.CHH_SITE2REGION_2.
+NOTE: The data set WORK.CHH_SITE2REGION_2 has 7167905 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           5.29 seconds
+      cpu time            4.75 seconds
+      
+
+359        proc means data=chh_site2region_2 noprint;
+360          by site_type chr region_num region_start region_stop;
+361          var brass_10cGy_0cGy_72h brass_1p4cGy_0cGy_72h
+362              brass_10cGy_0cGy_1h brass_1p4cGy_0cGy_1h long_1p4cGy_0cGy_72h;
+363          output out=chh_region_mean mean=;
+364        run;
+
+NOTE: There were 7167905 observations read from the data set WORK.CHH_SITE2REGION_2.
+16                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+NOTE: The data set WORK.CHH_REGION_MEAN has 165964 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           1.99 seconds
+      cpu time            1.90 seconds
+      
+
+365        
+366        
+367        
+368        
+369        /* GC regions */
+370        
+371        
+372        data gc_data;
+373          set wgbslocB.methylation_data_gc (in=in1)
+374              wgbslocL.methylation_data_gc (in=in2);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_GC.DATA is in a format that is native to another host, or the file encoding does not 
+      match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+375              length dataset $20.;
+376              if in1 then dataset = "brassica";
+377              if in2 then dataset = "longday";
+378              if in2 then time="72h";
+379              if in1 and flag_normalized=1 then perc_methyl2=perc_methyl_norm;
+380              if in2 then perc_methyl2=perc_methyl;
+381            keep chr dataset start_pos stop_pos perc_methyl total_C treatment units time rep site_type perc_methyl2;
+382        run;
+
+NOTE: There were 426950832 observations read from the data set WGBSLOCB.METHYLATION_DATA_GC.
+NOTE: There were 141239734 observations read from the data set WGBSLOCL.METHYLATION_DATA_GC.
+NOTE: The data set WORK.GC_DATA has 568190566 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           10:09.26
+      cpu time            9:51.10
+      
+
+383        
+384        proc sort data=gc_data;
+385          by dataset treatment units site_type time chr start_pos stop_pos;
+
+NOTE: There were 568190566 observations read from the data set WORK.GC_DATA.
+NOTE: The data set WORK.GC_DATA has 568190566 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           17:20.82
+      cpu time            15:15.40
+      
+
+386        proc means data=gc_data noprint;
+387          by dataset treatment units site_type time chr start_pos stop_pos;
+388          var perc_methyl total_C;
+389          output out=gc_data2 sum(total_C)=total_C mean(perc_methyl2)=perc_methyl;
+390        run;
+
+NOTE: There were 568190566 observations read from the data set WORK.GC_DATA.
+NOTE: The data set WORK.GC_DATA2 has 293502971 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           9:04.19
+      cpu time            7:13.64
+17                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+      
+
+391        
+392        
+393        proc sort data=gc_data2;
+394          by site_type chr start_pos stop_pos dataset treatment units time;
+
+NOTE: There were 293502971 observations read from the data set WORK.GC_DATA2.
+NOTE: The data set WORK.GC_DATA2 has 293502971 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           8:01.12
+      cpu time            7:33.15
+      
+
+395        proc transpose data=gc_data2 out=gc_sbys;
+396          by site_type chr start_pos stop_pos;
+397          where total_C >= 10;
+398          id dataset treatment units time;
+399          var perc_methyl;
+400        run;
+
+NOTE: There were 238414968 observations read from the data set WORK.GC_DATA2.
+      WHERE total_C>=10;
+NOTE: The data set WORK.GC_SBYS has 16645438 observations and 21 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           25:47.14
+      cpu time            25:46.78
+      
+
+401        
+402        proc contents data=gc_sbys;
+403        run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           6.28 seconds
+      cpu time            0.03 seconds
+      
+NOTE: The PROCEDURE CONTENTS printed page 1.
+
+404        
+405        
+406        
+407        
+408        
+409        
+410        data gc_sbys2;
+411          set gc_sbys;
+412        
+413        if brassica10cGy100U1h ne . and brassica10cGy0U1h ne . and brassica0cGy100U1h ne . and brassica0cGy0U1h ne . then
+413      ! brass_10cGy_0cGy_1h = (brassica10cGy100U1h - brassica10cGy0U1h) - (brassica0cGy100U1h ne - brassica0cGy0U1h);
+414        
+415        if brassica1p4cGy100U1h ne . and brassica1p4cGy0U1h ne . and brassica0cGy100U1h ne . and brassica0cGy0U1h ne . then
+415      ! brass_1p4cGy_0cGy_1h = (brassica1p4cGy100U1h - brassica1p4cGy0U1h) - (brassica0cGy100U1h ne - brassica0cGy0U1h);
+416        
+417        if brassica10cGy100U72h ne . and brassica10cGy0U72h ne . and brassica0cGy100U72h ne . and brassica0cGy0U72h ne . then
+417      ! brass_10cGy_0cGy_72h = (brassica10cGy100U72h - brassica10cGy0U72h) - (brassica0cGy100U72h ne - brassica0cGy0U72h);
+418        
+419        if brassica1p4cGy100U72h ne . and brassica1p4cGy0U72h ne . and brassica0cGy100U72h ne . and brassica0cGy0U72h ne . then
+18                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+419      ! brass_1p4cGy_0cGy_72h = (brassica1p4cGy100U72h - brassica1p4cGy0U72h) - (brassica0cGy100U72h ne - brassica0cGy0U72h);
+420        
+421        
+422        if longday1_4cGy100U72h ne . and longday1_4cGy0U72h ne . and longday0cGy100U72h ne . and longday0cGy0U72h ne . then
+422      ! long_1p4cGy_0cGy_72h = (longday1_4cGy100U72h - longday1_4cGy0U72h) - (longday0cGy100U72h ne - longday0cGy0U72h);
+423        
+424          keep site_type chr start_pos stop_pos brass_: long_: ;
+425        run;
+
+NOTE: There were 16645438 observations read from the data set WORK.GC_SBYS.
+NOTE: The data set WORK.GC_SBYS2 has 16645438 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.19 seconds
+      cpu time            3.58 seconds
+      
+
+426        
+427        
+428        data gc_site2region;
+429          set gc_regions;
+430          do start_pos = region_start to (region_stop-1);
+431          output;
+432          end;
+433        run;
+
+NOTE: There were 22632 observations read from the data set WORK.GC_REGIONS.
+NOTE: The data set WORK.GC_SITE2REGION has 4004752 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.24 seconds
+      cpu time            0.21 seconds
+      
+
+434        
+435         proc sort data=gc_sbys2;
+436          by chr start_pos;
+
+NOTE: There were 16645438 observations read from the data set WORK.GC_SBYS2.
+NOTE: The data set WORK.GC_SBYS2 has 16645438 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           8.85 seconds
+      cpu time            8.15 seconds
+      
+
+437         proc sort data=gc_site2region;
+438          by chr start_pos;
+439        run;
+
+NOTE: There were 4004752 observations read from the data set WORK.GC_SITE2REGION.
+NOTE: The data set WORK.GC_SITE2REGION has 4004752 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.32 seconds
+      cpu time            1.23 seconds
+      
+
+440        
+441        data gc_site2region_2;
+442          merge gc_site2region (in=in1) gc_sbys2 (in=in2);
+443          by chr start_pos;
+19                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+444          if in1 and in2;
+445        run;
+
+NOTE: There were 4004752 observations read from the data set WORK.GC_SITE2REGION.
+NOTE: There were 16645438 observations read from the data set WORK.GC_SBYS2.
+NOTE: The data set WORK.GC_SITE2REGION_2 has 490285 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           6.47 seconds
+      cpu time            6.44 seconds
+      
+
+446        
+447        proc sort data=gc_site2region_2;
+448          by site_type chr region_num region_start region_stop;
+
+NOTE: There were 490285 observations read from the data set WORK.GC_SITE2REGION_2.
+NOTE: The data set WORK.GC_SITE2REGION_2 has 490285 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.37 seconds
+      cpu time            0.28 seconds
+      
+
+449        proc means data=gc_site2region_2 noprint;
+450          by site_type chr region_num region_start region_stop;
+451          var brass_10cGy_0cGy_72h brass_1p4cGy_0cGy_72h
+452              brass_10cGy_0cGy_1h brass_1p4cGy_0cGy_1h long_1p4cGy_0cGy_72h;
+453          output out=gc_region_mean mean=;
+454        run;
+
+NOTE: There were 490285 observations read from the data set WORK.GC_SITE2REGION_2.
+NOTE: The data set WORK.GC_REGION_MEAN has 22632 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.18 seconds
+      
+
+455        
+456        proc export data=cg_region_mean outfile="/blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv"
+457        dbms=csv replace;
+458        run;
+
+459         /**********************************************************************
+460         *   PRODUCT:   SAS
+461         *   VERSION:   9.4
+462         *   CREATOR:   External File Interface
+463         *   DATE:      21APR23
+464         *   DESC:      Generated SAS Datastep Code
+465         *   TEMPLATE SOURCE:  (None Specified.)
+466         ***********************************************************************/
+467            data _null_;
+468            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+469            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+470            file '/blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+471            if _n_ = 1 then        /* write column names or labels */
+472             do;
+473               put
+474                  "site_type"
+475               ','
+20                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+476                  "chr"
+477               ','
+478                  "region_num"
+479               ','
+480                  "region_start"
+481               ','
+482                  "region_stop"
+483               ','
+484                  "_TYPE_"
+485               ','
+486                  "_FREQ_"
+487               ','
+488                  "brass_10cGy_0cGy_72h"
+489               ','
+490                  "brass_1p4cGy_0cGy_72h"
+491               ','
+492                  "brass_10cGy_0cGy_1h"
+493               ','
+494                  "brass_1p4cGy_0cGy_1h"
+495               ','
+496                  "long_1p4cGy_0cGy_72h"
+497               ;
+498             end;
+499           set  CG_REGION_MEAN   end=EFIEOD;
+500               format site_type $3. ;
+501               format chr $5. ;
+502               format region_num best12. ;
+503               format region_start best12. ;
+504               format region_stop best12. ;
+505               format _TYPE_ best12. ;
+506               format _FREQ_ best12. ;
+507               format brass_10cGy_0cGy_72h best12. ;
+508               format brass_1p4cGy_0cGy_72h best12. ;
+509               format brass_10cGy_0cGy_1h best12. ;
+510               format brass_1p4cGy_0cGy_1h best12. ;
+511               format long_1p4cGy_0cGy_72h best12. ;
+512             do;
+513               EFIOUT + 1;
+514               put site_type $ @;
+515               put chr $ @;
+516               put region_num @;
+517               put region_start @;
+518               put region_stop @;
+519               put _TYPE_ @;
+520               put _FREQ_ @;
+521               put brass_10cGy_0cGy_72h @;
+522               put brass_1p4cGy_0cGy_72h @;
+523               put brass_10cGy_0cGy_1h @;
+524               put brass_1p4cGy_0cGy_1h @;
+525               put long_1p4cGy_0cGy_72h ;
+526               ;
+527             end;
+528            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+529            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+530            run;
+
+NOTE: The file '/blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv' is:
+      Filename=/blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv,
+21                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+      Owner Name=jrbnewman,Group Name=concannon,
+      Access Permission=-rw-rw----,
+      Last Modified=21Apr2023:20:38:45
+
+NOTE: 47210 records were written to the file '/blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv'.
+      The minimum record length was 39.
+      The maximum record length was 168.
+NOTE: There were 47209 observations read from the data set WORK.CG_REGION_MEAN.
+NOTE: DATA statement used (Total process time):
+      real time           0.26 seconds
+      cpu time            0.12 seconds
+      
+
+47209 records created in /blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv from CG_REGION_MEAN.
+  
+  
+NOTE: "/blue/concannon/share/jnewman/mingqi_arab/CG_DMRs_for_heatmap.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           5.90 seconds
+      cpu time            0.17 seconds
+      
+
+531        
+532        proc export data=chg_region_mean outfile="/blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv"
+533        dbms=csv replace;
+534        run;
+
+535         /**********************************************************************
+536         *   PRODUCT:   SAS
+537         *   VERSION:   9.4
+538         *   CREATOR:   External File Interface
+539         *   DATE:      21APR23
+540         *   DESC:      Generated SAS Datastep Code
+541         *   TEMPLATE SOURCE:  (None Specified.)
+542         ***********************************************************************/
+543            data _null_;
+544            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+545            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+546            file '/blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+547            if _n_ = 1 then        /* write column names or labels */
+548             do;
+549               put
+550                  "site_type"
+551               ','
+552                  "chr"
+553               ','
+554                  "region_num"
+555               ','
+556                  "region_start"
+557               ','
+558                  "region_stop"
+559               ','
+560                  "_TYPE_"
+561               ','
+562                  "_FREQ_"
+563               ','
+564                  "brass_10cGy_0cGy_72h"
+565               ','
+22                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+566                  "brass_1p4cGy_0cGy_72h"
+567               ','
+568                  "brass_10cGy_0cGy_1h"
+569               ','
+570                  "brass_1p4cGy_0cGy_1h"
+571               ','
+572                  "long_1p4cGy_0cGy_72h"
+573               ;
+574             end;
+575           set  CHG_REGION_MEAN   end=EFIEOD;
+576               format site_type $3. ;
+577               format chr $5. ;
+578               format region_num best12. ;
+579               format region_start best12. ;
+580               format region_stop best12. ;
+581               format _TYPE_ best12. ;
+582               format _FREQ_ best12. ;
+583               format brass_10cGy_0cGy_72h best12. ;
+584               format brass_1p4cGy_0cGy_72h best12. ;
+585               format brass_10cGy_0cGy_1h best12. ;
+586               format brass_1p4cGy_0cGy_1h best12. ;
+587               format long_1p4cGy_0cGy_72h best12. ;
+588             do;
+589               EFIOUT + 1;
+590               put site_type $ @;
+591               put chr $ @;
+592               put region_num @;
+593               put region_start @;
+594               put region_stop @;
+595               put _TYPE_ @;
+596               put _FREQ_ @;
+597               put brass_10cGy_0cGy_72h @;
+598               put brass_1p4cGy_0cGy_72h @;
+599               put brass_10cGy_0cGy_1h @;
+600               put brass_1p4cGy_0cGy_1h @;
+601               put long_1p4cGy_0cGy_72h ;
+602               ;
+603             end;
+604            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+605            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+606            run;
+
+NOTE: The file '/blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv' is:
+      Filename=/blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv,
+      Owner Name=jrbnewman,Group Name=concannon,
+      Access Permission=-rw-rw----,
+      Last Modified=21Apr2023:20:38:46
+
+NOTE: 49691 records were written to the file '/blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv'.
+      The minimum record length was 40.
+      The maximum record length was 168.
+NOTE: There were 49690 observations read from the data set WORK.CHG_REGION_MEAN.
+NOTE: DATA statement used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.12 seconds
+      
+
+49690 records created in /blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv from CHG_REGION_MEAN.
+23                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+  
+  
+NOTE: "/blue/concannon/share/jnewman/mingqi_arab/CHG_DMRs_for_heatmap.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.30 seconds
+      cpu time            0.14 seconds
+      
+
+607        
+608        proc export data=chh_region_mean outfile="/blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv"
+609        dbms=csv replace;
+610        run;
+
+611         /**********************************************************************
+612         *   PRODUCT:   SAS
+613         *   VERSION:   9.4
+614         *   CREATOR:   External File Interface
+615         *   DATE:      21APR23
+616         *   DESC:      Generated SAS Datastep Code
+617         *   TEMPLATE SOURCE:  (None Specified.)
+618         ***********************************************************************/
+619            data _null_;
+620            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+621            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+622            file '/blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+623            if _n_ = 1 then        /* write column names or labels */
+624             do;
+625               put
+626                  "site_type"
+627               ','
+628                  "chr"
+629               ','
+630                  "region_num"
+631               ','
+632                  "region_start"
+633               ','
+634                  "region_stop"
+635               ','
+636                  "_TYPE_"
+637               ','
+638                  "_FREQ_"
+639               ','
+640                  "brass_10cGy_0cGy_72h"
+641               ','
+642                  "brass_1p4cGy_0cGy_72h"
+643               ','
+644                  "brass_10cGy_0cGy_1h"
+645               ','
+646                  "brass_1p4cGy_0cGy_1h"
+647               ','
+648                  "long_1p4cGy_0cGy_72h"
+649               ;
+650             end;
+651           set  CHH_REGION_MEAN   end=EFIEOD;
+652               format site_type $3. ;
+653               format chr $5. ;
+654               format region_num best12. ;
+655               format region_start best12. ;
+24                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+656               format region_stop best12. ;
+657               format _TYPE_ best12. ;
+658               format _FREQ_ best12. ;
+659               format brass_10cGy_0cGy_72h best12. ;
+660               format brass_1p4cGy_0cGy_72h best12. ;
+661               format brass_10cGy_0cGy_1h best12. ;
+662               format brass_1p4cGy_0cGy_1h best12. ;
+663               format long_1p4cGy_0cGy_72h best12. ;
+664             do;
+665               EFIOUT + 1;
+666               put site_type $ @;
+667               put chr $ @;
+668               put region_num @;
+669               put region_start @;
+670               put region_stop @;
+671               put _TYPE_ @;
+672               put _FREQ_ @;
+673               put brass_10cGy_0cGy_72h @;
+674               put brass_1p4cGy_0cGy_72h @;
+675               put brass_10cGy_0cGy_1h @;
+676               put brass_1p4cGy_0cGy_1h @;
+677               put long_1p4cGy_0cGy_72h ;
+678               ;
+679             end;
+680            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+681            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+682            run;
+
+NOTE: The file '/blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv' is:
+      Filename=/blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv,
+      Owner Name=jrbnewman,Group Name=concannon,
+      Access Permission=-rw-rw----,
+      Last Modified=21Apr2023:20:38:46
+
+NOTE: 165965 records were written to the file '/blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv'.
+      The minimum record length was 40.
+      The maximum record length was 168.
+NOTE: There were 165964 observations read from the data set WORK.CHH_REGION_MEAN.
+NOTE: DATA statement used (Total process time):
+      real time           0.38 seconds
+      cpu time            0.37 seconds
+      
+
+165964 records created in /blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv from CHH_REGION_MEAN.
+  
+  
+NOTE: "/blue/concannon/share/jnewman/mingqi_arab/CHH_DMRs_for_heatmap.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.54 seconds
+      cpu time            0.42 seconds
+      
+
+683        
+684        proc export data=gc_region_mean outfile="/blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv"
+685        dbms=csv replace;
+686        run;
+
+687         /**********************************************************************
+25                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+688         *   PRODUCT:   SAS
+689         *   VERSION:   9.4
+690         *   CREATOR:   External File Interface
+691         *   DATE:      21APR23
+692         *   DESC:      Generated SAS Datastep Code
+693         *   TEMPLATE SOURCE:  (None Specified.)
+694         ***********************************************************************/
+695            data _null_;
+696            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+697            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+698            file '/blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+699            if _n_ = 1 then        /* write column names or labels */
+700             do;
+701               put
+702                  "site_type"
+703               ','
+704                  "chr"
+705               ','
+706                  "region_num"
+707               ','
+708                  "region_start"
+709               ','
+710                  "region_stop"
+711               ','
+712                  "_TYPE_"
+713               ','
+714                  "_FREQ_"
+715               ','
+716                  "brass_10cGy_0cGy_72h"
+717               ','
+718                  "brass_1p4cGy_0cGy_72h"
+719               ','
+720                  "brass_10cGy_0cGy_1h"
+721               ','
+722                  "brass_1p4cGy_0cGy_1h"
+723               ','
+724                  "long_1p4cGy_0cGy_72h"
+725               ;
+726             end;
+727           set  GC_REGION_MEAN   end=EFIEOD;
+728               format site_type $3. ;
+729               format chr $5. ;
+730               format region_num best12. ;
+731               format region_start best12. ;
+732               format region_stop best12. ;
+733               format _TYPE_ best12. ;
+734               format _FREQ_ best12. ;
+735               format brass_10cGy_0cGy_72h best12. ;
+736               format brass_1p4cGy_0cGy_72h best12. ;
+737               format brass_10cGy_0cGy_1h best12. ;
+738               format brass_1p4cGy_0cGy_1h best12. ;
+739               format long_1p4cGy_0cGy_72h best12. ;
+740             do;
+741               EFIOUT + 1;
+742               put site_type $ @;
+743               put chr $ @;
+744               put region_num @;
+745               put region_start @;
+26                                                         The SAS System                               14:46 Friday, April 21, 2023
+
+746               put region_stop @;
+747               put _TYPE_ @;
+748               put _FREQ_ @;
+749               put brass_10cGy_0cGy_72h @;
+750               put brass_1p4cGy_0cGy_72h @;
+751               put brass_10cGy_0cGy_1h @;
+752               put brass_1p4cGy_0cGy_1h @;
+753               put long_1p4cGy_0cGy_72h ;
+754               ;
+755             end;
+756            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+757            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+758            run;
+
+NOTE: The file '/blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv' is:
+      Filename=/blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv,
+      Owner Name=jrbnewman,Group Name=concannon,
+      Access Permission=-rw-rw----,
+      Last Modified=21Apr2023:20:38:47
+
+NOTE: 22633 records were written to the file '/blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv'.
+      The minimum record length was 41.
+      The maximum record length was 168.
+NOTE: There were 22632 observations read from the data set WORK.GC_REGION_MEAN.
+NOTE: DATA statement used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.05 seconds
+      
+
+22632 records created in /blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv from GC_REGION_MEAN.
+  
+  
+NOTE: "/blue/concannon/share/jnewman/mingqi_arab/GC_DARs_for_heatmap.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.08 seconds
+      
+
+759        
+760        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           4:52:13.29
+      cpu time            4:41:09.84
+      

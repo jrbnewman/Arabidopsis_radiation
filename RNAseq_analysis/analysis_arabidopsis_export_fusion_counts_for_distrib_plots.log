@@ -1,0 +1,350 @@
+1                                                          The SAS System                             11:52 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.16 seconds
+      cpu time            0.02 seconds
+      
+1          ods listing; ods html close;
+2          
+3          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+4          
+5          /* Prep data for exporting so I can plot the distribution of coverage. We can use this to decide if
+6             there are low-coverage samples that need dropping
+7          
+2                                                          The SAS System                             11:52 Sunday, December 3, 2017
+
+8             I want to include: sampleID, fusionID, log_apn, plate, condition (trt*time) */
+9          
+10         data sample_key;
+11           set rs.arab_design_file;
+12           length condition $20.;
+13           condition=catx("_",treatment,time);
+14           keep sample_number condition treatment time;
+15         run;
+
+NOTE: There were 180 observations read from the data set RS.ARAB_DESIGN_FILE.
+NOTE: The data set WORK.SAMPLE_KEY has 180 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+16         
+17         
+18         proc sort data=sample_key nodup;
+19           by sample_number;
+
+NOTE: There were 180 observations read from the data set WORK.SAMPLE_KEY.
+NOTE: 144 duplicate observations were deleted.
+NOTE: The data set WORK.SAMPLE_KEY has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+20         proc sort data=rs.arab_fusion_counts_w_key;
+21           by sample_number;
+22         run;
+
+NOTE: There were 5134716 observations read from the data set RS.ARAB_FUSION_COUNTS_W_KEY.
+NOTE: The data set RS.ARAB_FUSION_COUNTS_W_KEY has 5134716 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           9.93 seconds
+      cpu time            4.52 seconds
+      
+
+23         
+24         data counts_w_key;
+25            merge sample_key (in=in1) rs.arab_fusion_counts_w_key (in=in2);
+26            by sample_number;
+27            if in1 and in2;
+28         run;
+
+NOTE: There were 36 observations read from the data set WORK.SAMPLE_KEY.
+NOTE: There were 5134716 observations read from the data set RS.ARAB_FUSION_COUNTS_W_KEY.
+NOTE: The data set WORK.COUNTS_W_KEY has 5134716 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.50 seconds
+      cpu time            2.07 seconds
+      
+
+29         
+30         data calc_log;
+31           set counts_w_key;
+3                                                          The SAS System                             11:52 Sunday, December 3, 2017
+
+32           log_apn=log(apn+1);
+33         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COUNTS_W_KEY.
+NOTE: The data set WORK.CALC_LOG has 5134716 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.69 seconds
+      cpu time            1.36 seconds
+      
+
+34         
+35         proc sort data=calc_log;
+36           by sample_number fusion_id;
+37         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.CALC_LOG.
+NOTE: The data set WORK.CALC_LOG has 5134716 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3.51 seconds
+      cpu time            4.07 seconds
+      
+
+38         
+39         
+40         data drop_zero;
+41           set calc_log;
+42           where apn > 0;
+43         run;
+
+NOTE: There were 4198450 observations read from the data set WORK.CALC_LOG.
+      WHERE apn>0;
+NOTE: The data set WORK.DROP_ZERO has 4198450 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.34 seconds
+      cpu time            1.32 seconds
+      
+
+44         
+45         /* Export for plotting coverage distribution */
+46         
+47         proc export data=calc_log
+48              outfile="!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv"
+49              dbms=csv replace;
+50         run;
+
+51          /**********************************************************************
+52          *   PRODUCT:   SAS
+53          *   VERSION:   9.4
+54          *   CREATOR:   External File Interface
+55          *   DATE:      03DEC17
+56          *   DESC:      Generated SAS Datastep Code
+57          *   TEMPLATE SOURCE:  (None Specified.)
+58          ***********************************************************************/
+59             data _null_;
+60             %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+61             %let _EFIREC_ = 0;     /* clear export record count macro variable */
+62             file '!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv' delimiter=',' DSD DROPOVER
+62       ! lrecl=32767;
+4                                                          The SAS System                             11:52 Sunday, December 3, 2017
+
+63             if _n_ = 1 then        /* write column names or labels */
+64              do;
+65                put
+66                   "sample_number"
+67                ','
+68                   "treatment"
+69                ','
+70                   "time"
+71                ','
+72                   "condition"
+73                ','
+74                   "replicate"
+75                ','
+76                   "fusion_id"
+77                ','
+78                   "apn"
+79                ','
+80                   "log_apn"
+81                ;
+82              end;
+83            set  CALC_LOG   end=EFIEOD;
+84                format sample_number best12. ;
+85                format treatment $5. ;
+86                format time best12. ;
+87                format condition $20. ;
+88                format replicate best12. ;
+89                format fusion_id $10. ;
+90                format apn best12. ;
+91                format log_apn best12. ;
+92              do;
+93                EFIOUT + 1;
+94                put sample_number @;
+95                put treatment $ @;
+96                put time @;
+97                put condition $ @;
+98                put replicate @;
+99                put fusion_id $ @;
+100               put apn @;
+101               put log_apn ;
+102               ;
+103             end;
+104            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+105            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+106            run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Sun Dec  3 11:53:30 2017
+
+NOTE: 5134717 records were written to the file '!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv'.
+      The minimum record length was 26.
+      The maximum record length was 70.
+NOTE: There were 5134716 observations read from the data set WORK.CALC_LOG.
+NOTE: DATA statement used (Total process time):
+      real time           15.44 seconds
+      cpu time            9.49 seconds
+5                                                          The SAS System                             11:52 Sunday, December 3, 2017
+
+      
+
+5134716 records created in !PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv from CALC_LOG.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           15.70 seconds
+      cpu time            9.55 seconds
+      
+
+107        
+108        proc export data=drop_zero
+109             outfile="!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv"
+110             dbms=csv replace;
+111        run;
+
+112         /**********************************************************************
+113         *   PRODUCT:   SAS
+114         *   VERSION:   9.4
+115         *   CREATOR:   External File Interface
+116         *   DATE:      03DEC17
+117         *   DESC:      Generated SAS Datastep Code
+118         *   TEMPLATE SOURCE:  (None Specified.)
+119         ***********************************************************************/
+120            data _null_;
+121            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+122            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+123            file '!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv' delimiter=',' DSD DROPOVER
+123      ! lrecl=32767;
+124            if _n_ = 1 then        /* write column names or labels */
+125             do;
+126               put
+127                  "sample_number"
+128               ','
+129                  "treatment"
+130               ','
+131                  "time"
+132               ','
+133                  "condition"
+134               ','
+135                  "replicate"
+136               ','
+137                  "fusion_id"
+138               ','
+139                  "apn"
+140               ','
+141                  "log_apn"
+142               ;
+143             end;
+144           set  DROP_ZERO   end=EFIEOD;
+145               format sample_number best12. ;
+146               format treatment $5. ;
+147               format time best12. ;
+148               format condition $20. ;
+149               format replicate best12. ;
+150               format fusion_id $10. ;
+151               format apn best12. ;
+6                                                          The SAS System                             11:52 Sunday, December 3, 2017
+
+152               format log_apn best12. ;
+153             do;
+154               EFIOUT + 1;
+155               put sample_number @;
+156               put treatment $ @;
+157               put time @;
+158               put condition $ @;
+159               put replicate @;
+160               put fusion_id $ @;
+161               put apn @;
+162               put log_apn ;
+163               ;
+164             end;
+165            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+166            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+167            run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Sun Dec  3 11:53:46 2017
+
+NOTE: 4198451 records were written to the file '!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv'.
+      The minimum record length was 38.
+      The maximum record length was 70.
+NOTE: There were 4198450 observations read from the data set WORK.DROP_ZERO.
+NOTE: DATA statement used (Total process time):
+      real time           13.13 seconds
+      cpu time            7.95 seconds
+      
+
+4198450 records created in !PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv from DROP_ZERO.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/distrib_logapn_fusions_arabidopsis_gt0.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           13.28 seconds
+      cpu time            8.02 seconds
+      
+
+168        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           50.26 seconds
+      cpu time            30.97 seconds
+      

@@ -1,0 +1,18 @@
+[bwa_index] Pack FASTA... 0.80 sec
+[bwa_index] Construct BWT for the packed sequence...
+[BWTIncCreate] textLength=239335500, availableWord=28840068
+[BWTIncConstructFromPacked] 10 iterations done. 47572956 characters processed.
+[BWTIncConstructFromPacked] 20 iterations done. 87887020 characters processed.
+[BWTIncConstructFromPacked] 30 iterations done. 123714220 characters processed.
+[BWTIncConstructFromPacked] 40 iterations done. 155553484 characters processed.
+[BWTIncConstructFromPacked] 50 iterations done. 183848268 characters processed.
+[BWTIncConstructFromPacked] 60 iterations done. 208992716 characters processed.
+[BWTIncConstructFromPacked] 70 iterations done. 231337148 characters processed.
+[bwa_index] 70.46 seconds elapse.
+[bwa_index] Update BWT... 0.53 sec
+[bwa_index] Pack forward-only FASTA... 0.54 sec
+[bwa_index] Construct SA from BWT and Occ... 34.06 sec
+[bwt_gen] Finished constructing BWT in 74 iterations.
+[main] Version: 0.7.15-r1140
+[main] CMD: bwa index -a bwtsw -p /blue/concannon/share/jnewman/references/tair10/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa /blue/concannon/share/jnewman/references/tair10/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa
+[main] Real time: 124.150 sec; CPU: 106.399 sec

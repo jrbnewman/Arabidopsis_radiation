@@ -1,0 +1,652 @@
+1                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M1 MBCS3170) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 3.10.0-1160.88.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 13.1
+      SAS/ETS 13.1
+      SAS/OR 13.1
+      SAS/IML 13.1
+      SAS/QC 13.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.88.1.el7.x86_64 #1 SMP Sat Feb 18 13:27:00 UTC 2023 x86_64 Red Hat Enterprise Linux Server release 7.9 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.53 seconds
+      cpu time            0.04 seconds
+      
+1          libname wgbslocB '/blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data';
+NOTE: Libref WGBSLOCB was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data
+2          libname wgbslocL '/blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data';
+NOTE: Libref WGBSLOCL was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data
+3          
+4          
+5          ods listing;
+2                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+6          ods html close;
+7          options nosyntaxcheck;
+8          
+9          proc datasets lib=work kill noprint;
+NOTE: Deleting WORK.REGSTRY (memtype=ITEMSTOR).
+NOTE: File WORK.REGSTRY (memtype=ITEMSTOR) cannot be deleted because it is in use.
+10         run;
+
+11         quit;
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.02 seconds
+      
+
+12         
+13         
+14         
+15         data DMC_LONG_1P4CGY72H_0CGY72H; set WGBSLOCB.DMC_LONG_1P4CGY72H_0CGY72H; if _n_ <= 20; run;
+
+NOTE: There were 90392002 observations read from the data set WGBSLOCB.DMC_LONG_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.DMC_LONG_1P4CGY72H_0CGY72H has 20 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           28.39 seconds
+      cpu time            18.23 seconds
+      
+
+16         data DMC_BRASS_1P4CGY72H_0CGY72H; set WGBSLOCB.DMC_BRASS_1P4CGY72H_0CGY72H; if _n_ <= 20; run;
+
+NOTE: There were 62394426 observations read from the data set WGBSLOCB.DMC_BRASS_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.DMC_BRASS_1P4CGY72H_0CGY72H has 20 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20.24 seconds
+      cpu time            13.51 seconds
+      
+
+17         data DMC_BRASS_1P4CGY1H_0CGY1H; set WGBSLOCB.DMC_BRASS_1P4CGY1H_0CGY1H; if _n_ <= 20; run;
+
+NOTE: There were 45711020 observations read from the data set WGBSLOCB.DMC_BRASS_1P4CGY1H_0CGY1H.
+NOTE: The data set WORK.DMC_BRASS_1P4CGY1H_0CGY1H has 20 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22.02 seconds
+      cpu time            10.53 seconds
+      
+
+18         data DMC_BRASS_10CGY72H_0CGY72H; set WGBSLOCB.DMC_BRASS_10CGY72H_0CGY72H; if _n_ <= 20; run;
+
+NOTE: There were 53917380 observations read from the data set WGBSLOCB.DMC_BRASS_10CGY72H_0CGY72H.
+NOTE: The data set WORK.DMC_BRASS_10CGY72H_0CGY72H has 20 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           24.63 seconds
+      cpu time            12.52 seconds
+      
+
+19         data DMC_BRASS_10CGY1H_0CGY1H; set WGBSLOCB.DMC_BRASS_10CGY1H_0CGY1H; if _n_ <= 20; run;
+
+NOTE: There were 47442694 observations read from the data set WGBSLOCB.DMC_BRASS_10CGY1H_0CGY1H.
+NOTE: The data set WORK.DMC_BRASS_10CGY1H_0CGY1H has 20 observations and 103 variables.
+3                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+NOTE: DATA statement used (Total process time):
+      real time           16.98 seconds
+      cpu time            9.84 seconds
+      
+
+20         
+21         
+22         
+23         
+24         
+25         data DMC_all;
+26            set DMC_LONG_1P4CGY72H_0CGY72H (in=in1)
+27                DMC_BRASS_1P4CGY72H_0CGY72H (in=in2)
+28                DMC_BRASS_1P4CGY1H_0CGY1H (in=in3)
+29                DMC_BRASS_10CGY72H_0CGY72H (in=in4)
+30                DMC_BRASS_10CGY1H_0CGY1H (in=in5);
+31            length comparison $32.;
+32            if in1 then comparison="DMC_LONG_1P4CGY72H_0CGY72H";
+33            if in1 then comparison="DMC_BRASS_1P4CGY72H_0CGY72H";
+34            if in1 then comparison="DMC_BRASS_1P4CGY1H_0CGY1H";
+35            if in1 then comparison="DMC_BRASS_10CGY72H_0CGY72H";
+36            if in1 then comparison="DMC_BRASS_10CGY1H_0CGY1H";
+37         run;
+
+NOTE: There were 20 observations read from the data set WORK.DMC_LONG_1P4CGY72H_0CGY72H.
+NOTE: There were 20 observations read from the data set WORK.DMC_BRASS_1P4CGY72H_0CGY72H.
+NOTE: There were 20 observations read from the data set WORK.DMC_BRASS_1P4CGY1H_0CGY1H.
+NOTE: There were 20 observations read from the data set WORK.DMC_BRASS_10CGY72H_0CGY72H.
+NOTE: There were 20 observations read from the data set WORK.DMC_BRASS_10CGY1H_0CGY1H.
+NOTE: The data set WORK.DMC_ALL has 100 observations and 104 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+38         
+39         
+40         
+41         proc export data=DMC_all outfile="/blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv"
+42           dbms=csv replace;
+43         run;
+
+44          /**********************************************************************
+45          *   PRODUCT:   SAS
+46          *   VERSION:   9.4
+47          *   CREATOR:   External File Interface
+48          *   DATE:      07APR23
+49          *   DESC:      Generated SAS Datastep Code
+50          *   TEMPLATE SOURCE:  (None Specified.)
+51          ***********************************************************************/
+52             data _null_;
+53             %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+54             %let _EFIREC_ = 0;     /* clear export record count macro variable */
+55             file '/blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+56             if _n_ = 1 then        /* write column names or labels */
+57              do;
+58                put
+59                   "site_type"
+4                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+60                ','
+61                   "chr"
+62                ','
+63                   "start_pos"
+64                ','
+65                   "stop_pos"
+66                ','
+67                   "N"
+68                ','
+69                   "_PCHI_"
+70                ','
+71                   "DF_PCHI"
+72                ','
+73                   "P_PCHI"
+74                ','
+75                   "_LRCHI_"
+76                ','
+77                   "DF_LRCHI"
+78                ','
+79                   "P_LRCHI"
+80                ','
+81                   "_AJCHI_"
+82                ','
+83                   "DF_AJCHI"
+84                ','
+85                   "P_AJCHI"
+86                ','
+87                   "_MHCHI_"
+88                ','
+89                   "DF_MHCHI"
+90                ','
+91                   "P_MHCHI"
+92                ','
+93                   "XPL_FISH"
+94                ','
+95                   "XPR_FISH"
+96                ','
+97                   "XP2_FISH"
+98                ','
+99                   "_PHI_"
+100               ','
+101                  "_CONTGY_"
+102               ','
+103                  "_CRAMV_"
+104               ','
+105                  "_RSK11_"
+106               ','
+107                  "E_RSK11"
+108               ','
+109                  "L_RSK11"
+110               ','
+111                  "U_RSK11"
+112               ','
+113                  "XL_RSK11"
+114               ','
+115                  "XU_RSK11"
+116               ','
+117                  "_RSK21_"
+5                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+118               ','
+119                  "E_RSK21"
+120               ','
+121                  "L_RSK21"
+122               ','
+123                  "U_RSK21"
+124               ','
+125                  "XL_RSK21"
+126               ','
+127                  "XU_RSK21"
+128               ','
+129                  "_RSK1_"
+130               ','
+131                  "E_RSK1"
+132               ','
+133                  "L_RSK1"
+134               ','
+135                  "U_RSK1"
+136               ','
+137                  "XL_RSK1"
+138               ','
+139                  "XU_RSK1"
+140               ','
+141                  "_RDIF1_"
+142               ','
+143                  "E_RDIF1"
+144               ','
+145                  "L_RDIF1"
+146               ','
+147                  "U_RDIF1"
+148               ','
+149                  "_RSK12_"
+150               ','
+151                  "E_RSK12"
+152               ','
+153                  "L_RSK12"
+154               ','
+155                  "U_RSK12"
+156               ','
+157                  "XL_RSK12"
+158               ','
+159                  "XU_RSK12"
+160               ','
+161                  "_RSK22_"
+162               ','
+163                  "E_RSK22"
+164               ','
+165                  "L_RSK22"
+166               ','
+167                  "U_RSK22"
+168               ','
+169                  "XL_RSK22"
+170               ','
+171                  "XU_RSK22"
+172               ','
+173                  "_RSK2_"
+174               ','
+175                  "E_RSK2"
+6                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+176               ','
+177                  "L_RSK2"
+178               ','
+179                  "U_RSK2"
+180               ','
+181                  "XL_RSK2"
+182               ','
+183                  "XU_RSK2"
+184               ','
+185                  "_RDIF2_"
+186               ','
+187                  "E_RDIF2"
+188               ','
+189                  "L_RDIF2"
+190               ','
+191                  "U_RDIF2"
+192               ','
+193                  "_RROR_"
+194               ','
+195                  "L_RROR"
+196               ','
+197                  "U_RROR"
+198               ','
+199                  "_RRC1_"
+200               ','
+201                  "L_RRC1"
+202               ','
+203                  "U_RRC1"
+204               ','
+205                  "_RRC2_"
+206               ','
+207                  "L_RRC2"
+208               ','
+209                  "U_RRC2"
+210               ','
+211                  "_CMHCOR_"
+212               ','
+213                  "DF_CMHCO"
+214               ','
+215                  "P_CMHCOR"
+216               ','
+217                  "_CMHRMS_"
+218               ','
+219                  "DF_CMHRM"
+220               ','
+221                  "P_CMHRMS"
+222               ','
+223                  "_CMHGA_"
+224               ','
+225                  "DF_CMHGA"
+226               ','
+227                  "P_CMHGA"
+228               ','
+229                  "_MHOR_"
+230               ','
+231                  "L_MHOR"
+232               ','
+233                  "U_MHOR"
+7                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+234               ','
+235                  "_LGOR_"
+236               ','
+237                  "L_LGOR"
+238               ','
+239                  "U_LGOR"
+240               ','
+241                  "_MHRRC1_"
+242               ','
+243                  "L_MHRRC1"
+244               ','
+245                  "U_MHRRC1"
+246               ','
+247                  "_LGRRC1_"
+248               ','
+249                  "L_LGRRC1"
+250               ','
+251                  "U_LGRRC1"
+252               ','
+253                  "_MHRRC2_"
+254               ','
+255                  "L_MHRRC2"
+256               ','
+257                  "U_MHRRC2"
+258               ','
+259                  "_LGRRC2_"
+260               ','
+261                  "L_LGRRC2"
+262               ','
+263                  "U_LGRRC2"
+264               ','
+265                  "comparison"
+266               ;
+267             end;
+268           set  DMC_ALL   end=EFIEOD;
+269               format site_type $3. ;
+270               format chr $5. ;
+271               format start_pos best12. ;
+272               format stop_pos best12. ;
+273               format N best12. ;
+274               format _PCHI_ best12. ;
+275               format DF_PCHI best12. ;
+276               format P_PCHI best12. ;
+277               format _LRCHI_ best12. ;
+278               format DF_LRCHI best12. ;
+279               format P_LRCHI best12. ;
+280               format _AJCHI_ best12. ;
+281               format DF_AJCHI best12. ;
+282               format P_AJCHI best12. ;
+283               format _MHCHI_ best12. ;
+284               format DF_MHCHI best12. ;
+285               format P_MHCHI best12. ;
+286               format XPL_FISH best12. ;
+287               format XPR_FISH best12. ;
+288               format XP2_FISH best12. ;
+289               format _PHI_ best12. ;
+290               format _CONTGY_ best12. ;
+291               format _CRAMV_ best12. ;
+8                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+292               format _RSK11_ best12. ;
+293               format E_RSK11 best12. ;
+294               format L_RSK11 best12. ;
+295               format U_RSK11 best12. ;
+296               format XL_RSK11 best12. ;
+297               format XU_RSK11 best12. ;
+298               format _RSK21_ best12. ;
+299               format E_RSK21 best12. ;
+300               format L_RSK21 best12. ;
+301               format U_RSK21 best12. ;
+302               format XL_RSK21 best12. ;
+303               format XU_RSK21 best12. ;
+304               format _RSK1_ best12. ;
+305               format E_RSK1 best12. ;
+306               format L_RSK1 best12. ;
+307               format U_RSK1 best12. ;
+308               format XL_RSK1 best12. ;
+309               format XU_RSK1 best12. ;
+310               format _RDIF1_ best12. ;
+311               format E_RDIF1 best12. ;
+312               format L_RDIF1 best12. ;
+313               format U_RDIF1 best12. ;
+314               format _RSK12_ best12. ;
+315               format E_RSK12 best12. ;
+316               format L_RSK12 best12. ;
+317               format U_RSK12 best12. ;
+318               format XL_RSK12 best12. ;
+319               format XU_RSK12 best12. ;
+320               format _RSK22_ best12. ;
+321               format E_RSK22 best12. ;
+322               format L_RSK22 best12. ;
+323               format U_RSK22 best12. ;
+324               format XL_RSK22 best12. ;
+325               format XU_RSK22 best12. ;
+326               format _RSK2_ best12. ;
+327               format E_RSK2 best12. ;
+328               format L_RSK2 best12. ;
+329               format U_RSK2 best12. ;
+330               format XL_RSK2 best12. ;
+331               format XU_RSK2 best12. ;
+332               format _RDIF2_ best12. ;
+333               format E_RDIF2 best12. ;
+334               format L_RDIF2 best12. ;
+335               format U_RDIF2 best12. ;
+336               format _RROR_ best12. ;
+337               format L_RROR best12. ;
+338               format U_RROR best12. ;
+339               format _RRC1_ best12. ;
+340               format L_RRC1 best12. ;
+341               format U_RRC1 best12. ;
+342               format _RRC2_ best12. ;
+343               format L_RRC2 best12. ;
+344               format U_RRC2 best12. ;
+345               format _CMHCOR_ best12. ;
+346               format DF_CMHCO best12. ;
+347               format P_CMHCOR best12. ;
+348               format _CMHRMS_ best12. ;
+349               format DF_CMHRM best12. ;
+9                                                          The SAS System                                21:43 Friday, April 7, 2023
+
+350               format P_CMHRMS best12. ;
+351               format _CMHGA_ best12. ;
+352               format DF_CMHGA best12. ;
+353               format P_CMHGA best12. ;
+354               format _MHOR_ best12. ;
+355               format L_MHOR best12. ;
+356               format U_MHOR best12. ;
+357               format _LGOR_ best12. ;
+358               format L_LGOR best12. ;
+359               format U_LGOR best12. ;
+360               format _MHRRC1_ best12. ;
+361               format L_MHRRC1 best12. ;
+362               format U_MHRRC1 best12. ;
+363               format _LGRRC1_ best12. ;
+364               format L_LGRRC1 best12. ;
+365               format U_LGRRC1 best12. ;
+366               format _MHRRC2_ best12. ;
+367               format L_MHRRC2 best12. ;
+368               format U_MHRRC2 best12. ;
+369               format _LGRRC2_ best12. ;
+370               format L_LGRRC2 best12. ;
+371               format U_LGRRC2 best12. ;
+372               format comparison $32. ;
+373             do;
+374               EFIOUT + 1;
+375               put site_type $ @;
+376               put chr $ @;
+377               put start_pos @;
+378               put stop_pos @;
+379               put N @;
+380               put _PCHI_ @;
+381               put DF_PCHI @;
+382               put P_PCHI @;
+383               put _LRCHI_ @;
+384               put DF_LRCHI @;
+385               put P_LRCHI @;
+386               put _AJCHI_ @;
+387               put DF_AJCHI @;
+388               put P_AJCHI @;
+389               put _MHCHI_ @;
+390               put DF_MHCHI @;
+391               put P_MHCHI @;
+392               put XPL_FISH @;
+393               put XPR_FISH @;
+394               put XP2_FISH @;
+395               put _PHI_ @;
+396               put _CONTGY_ @;
+397               put _CRAMV_ @;
+398               put _RSK11_ @;
+399               put E_RSK11 @;
+400               put L_RSK11 @;
+401               put U_RSK11 @;
+402               put XL_RSK11 @;
+403               put XU_RSK11 @;
+404               put _RSK21_ @;
+405               put E_RSK21 @;
+406               put L_RSK21 @;
+407               put U_RSK21 @;
+10                                                         The SAS System                                21:43 Friday, April 7, 2023
+
+408               put XL_RSK21 @;
+409               put XU_RSK21 @;
+410               put _RSK1_ @;
+411               put E_RSK1 @;
+412               put L_RSK1 @;
+413               put U_RSK1 @;
+414               put XL_RSK1 @;
+415               put XU_RSK1 @;
+416               put _RDIF1_ @;
+417               put E_RDIF1 @;
+418               put L_RDIF1 @;
+419               put U_RDIF1 @;
+420               put _RSK12_ @;
+421               put E_RSK12 @;
+422               put L_RSK12 @;
+423               put U_RSK12 @;
+424               put XL_RSK12 @;
+425               put XU_RSK12 @;
+426               put _RSK22_ @;
+427               put E_RSK22 @;
+428               put L_RSK22 @;
+429               put U_RSK22 @;
+430               put XL_RSK22 @;
+431               put XU_RSK22 @;
+432               put _RSK2_ @;
+433               put E_RSK2 @;
+434               put L_RSK2 @;
+435               put U_RSK2 @;
+436               put XL_RSK2 @;
+437               put XU_RSK2 @;
+438               put _RDIF2_ @;
+439               put E_RDIF2 @;
+440               put L_RDIF2 @;
+441               put U_RDIF2 @;
+442               put _RROR_ @;
+443               put L_RROR @;
+444               put U_RROR @;
+445               put _RRC1_ @;
+446               put L_RRC1 @;
+447               put U_RRC1 @;
+448               put _RRC2_ @;
+449               put L_RRC2 @;
+450               put U_RRC2 @;
+451               put _CMHCOR_ @;
+452               put DF_CMHCO @;
+453               put P_CMHCOR @;
+454               put _CMHRMS_ @;
+455               put DF_CMHRM @;
+456               put P_CMHRMS @;
+457               put _CMHGA_ @;
+458               put DF_CMHGA @;
+459               put P_CMHGA @;
+460               put _MHOR_ @;
+461               put L_MHOR @;
+462               put U_MHOR @;
+463               put _LGOR_ @;
+464               put L_LGOR @;
+465               put U_LGOR @;
+11                                                         The SAS System                                21:43 Friday, April 7, 2023
+
+466               put _MHRRC1_ @;
+467               put L_MHRRC1 @;
+468               put U_MHRRC1 @;
+469               put _LGRRC1_ @;
+470               put L_LGRRC1 @;
+471               put U_LGRRC1 @;
+472               put _MHRRC2_ @;
+473               put L_MHRRC2 @;
+474               put U_MHRRC2 @;
+475               put _LGRRC2_ @;
+476               put L_LGRRC2 @;
+477               put U_LGRRC2 @;
+478               put comparison $ ;
+479               ;
+480             end;
+481            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+482            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+483            run;
+
+NOTE: The file '/blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv' is:
+      Filename=/blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv,
+      Owner Name=jrbnewman,Group Name=concannon,
+      Access Permission=-rw-rw----,
+      Last Modified=07Apr2023:22:45:30
+
+NOTE: 101 records were written to the file '/blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv'.
+      The minimum record length was 292.
+      The maximum record length was 918.
+NOTE: There were 100 observations read from the data set WORK.DMC_ALL.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.02 seconds
+      
+
+100 records created in /blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv from DMC_ALL.
+  
+  
+NOTE: "/blue/concannon/share/jnewman/mingqi_arab/brassica_dmc_FET_check.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           1.14 seconds
+      cpu time            0.08 seconds
+      
+
+484        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           1:54.46
+      cpu time            1:04.81
+      

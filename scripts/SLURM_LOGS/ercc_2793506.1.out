@@ -1,0 +1,34 @@
+Thu Jul 13 12:05:49 EDT 2023
+c0706a-s10.ufhpc
+rm: cannot remove ‘/blue/concannon/share/jnewman/mingqi_arab/FQ_merged_for_GEO/1-M-1-1_R1.fastq’: No such file or directory
+rm: cannot remove ‘/blue/concannon/share/jnewman/mingqi_arab/FQ_merged_for_GEO/1-M-1-1_R2.fastq’: No such file or directory
+cat: 1-M-1-1_R1_ambig_bt.fq: No such file or directory
+Traceback (most recent call last):
+  File "/blue/mcintyre/share/python.git/identify_quality.py", line 57, in <module>
+    main()
+  File "/blue/mcintyre/share/python.git/identify_quality.py", line 53, in main
+    quality = get_qual(args.fq)
+  File "/blue/mcintyre/share/python.git/identify_quality.py", line 35, in get_qual
+    for record in seqSlice:
+  File "/apps/python/2.7.6/lib/python2.7/site-packages/Bio/SeqIO/__init__.py", line 581, in parse
+    with as_handle(handle, mode) as fp:
+  File "/apps/python/2.7.6/lib/python2.7/contextlib.py", line 17, in __enter__
+    return self.gen.next()
+  File "/apps/python/2.7.6/lib/python2.7/site-packages/Bio/File.py", line 88, in as_handle
+    with open(handleish, mode, **kwargs) as fp:
+IOError: [Errno 2] No such file or directory: '/blue/concannon/share/jnewman/mingqi_arab/FQ_merged_for_GEO/.fastq'
+/tmp/slurmd/job2793506/slurm_script: line 105: [: ==: unary operator expected
+cat: 1-M-1-1_R2_unaln_bt.fq: No such file or directory
+cat: 1-M-1-1_R2_ambig_bt.fq: No such file or directory
+Traceback (most recent call last):
+  File "/blue/mcintyre/share/qc_pipeline/scripts/SizeChecker.py", line 128, in <module>
+    main()
+  File "/blue/mcintyre/share/qc_pipeline/scripts/SizeChecker.py", line 118, in main
+    output_size_list.append(getNumReads(output_file,aligned=0))
+  File "/blue/mcintyre/share/qc_pipeline/scripts/SizeChecker.py", line 102, in getNumReads
+    return getNumFASTQReads(filename)
+  File "/blue/mcintyre/share/qc_pipeline/scripts/SizeChecker.py", line 86, in getNumFASTQReads
+    return (fileLength(filename))/4
+  File "/blue/mcintyre/share/qc_pipeline/scripts/SizeChecker.py", line 28, in fileLength
+    return i + 1
+UnboundLocalError: local variable 'i' referenced before assignment

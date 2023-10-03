@@ -1,0 +1,232 @@
+1                                                          The SAS System                             11:56 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.15 seconds
+      cpu time            0.03 seconds
+      
+1          ods listing; ods html close;
+2          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+3          
+4          /* Calculating the means for treatment*time. */
+5          
+6          /* Get coverage counts. Going to calculate means on the non-log, UQ-normalized APN */
+7          
+2                                                          The SAS System                             11:56 Sunday, December 3, 2017
+
+8          data coverage;
+9             set rs.arab_fusion_counts_q3_norm_cent;
+10            keep sample_number fusion_id q3_q3_apn;
+11         run;
+
+NOTE: There were 5134716 observations read from the data set RS.ARAB_FUSION_COUNTS_Q3_NORM_CENT.
+NOTE: The data set WORK.COVERAGE has 5134716 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           13.89 seconds
+      cpu time            1.70 seconds
+      
+
+12         
+13         /* Get timepoints and treatment for samples */
+14         
+15         data sample_key;
+16           set rs.arab_design_file;
+17           keep sample_number treatment time;
+18         run;
+
+NOTE: There were 180 observations read from the data set RS.ARAB_DESIGN_FILE.
+NOTE: The data set WORK.SAMPLE_KEY has 180 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+19         
+20         proc sort data=sample_key nodup;
+21            by sample_number;
+
+NOTE: There were 180 observations read from the data set WORK.SAMPLE_KEY.
+NOTE: 144 duplicate observations were deleted.
+NOTE: The data set WORK.SAMPLE_KEY has 36 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+22         proc sort data=coverage;
+23            by sample_number;
+24         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COVERAGE.
+NOTE: The data set WORK.COVERAGE has 5134716 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.90 seconds
+      cpu time            3.46 seconds
+      
+
+25         
+26         data fusions_counts_w_key;
+27            merge sample_key (in=in1) coverage (in=in2);
+28            by sample_number;
+29            if in1 and in2;
+30            run;
+
+NOTE: There were 36 observations read from the data set WORK.SAMPLE_KEY.
+3                                                          The SAS System                             11:56 Sunday, December 3, 2017
+
+NOTE: There were 5134716 observations read from the data set WORK.COVERAGE.
+NOTE: The data set WORK.FUSIONS_COUNTS_W_KEY has 5134716 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.44 seconds
+      cpu time            1.45 seconds
+      
+
+31         
+32         /* Calc means for treatment*time by fusion */
+33         
+34         proc sort data=fusions_counts_w_key;
+35            by fusion_id treatment time;
+
+NOTE: There were 5134716 observations read from the data set WORK.FUSIONS_COUNTS_W_KEY.
+NOTE: The data set WORK.FUSIONS_COUNTS_W_KEY has 5134716 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.75 seconds
+      cpu time            3.77 seconds
+      
+
+36         proc means data=fusions_counts_w_key noprint;
+37            by fusion_id treatment time;
+38            var q3_q3_apn;
+39            output out=mean_apn_by_trt_time mean=;
+40         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.FUSIONS_COUNTS_W_KEY.
+NOTE: The data set WORK.MEAN_APN_BY_TRT_TIME has 1711572 observations and 6 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           3.92 seconds
+      cpu time            3.92 seconds
+      
+
+41         
+42         
+43         /* Transpose */
+44         
+45         data mean_apn_by_trt_time_2;
+46           set mean_apn_by_trt_time;
+47           trt_time=catx('_',treatment,time);
+48         run;
+
+NOTE: There were 1711572 observations read from the data set WORK.MEAN_APN_BY_TRT_TIME.
+NOTE: The data set WORK.MEAN_APN_BY_TRT_TIME_2 has 1711572 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.22 seconds
+      cpu time            1.23 seconds
+      
+
+49         
+50         proc sort data=mean_apn_by_trt_time_2;
+51           by fusion_id trt_time;
+
+NOTE: There were 1711572 observations read from the data set WORK.MEAN_APN_BY_TRT_TIME_2.
+NOTE: The data set WORK.MEAN_APN_BY_TRT_TIME_2 has 1711572 observations and 7 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3.85 seconds
+      cpu time            2.62 seconds
+4                                                          The SAS System                             11:56 Sunday, December 3, 2017
+
+      
+
+52         proc transpose data=mean_apn_by_trt_time_2 out=mean_apn_sbys;
+53            by fusion_id;
+54            var q3_q3_apn;
+55            id trt_time;
+56         run;
+
+NOTE: There were 1711572 observations read from the data set WORK.MEAN_APN_BY_TRT_TIME_2.
+NOTE: The data set WORK.MEAN_APN_SBYS has 142631 observations and 14 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           6.07 seconds
+      cpu time            6.07 seconds
+      
+
+57         
+58         /* Make permenant */
+59         
+60         data rs.arab_fus_mean_apn_by_trt_time;
+61            set mean_apn_sbys;
+62            drop _NAME_;
+63            rename _0_1gy_1=mean_q3apn_01gy_1h
+64                   _0_1gy_3=mean_q3apn_01gy_3h
+65                   _0_1gy_24=mean_q3apn_01gy_24h
+66                   _0_1gy_72=mean_q3apn_01gy_72h
+67                   _1gy_1=mean_q3apn_1gy_1h
+68                   _1gy_3=mean_q3apn_1gy_3h
+69                   _1gy_24=mean_q3apn_1gy_24h
+70                   _1gy_72=mean_q3apn_1gy_72h
+71                   Mock_1=mean_q3apn_mock_1h
+72                   Mock_3=mean_q3apn_mock_3h
+73                   Mock_24=mean_q3apn_mock_24h
+74                   Mock_72=mean_q3apn_mock_72h ;
+75         run;
+
+NOTE: There were 142631 observations read from the data set WORK.MEAN_APN_SBYS.
+NOTE: The data set RS.ARAB_FUS_MEAN_APN_BY_TRT_TIME has 142631 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.50 seconds
+      cpu time            0.04 seconds
+      
+
+76         
+77         
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           34.88 seconds
+      cpu time            24.34 seconds
+      

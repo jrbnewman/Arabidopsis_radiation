@@ -1,0 +1,4 @@
+Thu Jul 13 12:02:24 EDT 2023
+c35b-s21.ufhpc
+/tmp/slurmd/job2793153/slurm_script: line 41: unexpected EOF while looking for matching `}'
+/tmp/slurmd/job2793153/slurm_script: line 122: syntax error: unexpected end of file

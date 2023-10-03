@@ -1,0 +1,3148 @@
+1                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.13 seconds
+      cpu time            0.02 seconds
+      
+1          /* Formatting fusion data for the 13 ethanol response genes for SVN and SS */
+2          
+3          ods listing; ods html close;
+4          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+5          libname tair "!PATCON/useful_arabidopsis_data/TAIR10/sas_data";
+NOTE: Libref TAIR was successfully assigned as follows: 
+      Engine:        V9 
+2                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+      Physical Name: /home/jrbnewman/concannon/useful_arabidopsis_data/TAIR10/sas_data
+6          
+7          /* Get fusion annotations */
+8          
+9          data symbol2gene;
+10           set tair.gene2symbol_ens;
+11           keep symbol gene_id;
+12         run;
+
+NOTE: There were 14324 observations read from the data set TAIR.GENE2SYMBOL_ENS.
+NOTE: The data set WORK.SYMBOL2GENE has 14324 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.00 seconds
+      
+
+13         
+14         data fus2gene;
+15           set tair.tair20_fusion_si_info;
+16           gene_id=compress(tranwrd(primary_fbgn,"gene:",""));
+17           keep fusion_id gene_id;
+18         run;
+
+NOTE: There were 194415 observations read from the data set TAIR.TAIR20_FUSION_SI_INFO.
+NOTE: The data set WORK.FUS2GENE has 194415 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.35 seconds
+      cpu time            0.15 seconds
+      
+
+19         
+20         proc sort data=symbol2gene nodup;
+21           by gene_id;
+
+NOTE: There were 14324 observations read from the data set WORK.SYMBOL2GENE.
+NOTE: 0 duplicate observations were deleted.
+NOTE: The data set WORK.SYMBOL2GENE has 14324 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.02 seconds
+      
+
+22         proc sort data=fus2gene nodup;
+23           by gene_id;
+24         run;
+
+NOTE: There were 194415 observations read from the data set WORK.FUS2GENE.
+NOTE: 45317 duplicate observations were deleted.
+NOTE: The data set WORK.FUS2GENE has 149098 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.28 seconds
+      cpu time            0.29 seconds
+      
+
+25         
+26         data fus2keep;
+27           merge fus2gene (in=in1) symbol2gene (in=in2);
+28           by gene_id;
+3                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+29           if in1 and in2 then output;
+30           else if in1 then do;
+31               symbol=gene_id;
+32               output;
+33               end;
+34         run;
+
+NOTE: There were 149098 observations read from the data set WORK.FUS2GENE.
+NOTE: There were 14324 observations read from the data set WORK.SYMBOL2GENE.
+NOTE: The data set WORK.FUS2KEEP has 149098 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+      
+
+35         
+36         proc sort data=fus2keep;
+37            by fusion_id gene_id;
+
+NOTE: There were 149098 observations read from the data set WORK.FUS2KEEP.
+NOTE: The data set WORK.FUS2KEEP has 149098 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.21 seconds
+      cpu time            0.21 seconds
+      
+
+38         proc freq data=fus2keep noprint;
+39           tables fusion_id/out=fus_count;
+
+NOTE: There were 149098 observations read from the data set WORK.FUS2KEEP.
+NOTE: The data set WORK.FUS_COUNT has 142631 observations and 3 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.23 seconds
+      cpu time            0.24 seconds
+      
+
+40         proc sort data=fus_count;
+41           by descending count;
+42         run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_COUNT.
+NOTE: The data set WORK.FUS_COUNT has 142631 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.09 seconds
+      
+
+42       !      *6 genes per fusion max;
+43         
+44         data cat_fus2keep;
+45            array gene[20] $20.;
+46            array sym[20] $43.;
+47            retain gene1-gene20 sym1-sym20;
+48            set fus2keep;
+49            by fusion_id;
+50            if first.fusion_id then do;
+51               call missing(of gene1-gene20);
+52               call missing(of sym1-sym20);
+4                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+53               records = 0;
+54            end;
+55            records + 1;
+56            gene[records]=gene_id;
+57            sym[records]=symbol;
+58            if last.fusion_id then output;
+59         run;
+
+NOTE: There were 149098 observations read from the data set WORK.FUS2KEEP.
+NOTE: The data set WORK.CAT_FUS2KEEP has 142631 observations and 44 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.37 seconds
+      cpu time            0.38 seconds
+      
+
+60         
+61         data cat_fus2keep2;
+62           set cat_fus2keep;
+63           length gene_id2 $450.;
+64           length symbol_cat $900.;
+65           gene_id2=catx("|", OF gene1-gene20);
+66           symbol_cat=catx("|", OF sym1-sym20);
+67           drop gene1-gene20 sym1-sym20 gene_id records symbol;
+68           rename gene_id2=gene_id;
+69         run;
+
+NOTE: There were 142631 observations read from the data set WORK.CAT_FUS2KEEP.
+NOTE: The data set WORK.CAT_FUS2KEEP2 has 142631 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.64 seconds
+      cpu time            0.65 seconds
+      
+
+70         
+71         data fus_info;
+72           set tair.tair20_si_fusions_unique_flagged;
+73           keep chr fusion_start fusion_stop fusion_id strand flag_multigene flag_common flag_constitutive flag_alternative;
+74         run;
+
+NOTE: There were 142631 observations read from the data set TAIR.TAIR20_SI_FUSIONS_UNIQUE_FLAGGED.
+NOTE: The data set WORK.FUS_INFO has 142631 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           7.81 seconds
+      cpu time            0.55 seconds
+      
+
+75         
+76         proc sort data=cat_fus2keep2;
+77            by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.CAT_FUS2KEEP2.
+NOTE: The data set WORK.CAT_FUS2KEEP2 has 142631 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.30 seconds
+      cpu time            0.61 seconds
+      
+
+78         proc sort data=fus_info;
+5                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+79            by fusion_id;
+80         run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_INFO.
+NOTE: The data set WORK.FUS_INFO has 142631 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.11 seconds
+      
+
+81         
+82         data fus2keep_w_info;
+83           merge cat_fus2keep2 (in=in1) fus_info (in=in2);
+84           by fusion_id;
+85           if in1 and in2;
+86         run;
+
+NOTE: There were 142631 observations read from the data set WORK.CAT_FUS2KEEP2.
+NOTE: There were 142631 observations read from the data set WORK.FUS_INFO.
+NOTE: The data set WORK.FUS2KEEP_W_INFO has 142631 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.38 seconds
+      cpu time            0.38 seconds
+      
+
+87         
+88         /* Get P-values for the following:
+89            treatment   time trt*time
+90         
+91          */
+92         
+93         data main_p;
+94           set rs.arab_anova_main_trt_tm_non;
+95           length effect_p $30.;
+96            format ProbF best32. ;
+97           if effect="treatment" then effect_p="P_treatment";
+98           if effect="time" then effect_p="P_time";
+99           if effect="time*treatment" then effect_p="P_trt_by_time";
+100          keep fusion_id effect_p probf;
+101        run;
+
+NOTE: There were 354846 observations read from the data set RS.ARAB_ANOVA_MAIN_TRT_TM_NON.
+NOTE: The data set WORK.MAIN_P has 354846 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.64 seconds
+      cpu time            0.11 seconds
+      
+
+102        
+103        proc sort data=main_p;
+104           by fusion_id effect_p;
+
+NOTE: There were 354846 observations read from the data set WORK.MAIN_P.
+NOTE: The data set WORK.MAIN_P has 354846 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.27 seconds
+      
+6                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+
+105        proc transpose data=main_p out=main_p_sbys;
+106          by fusion_id;
+107          id effect_p;
+108          var probf;
+109        run;
+
+NOTE: There were 354846 observations read from the data set WORK.MAIN_P.
+NOTE: The data set WORK.MAIN_P_SBYS has 118282 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1.48 seconds
+      cpu time            1.49 seconds
+      
+
+110        
+111        data main_p_sbys2;
+112           set main_p_sbys;
+113           drop _NAME_ _LABEL_;
+114        run;
+
+NOTE: There were 118282 observations read from the data set WORK.MAIN_P_SBYS.
+NOTE: The data set WORK.MAIN_P_SBYS2 has 118282 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+115        
+116        data contrast_p;
+117          set rs.arab_fus_cntrs_constr_non;
+118          length p_label $100.;
+119           format ProbF best32. ;
+120        
+121          if label="0.1gy-Mock: 1h" then p_label="p_01gy_v_Mock_1h";
+122          if label= "0.1gy-Mock: 3h" then p_label="p_01gy_v_Mock_3h";
+123          if label= "0.1gy-Mock: 24h" then p_label="p_01gy_v_Mock_24h";
+124          if label= "0.1gy-Mock: 72h" then p_label="p_01gy_v_Mock_72h";
+125        
+126          if label= "1gy-Mock: 1h" then p_label="p_1gy_v_Mock_1h";
+127          if label= "1gy-Mock: 3h" then p_label="p_1gy_v_Mock_3h";
+128          if label= "1gy-Mock: 24h" then p_label="p_1gy_v_Mock_24h";
+129          if label= "1gy-Mock: 72h" then p_label="p_1gy_v_Mock_72h";
+130        
+131          if label="1gy-0.1gy: 1h" then p_label="p_1gy_v_01gy_1h";
+132          if label="1gy-0.1gy: 3h" then p_label="p_1gy_v_01gy_3h";
+133          if label="1gy-0.1gy: 24h" then p_label="p_1gy_v_01gy_24h";
+134          if label="1gy-0.1gy: 72h" then p_label="p_1gy_v_01gy_72h";
+135        
+136          if label="Mock: 3h-1h" then p_label="p_mock_3h_v_1h";
+137          if label="Mock: 24h-1h" then p_label="p_mock_24h_v_1h";
+138          if label="Mock: 72h-1h" then p_label="p_mock_72h_v_1h";
+139          if label="Mock: 24h-3h" then p_label="p_mock_24h_v_3h";
+140          if label="Mock: 72h-3h" then p_label="p_mock_72h_v_3h";
+141          if label="Mock: 72h-24h" then p_label="p_mock_72h_v_24h";
+142        
+143          if label="0.1gy: 3h-1h" then p_label="p_01gy_3h_v_1h";
+144          if label="0.1gy: 24h-1h" then p_label="p_01gy_24h_v_1h";
+145          if label="0.1gy: 72h-1h" then p_label="p_01gy_72h_v_1h";
+7                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+146          if label="0.1gy: 24h-3h" then p_label="p_01gy_24h_v_3h";
+147          if label="0.1gy: 72h-3h" then p_label="p_01gy_72h_v_3h";
+148          if label="0.1gy: 72h-24h" then p_label="p_01gy_72h_v_24h";
+149        
+150          if label="1gy: 3h-1h" then p_label="p_1gy_3h_v_1h";
+151          if label="1gy: 24h-1h" then p_label="p_1gy_24h_v_1h";
+152          if label="1gy: 72h-1h" then p_label="p_1gy_72h_v_1h";
+153          if label="1gy: 24h-3h" then p_label="p_1gy_24h_v_3h";
+154          if label="1gy: 72h-3h" then p_label="p_1gy_72h_v_3h";
+155          if label="1gy: 72h-24h" then p_label="p_1gy_72h_v_24h";
+156        
+157          if label="0.1gy 3h-1h = Mock 3h-1h" then p_label="p_01gy_v_Mock_3h_sub_1h";
+158          if label="0.1gy 24h-1h = Mock 24h-1h" then p_label="p_01gy_v_Mock_24h_sub_1h";
+159          if label="0.1gy 72h-1h = Mock 72h-1h" then p_label="p_01gy_v_Mock_72h_sub_1h";
+160          if label="1gy 3h-1h = Mock 3h-1h" then p_label="p_1gy_v_Mock_3h_sub_1h";
+161          if label="1gy 24h-1h = Mock 24h-1h" then p_label="p_1gy_v_Mock_24h_sub_1h";
+162          if label="1gy 72h-1h = Mock 72h-1h" then p_label="p_1gy_v_Mock_72h_sub_1h";
+163        
+164          keep fusion_id p_label probf;
+165        run;
+
+NOTE: There were 4258152 observations read from the data set RS.ARAB_FUS_CNTRS_CONSTR_NON.
+NOTE: The data set WORK.CONTRAST_P has 4258152 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           7.47 seconds
+      cpu time            4.07 seconds
+      
+
+166        
+167        proc sort data=contrast_p;
+168           by fusion_id p_label;
+
+NOTE: There were 4258152 observations read from the data set WORK.CONTRAST_P.
+NOTE: The data set WORK.CONTRAST_P has 4258152 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           7.83 seconds
+      cpu time            6.38 seconds
+      
+
+169        proc transpose data=contrast_p out=contrast_p_sbys;
+170           by fusion_id;
+171           id p_label;
+172           var probf;
+173        run;
+
+NOTE: There were 4258152 observations read from the data set WORK.CONTRAST_P.
+NOTE: The data set WORK.CONTRAST_P_SBYS has 118282 observations and 39 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           23.06 seconds
+      cpu time            23.03 seconds
+      
+
+174        
+175        
+176        data contrast_p_sbys2;
+177           set contrast_p_sbys;
+178           drop _NAME_ _LABEL_;
+179        run;
+8                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+
+NOTE: There were 118282 observations read from the data set WORK.CONTRAST_P_SBYS.
+NOTE: The data set WORK.CONTRAST_P_SBYS2 has 118282 observations and 37 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.08 seconds
+      
+
+180        
+181        
+182        /* Get LSmeans */
+183        
+184        data lsmeans;
+185          set rs.arab_fus_cntrs_lsmeans_non;
+186          if time_trt="1_0.1gy" then group="LSmeans_01gy_1h";
+187          if time_trt="1_1gy" then group="LSmeans_1gy_1h";
+188          if time_trt="1_Mock" then group="LSmeans_Mock_1h";
+189        
+190          if time_trt="3_0.1gy" then group="LSmeans_01gy_3h";
+191          if time_trt="3_1gy" then group="LSmeans_1gy_3h";
+192          if time_trt="3_Mock" then group="LSmeans_Mock_3h";
+193        
+194          if time_trt="24_0.1gy" then group="LSmeans_01gy_24h";
+195          if time_trt="24_1gy" then group="LSmeans_1gy_24h";
+196          if time_trt="24_Mock" then group="LSmeans_Mock_24h";
+197        
+198          if time_trt="72_0.1gy" then group="LSmeans_01gy_72h";
+199          if time_trt="72_1gy" then group="LSmeans_1gy_72h";
+200          if time_trt="72_Mock" then group="LSmeans_Mock_72h";
+201          keep fusion_id group estimate;
+202        run;
+
+NOTE: There were 1419384 observations read from the data set RS.ARAB_FUS_CNTRS_LSMEANS_NON.
+NOTE: The data set WORK.LSMEANS has 1419384 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.11 seconds
+      cpu time            0.58 seconds
+      
+
+203        
+204        proc sort data=lsmeans;
+205           by fusion_id group;
+
+NOTE: There were 1419384 observations read from the data set WORK.LSMEANS.
+NOTE: The data set WORK.LSMEANS has 1419384 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.36 seconds
+      cpu time            1.00 seconds
+      
+
+206        proc transpose data=lsmeans out=lsmeans_sbys;
+207           by fusion_id;
+208           id group;
+209           var estimate;
+210        run;
+
+NOTE: There were 1419384 observations read from the data set WORK.LSMEANS.
+NOTE: The data set WORK.LSMEANS_SBYS has 118282 observations and 14 variables.
+9                                                          The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           6.38 seconds
+      cpu time            6.39 seconds
+      
+
+211        
+212        
+213        data lsmeans_sbys2;
+214           set lsmeans_sbys;
+215           drop _NAME_ _LABEL_;
+216        run;
+
+WARNING: The variable _LABEL_ in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: There were 118282 observations read from the data set WORK.LSMEANS_SBYS.
+NOTE: The data set WORK.LSMEANS_SBYS2 has 118282 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.05 seconds
+      
+
+217        
+218        
+219        /* Get estimates */
+220        
+221        data estimates;
+222          set rs.arab_fus_cntrs_estim_non;
+223          length est_label $32.;
+224          if label="0.1gy-Mock: 1h" then est_label="Estimate_01gy_v_Mock_1h";
+225          if label= "0.1gy-Mock: 3h" then est_label="Estimate_01gy_v_Mock_3h";
+226          if label= "0.1gy-Mock: 24h" then est_label="Estimate_01gy_v_Mock_24h";
+227          if label= "0.1gy-Mock: 72h" then est_label="Estimate_01gy_v_Mock_72h";
+228        
+229          if label= "1gy-Mock: 1h" then est_label="Estimate_1gy_v_Mock_1h";
+230          if label= "1gy-Mock: 3h" then est_label="Estimate_1gy_v_Mock_3h";
+231          if label= "1gy-Mock: 24h" then est_label="Estimate_1gy_v_Mock_24h";
+232          if label= "1gy-Mock: 72h" then est_label="Estimate_1gy_v_Mock_72h";
+233        
+234          if label="1gy-0.1gy: 1h" then est_label="Estimate_1gy_v_01gy_1h";
+235          if label="1gy-0.1gy: 3h" then est_label="Estimate_1gy_v_01gy_3h";
+236          if label="1gy-0.1gy: 24h" then est_label="Estimate_1gy_v_01gy_24h";
+237          if label="1gy-0.1gy: 72h" then est_label="Estimate_1gy_v_01gy_72h";
+238        
+239          if label="Mock: 3h-1h" then est_label="Estimate_mock_3h_v_1h";
+240          if label="Mock: 24h-1h" then est_label="Estimate_mock_24h_v_1h";
+241          if label="Mock: 72h-1h" then est_label="Estimate_mock_72h_v_1h";
+242          if label="Mock: 24h-3h" then est_label="Estimate_mock_24h_v_3h";
+243          if label="Mock: 72h-3h" then est_label="Estimate_mock_72h_v_3h";
+244          if label="Mock: 72h-24h" then est_label="Estimate_mock_72h_v_24h";
+245        
+246          if label="0.1gy: 3h-1h" then est_label="Estimate_01gy_3h_v_1h";
+247          if label="0.1gy: 24h-1h" then est_label="Estimate_01gy_24h_v_1h";
+248          if label="0.1gy: 72h-1h" then est_label="Estimate_01gy_72h_v_1h";
+249          if label="0.1gy: 24h-3h" then est_label="Estimate_01gy_24h_v_3h";
+250          if label="0.1gy: 72h-3h" then est_label="Estimate_01gy_72h_v_3h";
+251          if label="0.1gy: 72h-24h" then est_label="Estimate_01gy_72h_v_24h";
+252        
+253          if label="1gy: 3h-1h" then est_label="Estimate_1gy_3h_v_1h";
+254          if label="1gy: 24h-1h" then est_label="Estimate_1gy_24h_v_1h";
+10                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+255          if label="1gy: 72h-1h" then est_label="Estimate_1gy_72h_v_1h";
+256          if label="1gy: 24h-3h" then est_label="Estimate_1gy_24h_v_3h";
+257          if label="1gy: 72h-3h" then est_label="Estimate_1gy_72h_v_3h";
+258          if label="1gy: 72h-24h" then est_label="Estimate_1gy_72h_v_24h";
+259        
+260          if label="0.1gy 3h-1h = Mock 3h-1h" then est_label="Estimate_01gy_v_Mock_3h_sub_1h";
+261          if label="0.1gy 24h-1h = Mock 24h-1h" then est_label="Estimate_01gy_v_Mock_24h_sub_1h";
+262          if label="0.1gy 72h-1h = Mock 72h-1h" then est_label="Estimate_01gy_v_Mock_72h_sub_1h";
+263          if label="1gy 3h-1h = Mock 3h-1h" then est_label="Estimate_1gy_v_Mock_3h_sub_1h";
+264          if label="1gy 24h-1h = Mock 24h-1h" then est_label="Estimate_1gy_v_Mock_24h_sub_1h";
+265          if label="1gy 72h-1h = Mock 72h-1h" then est_label="Estimate_1gy_v_Mock_72h_sub_1h";
+266        
+267          keep fusion_id est_label estimate;
+268        run;
+
+NOTE: There were 4258152 observations read from the data set RS.ARAB_FUS_CNTRS_ESTIM_NON.
+NOTE: The data set WORK.ESTIMATES has 4258152 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           7.78 seconds
+      cpu time            3.82 seconds
+      
+
+269        
+270        proc sort data=estimates;
+271           by fusion_id est_label;
+
+NOTE: There were 4258152 observations read from the data set WORK.ESTIMATES.
+NOTE: The data set WORK.ESTIMATES has 4258152 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.95 seconds
+      cpu time            3.63 seconds
+      
+
+272        proc transpose data=estimates out=estimates_sbys;
+273           by fusion_id;
+274           id est_label;
+275           var estimate;
+276        run;
+
+NOTE: There were 4258152 observations read from the data set WORK.ESTIMATES.
+NOTE: The data set WORK.ESTIMATES_SBYS has 118282 observations and 38 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           29.00 seconds
+      cpu time            29.00 seconds
+      
+
+277        
+278        
+279        data estimates_sbys2;
+280           set estimates_sbys;
+281           drop _NAME_ _LABEL_;
+282        run;
+
+WARNING: The variable _LABEL_ in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: There were 118282 observations read from the data set WORK.ESTIMATES_SBYS.
+NOTE: The data set WORK.ESTIMATES_SBYS2 has 118282 observations and 37 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+11                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+      cpu time            0.09 seconds
+      
+
+283        
+284        
+285        /* detection flags */
+286        
+287        data flag_dtct;
+288           set rs.arab_flag_fusion_on_gt0;
+289           keep fusion_id    flag_fusion_on_01gy_apn0    flag_fusion_on_1gy_apn0
+290           flag_fusion_on_Mock_apn0    flag_fusion_on_1hr_apn0   flag_fusion_on_3hr_apn0
+291           flag_fusion_on_34hr_apn0   flag_fusion_on_72hr_apn0   flag_fusion_on_01gy_1hr_apn0
+292           flag_fusion_on_01gy_3hr_apn0   flag_fusion_on_01gy_24hr_apn0
+293           flag_fusion_on_01gy_72hr_apn0   flag_fusion_on_1gy_1hr_apn0
+294           flag_fusion_on_1gy_3hr_apn0   flag_fusion_on_1gy_24hr_apn0
+295           flag_fusion_on_1gy_72hr_apn0   flag_fusion_on_Mock_1hr_apn0
+296           flag_fusion_on_Mock_3hr_apn0   flag_fusion_on_Mock_24hr_apn0
+297           flag_fusion_on_Mock_72hr_apn0;
+298        
+299           rename flag_fusion_on_01gy_apn0=flag_01gy_on
+300           flag_fusion_on_1gy_apn0=flag_1gy_on
+301           flag_fusion_on_Mock_apn0=flag_Mock_on
+302           flag_fusion_on_1hr_apn0=flag_1hr_on
+303           flag_fusion_on_3hr_apn0=flag_3hr_on
+304           flag_fusion_on_34hr_apn0=flag_24hr_on
+305           flag_fusion_on_72hr_apn0=flag_72gy_on
+306           flag_fusion_on_01gy_1hr_apn0=flag_01gy_1hr_on
+307           flag_fusion_on_01gy_3hr_apn0=flag_01gy_3hr_on
+308           flag_fusion_on_01gy_24hr_apn0=flag_01gy_24hr_on
+309           flag_fusion_on_01gy_72hr_apn0=flag_01gy_72hr_on
+310           flag_fusion_on_1gy_1hr_apn0=flag_1gy_1hr_on
+311           flag_fusion_on_1gy_3hr_apn0=flag_1gy_3hr_on
+312           flag_fusion_on_1gy_24hr_apn0=flag_1gy_24hr_on
+313           flag_fusion_on_1gy_72hr_apn0=flag_1gy_72hr_on
+314           flag_fusion_on_Mock_1hr_apn0=flag_Mock_1hr_on
+315           flag_fusion_on_Mock_3hr_apn0=flag_Mock_3hr_on
+316           flag_fusion_on_Mock_24hr_apn0=flag_Mock_24hr_on
+317           flag_fusion_on_Mock_72hr_apn0=flag_Mock_72hr_on;
+318        
+319        run;
+
+NOTE: There were 142631 observations read from the data set RS.ARAB_FLAG_FUSION_ON_GT0.
+NOTE: The data set WORK.FLAG_DTCT has 142631 observations and 20 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.90 seconds
+      cpu time            0.08 seconds
+      
+
+320        
+321        
+322        /* Get Up/Down signs */
+323        
+324        data sign;
+325          set rs.arab_sign_by_contrast;
+326        run;
+
+NOTE: There were 118282 observations read from the data set RS.ARAB_SIGN_BY_CONTRAST.
+NOTE: The data set WORK.SIGN has 118282 observations and 37 variables.
+12                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: DATA statement used (Total process time):
+      real time           0.25 seconds
+      cpu time            0.03 seconds
+      
+
+327        
+328        
+329        proc sort data=fus2keep_w_info;
+330           by fusion_id;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS2KEEP_W_INFO.
+NOTE: The data set WORK.FUS2KEEP_W_INFO has 142631 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.32 seconds
+      cpu time            0.59 seconds
+      
+
+331        proc sort data=main_p_sbys2;
+332           by fusion_id;
+
+NOTE: There were 118282 observations read from the data set WORK.MAIN_P_SBYS2.
+NOTE: The data set WORK.MAIN_P_SBYS2 has 118282 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.08 seconds
+      
+
+333        proc sort data=contrast_p_sbys2;
+334           by fusion_id;
+
+NOTE: There were 118282 observations read from the data set WORK.CONTRAST_P_SBYS2.
+NOTE: The data set WORK.CONTRAST_P_SBYS2 has 118282 observations and 37 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.15 seconds
+      
+
+335        proc sort data=lsmeans_sbys2;
+336           by fusion_id;
+
+NOTE: There were 118282 observations read from the data set WORK.LSMEANS_SBYS2.
+NOTE: The data set WORK.LSMEANS_SBYS2 has 118282 observations and 13 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.09 seconds
+      
+
+337        proc sort data=estimates_sbys2;
+338           by fusion_id;
+
+NOTE: There were 118282 observations read from the data set WORK.ESTIMATES_SBYS2.
+NOTE: The data set WORK.ESTIMATES_SBYS2 has 118282 observations and 37 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.34 seconds
+      cpu time            0.16 seconds
+      
+
+339        proc sort data=sign;
+13                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+340           by fusion_id;
+
+NOTE: There were 118282 observations read from the data set WORK.SIGN.
+NOTE: The data set WORK.SIGN has 118282 observations and 37 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.08 seconds
+      
+
+341        proc sort data=flag_dtct;
+342           by fusion_id;
+343        run;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_DTCT.
+NOTE: The data set WORK.FLAG_DTCT has 142631 observations and 20 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.13 seconds
+      
+
+344        
+345        
+346        data fus_summary;
+347           merge fus2keep_w_info (in=in1) flag_dtct main_p_sbys2 contrast_p_sbys2 lsmeans_sbys2 estimates_sbys2 sign;
+348           by fusion_id;
+349           if in1;
+350        run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS2KEEP_W_INFO.
+NOTE: There were 142631 observations read from the data set WORK.FLAG_DTCT.
+NOTE: There were 118282 observations read from the data set WORK.MAIN_P_SBYS2.
+NOTE: There were 118282 observations read from the data set WORK.CONTRAST_P_SBYS2.
+NOTE: There were 118282 observations read from the data set WORK.LSMEANS_SBYS2.
+NOTE: There were 118282 observations read from the data set WORK.ESTIMATES_SBYS2.
+NOTE: There were 118282 observations read from the data set WORK.SIGN.
+NOTE: The data set WORK.FUS_SUMMARY has 142631 observations and 153 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.12 seconds
+      cpu time            1.13 seconds
+      
+
+351        
+352        /* Reorder variables */
+353        
+354        proc contents data=fus_summary;
+355        run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.02 seconds
+      
+NOTE: The PROCEDURE CONTENTS printed pages 1-4.
+
+356        
+357        
+358        data fus_summary2;
+359          retain fusion_id chr fusion_start fusion_stop strand flag_multigene gene_id symbol_cat flag_Alternative
+360                 flag_Common flag_Constitutive flag_Mock_on flag_01gy_on flag_1gy_on flag_1hr_on flag_3hr_on
+14                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+361                 flag_24hr_on flag_72gy_on flag_Mock_1hr_on flag_Mock_3hr_on flag_Mock_24hr_on flag_Mock_72hr_on
+362                 flag_01gy_1hr_on flag_01gy_3hr_on flag_01gy_24hr_on flag_01gy_72hr_on flag_1gy_1hr_on flag_1gy_3hr_on
+363                 flag_1gy_24hr_on flag_1gy_72hr_on LSmeans_Mock_1h LSmeans_Mock_3h LSmeans_Mock_24 LSmeans_Mock_72
+364                 LSmeans_01gy_1h LSmeans_01gy_3h LSmeans_01gy_24 LSmeans_01gy_72 LSmeans_1gy_1h LSmeans_1gy_3h
+365                 LSmeans_1gy_24h LSmeans_1gy_72h P_time P_treatment P_trt_by_time p_01gy_v_Mock_1h p_01gy_v_Mock_3h
+366                 p_01gy_v_Mock_24h  p_01gy_v_Mock_72h p_1gy_v_Mock_1h p_1gy_v_Mock_3h p_1gy_v_Mock_24h p_1gy_v_Mock_72h
+367                 p_1gy_v_01gy_1h p_1gy_v_01gy_3h p_1gy_v_01gy_24h p_1gy_v_01gy_72h p_mock_3h_v_1h p_mock_24h_v_1h
+368                 p_mock_72h_v_1h p_mock_24h_v_3h p_mock_72h_v_3h p_mock_72h_v_24h p_01gy_3h_v_1h p_01gy_24h_v_1h
+369                 p_01gy_72h_v_1h p_01gy_24h_v_3h p_01gy_72h_v_3h p_01gy_72h_v_24h p_1gy_3h_v_1h p_1gy_24h_v_1h p_1gy_72h_v_1h
+370                 p_1gy_24h_v_3h p_1gy_72h_v_3h p_1gy_72h_v_24h
+371        
+372                 p_01gy_v_Mock_3h_sub_1h
+373        p_01gy_v_Mock_24h_sub_1h
+374        p_01gy_v_Mock_72h_sub_1h
+375        p_1gy_v_Mock_3h_sub_1h
+376        p_1gy_v_Mock_24h_sub_1h
+377        p_1gy_v_Mock_72h_sub_1h
+378        
+379                 Estimate_01gy_v_Mock_1h  Estimate_01gy_v_Mock_3h
+380                 Estimate_01gy_v_Mock_24h Estimate_01gy_v_Mock_72h Estimate_1gy_v_Mock_1h Estimate_1gy_v_Mock_3h
+381                 Estimate_1gy_v_Mock_24h Estimate_1gy_v_Mock_72h Estimate_1gy_v_01gy_1h Estimate_1gy_v_01gy_3h
+382                 Estimate_1gy_v_01gy_24h Estimate_1gy_v_01gy_72h Estimate_mock_3h_v_1h Estimate_mock_24h_v_1h
+383                 Estimate_mock_72h_v_1h Estimate_mock_24h_v_3h Estimate_mock_72h_v_3h Estimate_mock_72h_v_24h
+384                 Estimate_01gy_3h_v_1h Estimate_01gy_24h_v_1h Estimate_01gy_72h_v_1h Estimate_01gy_24h_v_3h
+385                 Estimate_01gy_72h_v_3h Estimate_01gy_72h_v_24h Estimate_1gy_3h_v_1h Estimate_1gy_24h_v_1h
+386                 Estimate_1gy_72h_v_1h Estimate_1gy_24h_v_3h Estimate_1gy_72h_v_3h Estimate_1gy_72h_v_24h
+387        
+388        Estimate_01gy_v_Mock_3h_sub_1h
+389        Estimate_01gy_v_Mock_24h_sub_1h
+390        Estimate_01gy_v_Mock_72h_sub_1h
+391        Estimate_1gy_v_Mock_3h_sub_1h
+392        Estimate_1gy_v_Mock_24h_sub_1h
+393        Estimate_1gy_v_Mock_72h_sub_1h
+394        
+395        
+396                 sign_01gy_v_Mock_1h  sign_01gy_v_Mock_3h
+397                 sign_01gy_v_Mock_24h sign_01gy_v_Mock_72h sign_1gy_v_Mock_1h sign_1gy_v_Mock_3h
+398                 sign_1gy_v_Mock_24h sign_1gy_v_Mock_72h sign_1gy_v_01gy_1h sign_1gy_v_01gy_3h
+399                 sign_1gy_v_01gy_24h sign_1gy_v_01gy_72h sign_mock_3h_v_1h sign_mock_24h_v_1h
+400                 sign_mock_72h_v_1h sign_mock_24h_v_3h sign_mock_72h_v_3h sign_mock_72h_v_24h
+401                 sign_01gy_3h_v_1h sign_01gy_24h_v_1h sign_01gy_72h_v_1h sign_01gy_24h_v_3h
+402                 sign_01gy_72h_v_3h sign_01gy_72h_v_24h sign_1gy_3h_v_1h sign_1gy_24h_v_1h
+403                 sign_1gy_72h_v_1h sign_1gy_24h_v_3h sign_1gy_72h_v_3h sign_1gy_72h_v_24h
+404        
+405        sign_01gy_v_Mock_3h_sub_1h
+406        sign_01gy_v_Mock_24h_sub_1h
+407        sign_01gy_v_Mock_72h_sub_1h
+408        sign_1gy_v_Mock_3h_sub_1h
+409        sign_1gy_v_Mock_24h_sub_1h
+410        sign_1gy_v_Mock_72h_sub_1h
+411        
+412        ;
+413                 set fus_summary;
+414        rename  fusion_id=exonic_region_id fusion_start=exonic_region_start fusion_stop=exonic_region_stop;
+415        run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY.
+NOTE: The data set WORK.FUS_SUMMARY2 has 142631 observations and 153 variables.
+15                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: DATA statement used (Total process time):
+      real time           0.56 seconds
+      cpu time            0.56 seconds
+      
+
+416        
+417        /* Export */
+418        
+419        proc export data=fus_summary2 outfile="!PATCON/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv"
+420        dbms=csv replace;
+421        run;
+
+422         /**********************************************************************
+423         *   PRODUCT:   SAS
+424         *   VERSION:   9.4
+425         *   CREATOR:   External File Interface
+426         *   DATE:      04DEC17
+427         *   DESC:      Generated SAS Datastep Code
+428         *   TEMPLATE SOURCE:  (None Specified.)
+429         ***********************************************************************/
+430            data _null_;
+431            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+432            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+433            file '!PATCON/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv' delimiter=',' DSD DROPOVER
+433      ! lrecl=32767;
+434            if _n_ = 1 then        /* write column names or labels */
+435             do;
+436               put
+437                  "exonic_region_id"
+438               ','
+439                  "chr"
+440               ','
+441                  "exonic_region_start"
+442               ','
+443                  "exonic_region_stop"
+444               ','
+445                  "strand"
+446               ','
+447                  "flag_multigene"
+448               ','
+449                  "gene_id"
+450               ','
+451                  "symbol_cat"
+452               ','
+453                  "flag_Alternative"
+454               ','
+455                  "flag_Common"
+456               ','
+457                  "flag_Constitutive"
+458               ','
+459                  "flag_Mock_on"
+460               ','
+461                  "flag_01gy_on"
+462               ','
+463                  "flag_1gy_on"
+464               ','
+465                  "flag_1hr_on"
+466               ','
+16                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+467                  "flag_3hr_on"
+468               ','
+469                  "flag_24hr_on"
+470               ','
+471                  "flag_72gy_on"
+472               ','
+473                  "flag_Mock_1hr_on"
+474               ','
+475                  "flag_Mock_3hr_on"
+476               ','
+477                  "flag_Mock_24hr_on"
+478               ','
+479                  "flag_Mock_72hr_on"
+480               ','
+481                  "flag_01gy_1hr_on"
+482               ','
+483                  "flag_01gy_3hr_on"
+484               ','
+485                  "flag_01gy_24hr_on"
+486               ','
+487                  "flag_01gy_72hr_on"
+488               ','
+489                  "flag_1gy_1hr_on"
+490               ','
+491                  "flag_1gy_3hr_on"
+492               ','
+493                  "flag_1gy_24hr_on"
+494               ','
+495                  "flag_1gy_72hr_on"
+496               ','
+497                  "LSmeans_Mock_1h"
+498               ','
+499                  "LSmeans_Mock_3h"
+500               ','
+501                  "LSmeans_Mock_24"
+502               ','
+503                  "LSmeans_Mock_72"
+504               ','
+505                  "LSmeans_01gy_1h"
+506               ','
+507                  "LSmeans_01gy_3h"
+508               ','
+509                  "LSmeans_01gy_24"
+510               ','
+511                  "LSmeans_01gy_72"
+512               ','
+513                  "LSmeans_1gy_1h"
+514               ','
+515                  "LSmeans_1gy_3h"
+516               ','
+517                  "LSmeans_1gy_24h"
+518               ','
+519                  "LSmeans_1gy_72h"
+520               ','
+521                  "P_time"
+522               ','
+523                  "P_treatment"
+524               ','
+17                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+525                  "P_trt_by_time"
+526               ','
+527                  "p_01gy_v_Mock_1h"
+528               ','
+529                  "p_01gy_v_Mock_3h"
+530               ','
+531                  "p_01gy_v_Mock_24h"
+532               ','
+533                  "p_01gy_v_Mock_72h"
+534               ','
+535                  "p_1gy_v_Mock_1h"
+536               ','
+537                  "p_1gy_v_Mock_3h"
+538               ','
+539                  "p_1gy_v_Mock_24h"
+540               ','
+541                  "p_1gy_v_Mock_72h"
+542               ','
+543                  "p_1gy_v_01gy_1h"
+544               ','
+545                  "p_1gy_v_01gy_3h"
+546               ','
+547                  "p_1gy_v_01gy_24h"
+548               ','
+549                  "p_1gy_v_01gy_72h"
+550               ','
+551                  "p_mock_3h_v_1h"
+552               ','
+553                  "p_mock_24h_v_1h"
+554               ','
+555                  "p_mock_72h_v_1h"
+556               ','
+557                  "p_mock_24h_v_3h"
+558               ','
+559                  "p_mock_72h_v_3h"
+560               ','
+561                  "p_mock_72h_v_24h"
+562               ','
+563                  "p_01gy_3h_v_1h"
+564               ','
+565                  "p_01gy_24h_v_1h"
+566               ','
+567                  "p_01gy_72h_v_1h"
+568               ','
+569                  "p_01gy_24h_v_3h"
+570               ','
+571                  "p_01gy_72h_v_3h"
+572               ','
+573                  "p_01gy_72h_v_24h"
+574               ','
+575                  "p_1gy_3h_v_1h"
+576               ','
+577                  "p_1gy_24h_v_1h"
+578               ','
+579                  "p_1gy_72h_v_1h"
+580               ','
+581                  "p_1gy_24h_v_3h"
+582               ','
+18                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+583                  "p_1gy_72h_v_3h"
+584               ','
+585                  "p_1gy_72h_v_24h"
+586               ','
+587                  "p_01gy_v_Mock_3h_sub_1h"
+588               ','
+589                  "p_01gy_v_Mock_24h_sub_1h"
+590               ','
+591                  "p_01gy_v_Mock_72h_sub_1h"
+592               ','
+593                  "p_1gy_v_Mock_3h_sub_1h"
+594               ','
+595                  "p_1gy_v_Mock_24h_sub_1h"
+596               ','
+597                  "p_1gy_v_Mock_72h_sub_1h"
+598               ','
+599                  "Estimate_01gy_v_Mock_1h"
+600               ','
+601                  "Estimate_01gy_v_Mock_3h"
+602               ','
+603                  "Estimate_01gy_v_Mock_24h"
+604               ','
+605                  "Estimate_01gy_v_Mock_72h"
+606               ','
+607                  "Estimate_1gy_v_Mock_1h"
+608               ','
+609                  "Estimate_1gy_v_Mock_3h"
+610               ','
+611                  "Estimate_1gy_v_Mock_24h"
+612               ','
+613                  "Estimate_1gy_v_Mock_72h"
+614               ','
+615                  "Estimate_1gy_v_01gy_1h"
+616               ','
+617                  "Estimate_1gy_v_01gy_3h"
+618               ','
+619                  "Estimate_1gy_v_01gy_24h"
+620               ','
+621                  "Estimate_1gy_v_01gy_72h"
+622               ','
+623                  "Estimate_mock_3h_v_1h"
+624               ','
+625                  "Estimate_mock_24h_v_1h"
+626               ','
+627                  "Estimate_mock_72h_v_1h"
+628               ','
+629                  "Estimate_mock_24h_v_3h"
+630               ','
+631                  "Estimate_mock_72h_v_3h"
+632               ','
+633                  "Estimate_mock_72h_v_24h"
+634               ','
+635                  "Estimate_01gy_3h_v_1h"
+636               ','
+637                  "Estimate_01gy_24h_v_1h"
+638               ','
+639                  "Estimate_01gy_72h_v_1h"
+640               ','
+19                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+641                  "Estimate_01gy_24h_v_3h"
+642               ','
+643                  "Estimate_01gy_72h_v_3h"
+644               ','
+645                  "Estimate_01gy_72h_v_24h"
+646               ','
+647                  "Estimate_1gy_3h_v_1h"
+648               ','
+649                  "Estimate_1gy_24h_v_1h"
+650               ','
+651                  "Estimate_1gy_72h_v_1h"
+652               ','
+653                  "Estimate_1gy_24h_v_3h"
+654               ','
+655                  "Estimate_1gy_72h_v_3h"
+656               ','
+657                  "Estimate_1gy_72h_v_24h"
+658               ','
+659                  "Estimate_01gy_v_Mock_3h_sub_1h"
+660               ','
+661                  "Estimate_01gy_v_Mock_24h_sub_1h"
+662               ','
+663                  "Estimate_01gy_v_Mock_72h_sub_1h"
+664               ','
+665                  "Estimate_1gy_v_Mock_3h_sub_1h"
+666               ','
+667                  "Estimate_1gy_v_Mock_24h_sub_1h"
+668               ','
+669                  "Estimate_1gy_v_Mock_72h_sub_1h"
+670               ','
+671                  "sign_01gy_v_Mock_1h"
+672               ','
+673                  "sign_01gy_v_Mock_3h"
+674               ','
+675                  "sign_01gy_v_Mock_24h"
+676               ','
+677                  "sign_01gy_v_Mock_72h"
+678               ','
+679                  "sign_1gy_v_Mock_1h"
+680               ','
+681                  "sign_1gy_v_Mock_3h"
+682               ','
+683                  "sign_1gy_v_Mock_24h"
+684               ','
+685                  "sign_1gy_v_Mock_72h"
+686               ','
+687                  "sign_1gy_v_01gy_1h"
+688               ','
+689                  "sign_1gy_v_01gy_3h"
+690               ','
+691                  "sign_1gy_v_01gy_24h"
+692               ','
+693                  "sign_1gy_v_01gy_72h"
+694               ','
+695                  "sign_mock_3h_v_1h"
+696               ','
+697                  "sign_mock_24h_v_1h"
+698               ','
+20                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+699                  "sign_mock_72h_v_1h"
+700               ','
+701                  "sign_mock_24h_v_3h"
+702               ','
+703                  "sign_mock_72h_v_3h"
+704               ','
+705                  "sign_mock_72h_v_24h"
+706               ','
+707                  "sign_01gy_3h_v_1h"
+708               ','
+709                  "sign_01gy_24h_v_1h"
+710               ','
+711                  "sign_01gy_72h_v_1h"
+712               ','
+713                  "sign_01gy_24h_v_3h"
+714               ','
+715                  "sign_01gy_72h_v_3h"
+716               ','
+717                  "sign_01gy_72h_v_24h"
+718               ','
+719                  "sign_1gy_3h_v_1h"
+720               ','
+721                  "sign_1gy_24h_v_1h"
+722               ','
+723                  "sign_1gy_72h_v_1h"
+724               ','
+725                  "sign_1gy_24h_v_3h"
+726               ','
+727                  "sign_1gy_72h_v_3h"
+728               ','
+729                  "sign_1gy_72h_v_24h"
+730               ','
+731                  "sign_01gy_v_Mock_3h_sub_1h"
+732               ','
+733                  "sign_01gy_v_Mock_24h_sub_1h"
+734               ','
+735                  "sign_01gy_v_Mock_72h_sub_1h"
+736               ','
+737                  "sign_1gy_v_Mock_3h_sub_1h"
+738               ','
+739                  "sign_1gy_v_Mock_24h_sub_1h"
+740               ','
+741                  "sign_1gy_v_Mock_72h_sub_1h"
+742               ;
+743             end;
+744           set  FUS_SUMMARY2   end=EFIEOD;
+745               format exonic_region_id $10. ;
+746               format chr $2. ;
+747               format exonic_region_start best12. ;
+748               format exonic_region_stop best12. ;
+749               format strand $1. ;
+750               format flag_multigene best12. ;
+751               format gene_id $450. ;
+752               format symbol_cat $900. ;
+753               format flag_Alternative best12. ;
+754               format flag_Common best12. ;
+755               format flag_Constitutive best12. ;
+756               format flag_Mock_on best12. ;
+21                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+757               format flag_01gy_on best12. ;
+758               format flag_1gy_on best12. ;
+759               format flag_1hr_on best12. ;
+760               format flag_3hr_on best12. ;
+761               format flag_24hr_on best12. ;
+762               format flag_72gy_on best12. ;
+763               format flag_Mock_1hr_on best12. ;
+764               format flag_Mock_3hr_on best12. ;
+765               format flag_Mock_24hr_on best12. ;
+766               format flag_Mock_72hr_on best12. ;
+767               format flag_01gy_1hr_on best12. ;
+768               format flag_01gy_3hr_on best12. ;
+769               format flag_01gy_24hr_on best12. ;
+770               format flag_01gy_72hr_on best12. ;
+771               format flag_1gy_1hr_on best12. ;
+772               format flag_1gy_3hr_on best12. ;
+773               format flag_1gy_24hr_on best12. ;
+774               format flag_1gy_72hr_on best12. ;
+775               format LSmeans_Mock_1h d8.4 ;
+776               format LSmeans_Mock_3h d8.4 ;
+777               format LSmeans_Mock_24 d8.4 ;
+778               format LSmeans_Mock_72 d8.4 ;
+779               format LSmeans_01gy_1h d8.4 ;
+780               format LSmeans_01gy_3h d8.4 ;
+781               format LSmeans_01gy_24 d8.4 ;
+782               format LSmeans_01gy_72 d8.4 ;
+783               format LSmeans_1gy_1h d8.4 ;
+784               format LSmeans_1gy_3h d8.4 ;
+785               format LSmeans_1gy_24h d8.4 ;
+786               format LSmeans_1gy_72h d8.4 ;
+787               format P_time best32. ;
+788               format P_treatment best32. ;
+789               format P_trt_by_time best32. ;
+790               format p_01gy_v_Mock_1h best32. ;
+791               format p_01gy_v_Mock_3h best32. ;
+792               format p_01gy_v_Mock_24h best32. ;
+793               format p_01gy_v_Mock_72h best32. ;
+794               format p_1gy_v_Mock_1h best32. ;
+795               format p_1gy_v_Mock_3h best32. ;
+796               format p_1gy_v_Mock_24h best32. ;
+797               format p_1gy_v_Mock_72h best32. ;
+798               format p_1gy_v_01gy_1h best32. ;
+799               format p_1gy_v_01gy_3h best32. ;
+800               format p_1gy_v_01gy_24h best32. ;
+801               format p_1gy_v_01gy_72h best32. ;
+802               format p_mock_3h_v_1h best32. ;
+803               format p_mock_24h_v_1h best32. ;
+804               format p_mock_72h_v_1h best32. ;
+805               format p_mock_24h_v_3h best32. ;
+806               format p_mock_72h_v_3h best32. ;
+807               format p_mock_72h_v_24h best32. ;
+808               format p_01gy_3h_v_1h best32. ;
+809               format p_01gy_24h_v_1h best32. ;
+810               format p_01gy_72h_v_1h best32. ;
+811               format p_01gy_24h_v_3h best32. ;
+812               format p_01gy_72h_v_3h best32. ;
+813               format p_01gy_72h_v_24h best32. ;
+814               format p_1gy_3h_v_1h best32. ;
+22                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+815               format p_1gy_24h_v_1h best32. ;
+816               format p_1gy_72h_v_1h best32. ;
+817               format p_1gy_24h_v_3h best32. ;
+818               format p_1gy_72h_v_3h best32. ;
+819               format p_1gy_72h_v_24h best32. ;
+820               format p_01gy_v_Mock_3h_sub_1h best32. ;
+821               format p_01gy_v_Mock_24h_sub_1h best32. ;
+822               format p_01gy_v_Mock_72h_sub_1h best32. ;
+823               format p_1gy_v_Mock_3h_sub_1h best32. ;
+824               format p_1gy_v_Mock_24h_sub_1h best32. ;
+825               format p_1gy_v_Mock_72h_sub_1h best32. ;
+826               format Estimate_01gy_v_Mock_1h d8.4 ;
+827               format Estimate_01gy_v_Mock_3h d8.4 ;
+828               format Estimate_01gy_v_Mock_24h d8.4 ;
+829               format Estimate_01gy_v_Mock_72h d8.4 ;
+830               format Estimate_1gy_v_Mock_1h d8.4 ;
+831               format Estimate_1gy_v_Mock_3h d8.4 ;
+832               format Estimate_1gy_v_Mock_24h d8.4 ;
+833               format Estimate_1gy_v_Mock_72h d8.4 ;
+834               format Estimate_1gy_v_01gy_1h d8.4 ;
+835               format Estimate_1gy_v_01gy_3h d8.4 ;
+836               format Estimate_1gy_v_01gy_24h d8.4 ;
+837               format Estimate_1gy_v_01gy_72h d8.4 ;
+838               format Estimate_mock_3h_v_1h d8.4 ;
+839               format Estimate_mock_24h_v_1h d8.4 ;
+840               format Estimate_mock_72h_v_1h d8.4 ;
+841               format Estimate_mock_24h_v_3h d8.4 ;
+842               format Estimate_mock_72h_v_3h d8.4 ;
+843               format Estimate_mock_72h_v_24h d8.4 ;
+844               format Estimate_01gy_3h_v_1h d8.4 ;
+845               format Estimate_01gy_24h_v_1h d8.4 ;
+846               format Estimate_01gy_72h_v_1h d8.4 ;
+847               format Estimate_01gy_24h_v_3h d8.4 ;
+848               format Estimate_01gy_72h_v_3h d8.4 ;
+849               format Estimate_01gy_72h_v_24h d8.4 ;
+850               format Estimate_1gy_3h_v_1h d8.4 ;
+851               format Estimate_1gy_24h_v_1h d8.4 ;
+852               format Estimate_1gy_72h_v_1h d8.4 ;
+853               format Estimate_1gy_24h_v_3h d8.4 ;
+854               format Estimate_1gy_72h_v_3h d8.4 ;
+855               format Estimate_1gy_72h_v_24h d8.4 ;
+856               format Estimate_01gy_v_Mock_3h_sub_1h d8.4 ;
+857               format Estimate_01gy_v_Mock_24h_sub_1h d8.4 ;
+858               format Estimate_01gy_v_Mock_72h_sub_1h d8.4 ;
+859               format Estimate_1gy_v_Mock_3h_sub_1h d8.4 ;
+860               format Estimate_1gy_v_Mock_24h_sub_1h d8.4 ;
+861               format Estimate_1gy_v_Mock_72h_sub_1h d8.4 ;
+862               format sign_01gy_v_Mock_1h $1. ;
+863               format sign_01gy_v_Mock_3h $1. ;
+864               format sign_01gy_v_Mock_24h $1. ;
+865               format sign_01gy_v_Mock_72h $1. ;
+866               format sign_1gy_v_Mock_1h $1. ;
+867               format sign_1gy_v_Mock_3h $1. ;
+868               format sign_1gy_v_Mock_24h $1. ;
+869               format sign_1gy_v_Mock_72h $1. ;
+870               format sign_1gy_v_01gy_1h $1. ;
+871               format sign_1gy_v_01gy_3h $1. ;
+872               format sign_1gy_v_01gy_24h $1. ;
+23                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+873               format sign_1gy_v_01gy_72h $1. ;
+874               format sign_mock_3h_v_1h $1. ;
+875               format sign_mock_24h_v_1h $1. ;
+876               format sign_mock_72h_v_1h $1. ;
+877               format sign_mock_24h_v_3h $1. ;
+878               format sign_mock_72h_v_3h $1. ;
+879               format sign_mock_72h_v_24h $1. ;
+880               format sign_01gy_3h_v_1h $1. ;
+881               format sign_01gy_24h_v_1h $1. ;
+882               format sign_01gy_72h_v_1h $1. ;
+883               format sign_01gy_24h_v_3h $1. ;
+884               format sign_01gy_72h_v_3h $1. ;
+885               format sign_01gy_72h_v_24h $1. ;
+886               format sign_1gy_3h_v_1h $1. ;
+887               format sign_1gy_24h_v_1h $1. ;
+888               format sign_1gy_72h_v_1h $1. ;
+889               format sign_1gy_24h_v_3h $1. ;
+890               format sign_1gy_72h_v_3h $1. ;
+891               format sign_1gy_72h_v_24h $1. ;
+892               format sign_01gy_v_Mock_3h_sub_1h $1. ;
+893               format sign_01gy_v_Mock_24h_sub_1h $1. ;
+894               format sign_01gy_v_Mock_72h_sub_1h $1. ;
+895               format sign_1gy_v_Mock_3h_sub_1h $1. ;
+896               format sign_1gy_v_Mock_24h_sub_1h $1. ;
+897               format sign_1gy_v_Mock_72h_sub_1h $1. ;
+898             do;
+899               EFIOUT + 1;
+900               put exonic_region_id $ @;
+901               put chr $ @;
+902               put exonic_region_start @;
+903               put exonic_region_stop @;
+904               put strand $ @;
+905               put flag_multigene @;
+906               put gene_id $ @;
+907               put symbol_cat $ @;
+908               put flag_Alternative @;
+909               put flag_Common @;
+910               put flag_Constitutive @;
+911               put flag_Mock_on @;
+912               put flag_01gy_on @;
+913               put flag_1gy_on @;
+914               put flag_1hr_on @;
+915               put flag_3hr_on @;
+916               put flag_24hr_on @;
+917               put flag_72gy_on @;
+918               put flag_Mock_1hr_on @;
+919               put flag_Mock_3hr_on @;
+920               put flag_Mock_24hr_on @;
+921               put flag_Mock_72hr_on @;
+922               put flag_01gy_1hr_on @;
+923               put flag_01gy_3hr_on @;
+924               put flag_01gy_24hr_on @;
+925               put flag_01gy_72hr_on @;
+926               put flag_1gy_1hr_on @;
+927               put flag_1gy_3hr_on @;
+928               put flag_1gy_24hr_on @;
+929               put flag_1gy_72hr_on @;
+930               put LSmeans_Mock_1h @;
+24                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+931               put LSmeans_Mock_3h @;
+932               put LSmeans_Mock_24 @;
+933               put LSmeans_Mock_72 @;
+934               put LSmeans_01gy_1h @;
+935               put LSmeans_01gy_3h @;
+936               put LSmeans_01gy_24 @;
+937               put LSmeans_01gy_72 @;
+938               put LSmeans_1gy_1h @;
+939               put LSmeans_1gy_3h @;
+940               put LSmeans_1gy_24h @;
+941               put LSmeans_1gy_72h @;
+942               put P_time @;
+943               put P_treatment @;
+944               put P_trt_by_time @;
+945               put p_01gy_v_Mock_1h @;
+946               put p_01gy_v_Mock_3h @;
+947               put p_01gy_v_Mock_24h @;
+948               put p_01gy_v_Mock_72h @;
+949               put p_1gy_v_Mock_1h @;
+950               put p_1gy_v_Mock_3h @;
+951               put p_1gy_v_Mock_24h @;
+952               put p_1gy_v_Mock_72h @;
+953               put p_1gy_v_01gy_1h @;
+954               put p_1gy_v_01gy_3h @;
+955               put p_1gy_v_01gy_24h @;
+956               put p_1gy_v_01gy_72h @;
+957               put p_mock_3h_v_1h @;
+958               put p_mock_24h_v_1h @;
+959               put p_mock_72h_v_1h @;
+960               put p_mock_24h_v_3h @;
+961               put p_mock_72h_v_3h @;
+962               put p_mock_72h_v_24h @;
+963               put p_01gy_3h_v_1h @;
+964               put p_01gy_24h_v_1h @;
+965               put p_01gy_72h_v_1h @;
+966               put p_01gy_24h_v_3h @;
+967               put p_01gy_72h_v_3h @;
+968               put p_01gy_72h_v_24h @;
+969               put p_1gy_3h_v_1h @;
+970               put p_1gy_24h_v_1h @;
+971               put p_1gy_72h_v_1h @;
+972               put p_1gy_24h_v_3h @;
+973               put p_1gy_72h_v_3h @;
+974               put p_1gy_72h_v_24h @;
+975               put p_01gy_v_Mock_3h_sub_1h @;
+976               put p_01gy_v_Mock_24h_sub_1h @;
+977               put p_01gy_v_Mock_72h_sub_1h @;
+978               put p_1gy_v_Mock_3h_sub_1h @;
+979               put p_1gy_v_Mock_24h_sub_1h @;
+980               put p_1gy_v_Mock_72h_sub_1h @;
+981               put Estimate_01gy_v_Mock_1h @;
+982               put Estimate_01gy_v_Mock_3h @;
+983               put Estimate_01gy_v_Mock_24h @;
+984               put Estimate_01gy_v_Mock_72h @;
+985               put Estimate_1gy_v_Mock_1h @;
+986               put Estimate_1gy_v_Mock_3h @;
+987               put Estimate_1gy_v_Mock_24h @;
+988               put Estimate_1gy_v_Mock_72h @;
+25                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+989               put Estimate_1gy_v_01gy_1h @;
+990               put Estimate_1gy_v_01gy_3h @;
+991               put Estimate_1gy_v_01gy_24h @;
+992               put Estimate_1gy_v_01gy_72h @;
+993               put Estimate_mock_3h_v_1h @;
+994               put Estimate_mock_24h_v_1h @;
+995               put Estimate_mock_72h_v_1h @;
+996               put Estimate_mock_24h_v_3h @;
+997               put Estimate_mock_72h_v_3h @;
+998               put Estimate_mock_72h_v_24h @;
+999               put Estimate_01gy_3h_v_1h @;
+1000              put Estimate_01gy_24h_v_1h @;
+1001              put Estimate_01gy_72h_v_1h @;
+1002              put Estimate_01gy_24h_v_3h @;
+1003              put Estimate_01gy_72h_v_3h @;
+1004              put Estimate_01gy_72h_v_24h @;
+1005              put Estimate_1gy_3h_v_1h @;
+1006              put Estimate_1gy_24h_v_1h @;
+1007              put Estimate_1gy_72h_v_1h @;
+1008              put Estimate_1gy_24h_v_3h @;
+1009              put Estimate_1gy_72h_v_3h @;
+1010              put Estimate_1gy_72h_v_24h @;
+1011              put Estimate_01gy_v_Mock_3h_sub_1h @;
+1012              put Estimate_01gy_v_Mock_24h_sub_1h @;
+1013              put Estimate_01gy_v_Mock_72h_sub_1h @;
+1014              put Estimate_1gy_v_Mock_3h_sub_1h @;
+1015              put Estimate_1gy_v_Mock_24h_sub_1h @;
+1016              put Estimate_1gy_v_Mock_72h_sub_1h @;
+1017              put sign_01gy_v_Mock_1h $ @;
+1018              put sign_01gy_v_Mock_3h $ @;
+1019              put sign_01gy_v_Mock_24h $ @;
+1020              put sign_01gy_v_Mock_72h $ @;
+1021              put sign_1gy_v_Mock_1h $ @;
+1022              put sign_1gy_v_Mock_3h $ @;
+1023              put sign_1gy_v_Mock_24h $ @;
+1024              put sign_1gy_v_Mock_72h $ @;
+1025              put sign_1gy_v_01gy_1h $ @;
+1026              put sign_1gy_v_01gy_3h $ @;
+1027              put sign_1gy_v_01gy_24h $ @;
+1028              put sign_1gy_v_01gy_72h $ @;
+1029              put sign_mock_3h_v_1h $ @;
+1030              put sign_mock_24h_v_1h $ @;
+1031              put sign_mock_72h_v_1h $ @;
+1032              put sign_mock_24h_v_3h $ @;
+1033              put sign_mock_72h_v_3h $ @;
+1034              put sign_mock_72h_v_24h $ @;
+1035              put sign_01gy_3h_v_1h $ @;
+1036              put sign_01gy_24h_v_1h $ @;
+1037              put sign_01gy_72h_v_1h $ @;
+1038              put sign_01gy_24h_v_3h $ @;
+1039              put sign_01gy_72h_v_3h $ @;
+1040              put sign_01gy_72h_v_24h $ @;
+1041              put sign_1gy_3h_v_1h $ @;
+1042              put sign_1gy_24h_v_1h $ @;
+1043              put sign_1gy_72h_v_1h $ @;
+1044              put sign_1gy_24h_v_3h $ @;
+1045              put sign_1gy_72h_v_3h $ @;
+1046              put sign_1gy_72h_v_24h $ @;
+26                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1047              put sign_01gy_v_Mock_3h_sub_1h $ @;
+1048              put sign_01gy_v_Mock_24h_sub_1h $ @;
+1049              put sign_01gy_v_Mock_72h_sub_1h $ @;
+1050              put sign_1gy_v_Mock_3h_sub_1h $ @;
+1051              put sign_1gy_v_Mock_24h_sub_1h $ @;
+1052              put sign_1gy_v_Mock_72h_sub_1h $ ;
+1053              ;
+1054            end;
+1055           if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+1056           if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+1057           run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Mon Dec  4 08:50:13 2017
+
+NOTE: 142632 records were written to the file '!PATCON/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv'.
+      The minimum record length was 193.
+      The maximum record length was 2911.
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: DATA statement used (Total process time):
+      real time           10.46 seconds
+      cpu time            6.84 seconds
+      
+
+142631 records created in !PATCON/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv from FUS_SUMMARY2.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/arab_rs_fusions_tair10_all_genes.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           10.59 seconds
+      cpu time            6.93 seconds
+      
+
+1058       
+1059       
+1060       /* Need to count number of sig fusions by effect/contrast, and number on per trt, time and trt*time */
+1061       
+1062       proc freq data=fus_summary2 noprint;
+1063          tables flag_Mock_on*flag_01gy_on*flag_1gy_on / out=count_on_by_trt;
+1064       run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.COUNT_ON_BY_TRT has 24 observations and 5 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.14 seconds
+      cpu time            0.14 seconds
+      
+
+1065       
+1066       proc freq data=fus_summary2 noprint;
+1067          tables flag_1hr_on*flag_3hr_on*flag_24hr_on*flag_72gy_on / out=count_on_by_time;
+1068       run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.COUNT_ON_BY_TIME has 76 observations and 6 variables.
+27                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.16 seconds
+      
+
+1069       
+1070       proc freq data=fus_summary2 noprint;
+1071          tables flag_Mock_1hr_on*flag_Mock_3hr_on*flag_Mock_24hr_on*flag_Mock_72hr_on*
+1072                 flag_01gy_1hr_on*flag_01gy_3hr_on*flag_01gy_24hr_on*flag_01gy_72hr_on*
+1073                 flag_1gy_1hr_on*flag_1gy_3hr_on*flag_1gy_24hr_on*flag_1gy_72hr_on / out=count_on_by_trt_time;
+1074       run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.COUNT_ON_BY_TRT_TIME has 9516 observations and 14 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.24 seconds
+      cpu time            0.25 seconds
+      
+
+1075       
+1076       proc export data=count_on_by_trt outfile="!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv"
+1077           dbms=csv replace;
+1078       run;
+
+1079        /**********************************************************************
+1080        *   PRODUCT:   SAS
+1081        *   VERSION:   9.4
+1082        *   CREATOR:   External File Interface
+1083        *   DATE:      04DEC17
+1084        *   DESC:      Generated SAS Datastep Code
+1085        *   TEMPLATE SOURCE:  (None Specified.)
+1086        ***********************************************************************/
+1087           data _null_;
+1088           %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+1089           %let _EFIREC_ = 0;     /* clear export record count macro variable */
+1090           file '!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+1091           if _n_ = 1 then        /* write column names or labels */
+1092            do;
+1093              put
+1094                 "flag_Mock_on"
+1095              ','
+1096                 "flag_01gy_on"
+1097              ','
+1098                 "flag_1gy_on"
+1099              ','
+1100                 "COUNT"
+1101              ','
+1102                 "PERCENT"
+1103              ;
+1104            end;
+1105          set  COUNT_ON_BY_TRT   end=EFIEOD;
+1106              format flag_Mock_on best12. ;
+1107              format flag_01gy_on best12. ;
+1108              format flag_1gy_on best12. ;
+1109              format COUNT best12. ;
+1110              format PERCENT best12. ;
+1111            do;
+1112              EFIOUT + 1;
+28                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1113              put flag_Mock_on @;
+1114              put flag_01gy_on @;
+1115              put flag_1gy_on @;
+1116              put COUNT @;
+1117              put PERCENT ;
+1118              ;
+1119            end;
+1120           if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+1121           if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+1122           run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Mon Dec  4 08:50:24 2017
+
+NOTE: 25 records were written to the file '!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv'.
+      The minimum record length was 7.
+      The maximum record length was 51.
+NOTE: There were 24 observations read from the data set WORK.COUNT_ON_BY_TRT.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+
+24 records created in !PATCON/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv from COUNT_ON_BY_TRT.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_apn0.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.05 seconds
+      
+
+1123       
+1124       proc export data=count_on_by_time outfile="!PATCON/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv"
+1125           dbms=csv replace;
+1126       run;
+
+1127        /**********************************************************************
+1128        *   PRODUCT:   SAS
+1129        *   VERSION:   9.4
+1130        *   CREATOR:   External File Interface
+1131        *   DATE:      04DEC17
+1132        *   DESC:      Generated SAS Datastep Code
+1133        *   TEMPLATE SOURCE:  (None Specified.)
+1134        ***********************************************************************/
+1135           data _null_;
+1136           %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+1137           %let _EFIREC_ = 0;     /* clear export record count macro variable */
+1138           file '!PATCON/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+1139           if _n_ = 1 then        /* write column names or labels */
+1140            do;
+1141              put
+1142                 "flag_1hr_on"
+1143              ','
+1144                 "flag_3hr_on"
+29                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1145              ','
+1146                 "flag_24hr_on"
+1147              ','
+1148                 "flag_72gy_on"
+1149              ','
+1150                 "COUNT"
+1151              ','
+1152                 "PERCENT"
+1153              ;
+1154            end;
+1155          set  COUNT_ON_BY_TIME   end=EFIEOD;
+1156              format flag_1hr_on best12. ;
+1157              format flag_3hr_on best12. ;
+1158              format flag_24hr_on best12. ;
+1159              format flag_72gy_on best12. ;
+1160              format COUNT best12. ;
+1161              format PERCENT best12. ;
+1162            do;
+1163              EFIOUT + 1;
+1164              put flag_1hr_on @;
+1165              put flag_3hr_on @;
+1166              put flag_24hr_on @;
+1167              put flag_72gy_on @;
+1168              put COUNT @;
+1169              put PERCENT ;
+1170              ;
+1171            end;
+1172           if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+1173           if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+1174           run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Mon Dec  4 08:50:24 2017
+
+NOTE: 77 records were written to the file '!PATCON/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv'.
+      The minimum record length was 9.
+      The maximum record length was 63.
+NOTE: There were 76 observations read from the data set WORK.COUNT_ON_BY_TIME.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+76 records created in !PATCON/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv from COUNT_ON_BY_TIME.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/fusions_on_by_time_apn0.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.04 seconds
+      
+
+1175       
+1176       proc export data=count_on_by_trt_time outfile="!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv"
+1177           dbms=csv replace;
+30                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1178       run;
+
+1179        /**********************************************************************
+1180        *   PRODUCT:   SAS
+1181        *   VERSION:   9.4
+1182        *   CREATOR:   External File Interface
+1183        *   DATE:      04DEC17
+1184        *   DESC:      Generated SAS Datastep Code
+1185        *   TEMPLATE SOURCE:  (None Specified.)
+1186        ***********************************************************************/
+1187           data _null_;
+1188           %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+1189           %let _EFIREC_ = 0;     /* clear export record count macro variable */
+1190           file '!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv' delimiter=',' DSD DROPOVER lrecl=32767;
+1191           if _n_ = 1 then        /* write column names or labels */
+1192            do;
+1193              put
+1194                 "flag_Mock_1hr_on"
+1195              ','
+1196                 "flag_Mock_3hr_on"
+1197              ','
+1198                 "flag_Mock_24hr_on"
+1199              ','
+1200                 "flag_Mock_72hr_on"
+1201              ','
+1202                 "flag_01gy_1hr_on"
+1203              ','
+1204                 "flag_01gy_3hr_on"
+1205              ','
+1206                 "flag_01gy_24hr_on"
+1207              ','
+1208                 "flag_01gy_72hr_on"
+1209              ','
+1210                 "flag_1gy_1hr_on"
+1211              ','
+1212                 "flag_1gy_3hr_on"
+1213              ','
+1214                 "flag_1gy_24hr_on"
+1215              ','
+1216                 "flag_1gy_72hr_on"
+1217              ','
+1218                 "COUNT"
+1219              ','
+1220                 "PERCENT"
+1221              ;
+1222            end;
+1223          set  COUNT_ON_BY_TRT_TIME   end=EFIEOD;
+1224              format flag_Mock_1hr_on best12. ;
+1225              format flag_Mock_3hr_on best12. ;
+1226              format flag_Mock_24hr_on best12. ;
+1227              format flag_Mock_72hr_on best12. ;
+1228              format flag_01gy_1hr_on best12. ;
+1229              format flag_01gy_3hr_on best12. ;
+1230              format flag_01gy_24hr_on best12. ;
+1231              format flag_01gy_72hr_on best12. ;
+1232              format flag_1gy_1hr_on best12. ;
+1233              format flag_1gy_3hr_on best12. ;
+1234              format flag_1gy_24hr_on best12. ;
+31                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1235              format flag_1gy_72hr_on best12. ;
+1236              format COUNT best12. ;
+1237              format PERCENT best12. ;
+1238            do;
+1239              EFIOUT + 1;
+1240              put flag_Mock_1hr_on @;
+1241              put flag_Mock_3hr_on @;
+1242              put flag_Mock_24hr_on @;
+1243              put flag_Mock_72hr_on @;
+1244              put flag_01gy_1hr_on @;
+1245              put flag_01gy_3hr_on @;
+1246              put flag_01gy_24hr_on @;
+1247              put flag_01gy_72hr_on @;
+1248              put flag_1gy_1hr_on @;
+1249              put flag_1gy_3hr_on @;
+1250              put flag_1gy_24hr_on @;
+1251              put flag_1gy_72hr_on @;
+1252              put COUNT @;
+1253              put PERCENT ;
+1254              ;
+1255            end;
+1256           if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+1257           if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+1258           run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Mon Dec  4 08:50:24 2017
+
+NOTE: 9517 records were written to the file '!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv'.
+      The minimum record length was 15.
+      The maximum record length was 219.
+NOTE: There were 9516 observations read from the data set WORK.COUNT_ON_BY_TRT_TIME.
+NOTE: DATA statement used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+9516 records created in !PATCON/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv from COUNT_ON_BY_TRT_TIME.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/fusions_on_by_trt_time_apn0.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.07 seconds
+      
+
+1259       
+1260       
+1261       /* Now flag and count P<0.05 for each main effect and contrast */
+1262       
+1263       %macro flagp05(pvalue,flagname);
+1264       data flag_p05;
+1265         set fus_summary2;
+1266         if &pvalue. = . then &flagname.=.;
+1267         else if &pvalue. <0.05 then &flagname.=1;
+32                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1268         else &flagname.=0;
+1269       run;
+1270       
+1271       proc freq data=flag_p05;
+1272         tables &flagname.;
+1273       run;
+1274       %mend;
+1275       
+1276       
+1277       %flagp05(P_time,flag_time_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.52 seconds
+      cpu time            0.53 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 5.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.10 seconds
+      
+
+1278       %flagp05(P_treatment,flag_trt_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.76 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 6.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.10 seconds
+      
+
+1279       %flagp05(P_trt_by_time,flag_trt_time_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.09 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 7.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+33                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+      
+
+1280       %flagp05(p_01gy_v_Mock_1h,flag_01vMock_1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.76 seconds
+      cpu time            0.65 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 8.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1281       %flagp05(p_01gy_v_Mock_3h,flag_01vMock_3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.99 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 9.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+      
+
+1282       %flagp05(p_01gy_v_Mock_24h,flag_01vMock_24_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.74 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 10.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1283       %flagp05(p_01gy_v_Mock_72h,flag_01vMock_72_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+34                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+      real time           1.60 seconds
+      cpu time            0.69 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 11.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1284       %flagp05(p_1gy_v_Mock_1h,flag_1vMock_1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.84 seconds
+      cpu time            0.66 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 12.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.90 seconds
+      cpu time            0.12 seconds
+      
+
+1285       %flagp05(p_1gy_v_Mock_3h,flag_1vMock_3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.84 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 13.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.10 seconds
+      
+
+1286       %flagp05(p_1gy_v_Mock_24h,flag_1vMock_24_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.89 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 14.
+35                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+      
+
+1287       %flagp05(p_1gy_v_Mock_72h,flag_1vMock_72_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           3.14 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 15.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.12 seconds
+      
+
+1288       %flagp05(p_1gy_v_01gy_1h,flag_1v01gy_1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.02 seconds
+      cpu time            0.66 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 16.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+      
+
+1289       %flagp05(p_1gy_v_01gy_3h,flag_1v01gy_3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           3.82 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 17.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.11 seconds
+      
+
+1290       %flagp05(p_1gy_v_01gy_24h,flag_1v01gy_24_p05);
+
+36                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.71 seconds
+      cpu time            0.66 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 18.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.12 seconds
+      
+
+1291       %flagp05(p_1gy_v_01gy_72h,flag_1v01gy_72_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.85 seconds
+      cpu time            0.66 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 19.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.13 seconds
+      
+
+1292       %flagp05(p_mock_3h_v_1h,flag_mock_3v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.82 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 20.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1293       %flagp05(p_mock_24h_v_1h,flag_mock_24v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.42 seconds
+      cpu time            0.68 seconds
+      
+
+37                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 21.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+      
+
+1294       %flagp05(p_mock_72h_v_1h,flag_mock_72v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.51 seconds
+      cpu time            0.69 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 22.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1295       %flagp05(p_mock_24h_v_3h,flag_mock_24v3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.23 seconds
+      cpu time            0.69 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 23.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.11 seconds
+      
+
+1296       %flagp05(p_mock_72h_v_3h,flag_mock_72v3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.53 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 24.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+      
+38                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+
+1297       %flagp05(p_mock_72h_v_24h,flag_mock_72v24_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.18 seconds
+      cpu time            0.64 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 25.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1298       %flagp05(p_01gy_3h_v_1h,flag_01gy_3v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.50 seconds
+      cpu time            0.63 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 26.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1299       %flagp05(p_01gy_24h_v_1h,flag_01gy_24v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.62 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 27.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.13 seconds
+      
+
+1300       %flagp05(p_01gy_72h_v_1h,flag_01gy_72v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.89 seconds
+39                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+      cpu time            0.69 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 28.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.11 seconds
+      
+
+1301       %flagp05(p_01gy_24h_v_3h,flag_01gy_24v3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.65 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 29.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1302       %flagp05(p_01gy_72h_v_3h,flag_01gy_72v3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.94 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 30.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.13 seconds
+      
+
+1303       %flagp05(p_01gy_72h_v_24h,flag_01gy_72v24_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.66 seconds
+      cpu time            0.69 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 31.
+NOTE: PROCEDURE FREQ used (Total process time):
+40                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+      real time           0.13 seconds
+      cpu time            0.13 seconds
+      
+
+1304       %flagp05(p_1gy_3h_v_1h,flag_1gy_3v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.72 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 32.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.14 seconds
+      
+
+1305       %flagp05(p_1gy_24h_v_1h,flag_1gy_24v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.86 seconds
+      cpu time            0.72 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 33.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.11 seconds
+      
+
+1306       %flagp05(p_1gy_72h_v_1h,flag_1gy_72v1_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.81 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 34.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.12 seconds
+      
+
+1307       %flagp05(p_1gy_24h_v_3h,flag_1gy_24v3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+41                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.82 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 35.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.14 seconds
+      
+
+1308       %flagp05(p_1gy_72h_v_3h,flag_1gy_72v3_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.92 seconds
+      cpu time            0.65 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 36.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.12 seconds
+      
+
+1309       %flagp05(p_1gy_72h_v_24h,flag_1gy_72v24_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.60 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 37.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1310       %flagp05(p_01gy_v_Mock_3h_sub_1h,flag_01gy_v_Mock_3h_sub_1h_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.74 seconds
+      cpu time            0.67 seconds
+      
+
+
+42                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 38.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.13 seconds
+      
+
+1311       %flagp05(p_01gy_v_Mock_24h_sub_1h,flag_01gy_v_Mock_24h_sub_1h_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.88 seconds
+      cpu time            0.67 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 39.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1312       %flagp05(p_01gy_v_Mock_72h_sub_1h,flag_01gy_v_Mock_72h_sub_1h_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.23 seconds
+      cpu time            0.66 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 40.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1313       %flagp05(p_1gy_v_Mock_3h_sub_1h,flag_1gy_v_Mock_3h_sub_1h_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.04 seconds
+      cpu time            0.68 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 41.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.14 seconds
+      
+
+43                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1314       %flagp05(p_1gy_v_Mock_24h_sub_1h,flag_1gy_v_Mock_24h_sub_1h_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.64 seconds
+      cpu time            0.71 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 42.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.12 seconds
+      
+
+1315       %flagp05(p_1gy_v_Mock_72h_sub_1h,flag_1gy_v_Mock_72h_sub_1h_p05);
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05 has 142631 observations and 154 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.69 seconds
+      cpu time            0.66 seconds
+      
+
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05.
+NOTE: The PROCEDURE FREQ printed page 43.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.13 seconds
+      
+
+1316       
+1317       
+1318       /*
+1319                                                  Cumulative    Cumulative
+1320        flag_time_p05    Frequency     Percent     Frequency      Percent
+1321        ------------------------------------------------------------------
+1322                    0       31196       26.62         31196        26.62
+1323                    1       86000       73.38        117196       100.00
+1324       
+1325                             Frequency Missing = 21371
+1326       
+1327                                                Cumulative    Cumulative
+1328       flag_trt_p05    Frequency     Percent     Frequency      Percent
+1329       -----------------------------------------------------------------
+1330                  0       95812       81.75         95812        81.75
+1331                  1       21384       18.25        117196       100.00
+1332       
+1333                           Frequency Missing = 21371
+1334       
+1335               flag_trt_                             Cumulative    Cumulative
+1336                time_p05    Frequency     Percent     Frequency      Percent
+1337        ---------------------------------------------------------------------
+1338                       0       97729       83.39         97729        83.39
+1339                       1       19467       16.61        117196       100.00
+44                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1340       
+1341                              Frequency Missing = 21371
+1342       
+1343          flag_01vMock_                             Cumulative    Cumulative
+1344                  1_p05    Frequency     Percent     Frequency      Percent
+1345       ---------------------------------------------------------------------
+1346                      0       94945       81.01         94945        81.01
+1347                      1       22251       18.99        117196       100.00
+1348       
+1349          flag_01vMock_                             Cumulative    Cumulative
+1350                  3_p05    Frequency     Percent     Frequency      Percent
+1351       ---------------------------------------------------------------------
+1352                      0      106556       90.92        106556        90.92
+1353                      1       10640        9.08        117196       100.00
+1354       
+1355       
+1356          flag_01vMock_                             Cumulative    Cumulative
+1357                 24_p05    Frequency     Percent     Frequency      Percent
+1358       ---------------------------------------------------------------------
+1359                      0      105853       90.32        105853        90.32
+1360                      1       11343        9.68        117196       100.00
+1361       
+1362       
+1363          flag_01vMock_                             Cumulative    Cumulative
+1364                 72_p05    Frequency     Percent     Frequency      Percent
+1365       ---------------------------------------------------------------------
+1366                      0      103391       88.22        103391        88.22
+1367                      1       13805       11.78        117196       100.00
+1368       
+1369            flag_1vMock_                             Cumulative    Cumulative
+1370                   1_p05    Frequency     Percent     Frequency      Percent
+1371        ---------------------------------------------------------------------
+1372                       0      100170       85.47        100170        85.47
+1373                       1       17026       14.53        117196       100.00
+1374       
+1375       
+1376           flag_1vMock_                             Cumulative    Cumulative
+1377                  3_p05    Frequency     Percent     Frequency      Percent
+1378       ---------------------------------------------------------------------
+1379                      0      101698       86.78        101698        86.78
+1380                      1       15498       13.22        117196       100.00
+1381       
+1382       
+1383            flag_1vMock_                             Cumulative    Cumulative
+1384                  24_p05    Frequency     Percent     Frequency      Percent
+1385        ---------------------------------------------------------------------
+1386                       0      108072       92.21        108072        92.21
+1387                       1        9124        7.79        117196       100.00
+1388       
+1389            flag_1vMock_                             Cumulative    Cumulative
+1390                  72_p05    Frequency     Percent     Frequency      Percent
+1391        ---------------------------------------------------------------------
+1392                       0      107642       91.85        107642        91.85
+1393                       1        9554        8.15        117196       100.00
+1394       
+1395            flag_1v01gy_                             Cumulative    Cumulative
+1396                   1_p05    Frequency     Percent     Frequency      Percent
+1397        ---------------------------------------------------------------------
+45                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1398                       0      110255       94.08        110255        94.08
+1399                       1        6941        5.92        117196       100.00
+1400       
+1401          flag_1v01gy_                             Cumulative    Cumulative
+1402                 3_p05    Frequency     Percent     Frequency      Percent
+1403       --------------------------------------------------------------------
+1404                     0       99678       85.05         99678        85.05
+1405                     1       17518       14.95        117196       100.00
+1406       
+1407       
+1408                          flag_1v01gy_                             Cumulative    Cumulative
+1409                                24_p05    Frequency     Percent     Frequency      Percent
+1410                      ---------------------------------------------------------------------
+1411                                     0      106219       90.63        106219        90.63
+1412                                     1       10977        9.37        117196       100.00
+1413       
+1414                                            Frequency Missing = 21371
+1415       
+1416            flag_1v01gy_                             Cumulative    Cumulative
+1417                  72_p05    Frequency     Percent     Frequency      Percent
+1418        ---------------------------------------------------------------------
+1419                       0      110967       94.68        110967        94.68
+1420                       1        6229        5.32        117196       100.00
+1421       
+1422       
+1423             flag_mock_                             Cumulative    Cumulative
+1424                3v1_p05    Frequency     Percent     Frequency      Percent
+1425       ---------------------------------------------------------------------
+1426                      0       81387       69.45         81387        69.45
+1427                      1       35809       30.55        117196       100.00
+1428       
+1429              flag_mock_                             Cumulative    Cumulative
+1430                24v1_p05    Frequency     Percent     Frequency      Percent
+1431        ---------------------------------------------------------------------
+1432                       0       81296       69.37         81296        69.37
+1433                       1       35900       30.63        117196       100.00
+1434       
+1435               flag_mock_                             Cumulative    Cumulative
+1436                 72v1_p05    Frequency     Percent     Frequency      Percent
+1437         ---------------------------------------------------------------------
+1438                        0       89228       76.14         89228        76.14
+1439                        1       27968       23.86        117196       100.00
+1440       
+1441              flag_mock_                             Cumulative    Cumulative
+1442                24v3_p05    Frequency     Percent     Frequency      Percent
+1443        ---------------------------------------------------------------------
+1444                       0       70174       59.88         70174        59.88
+1445                       1       47022       40.12        117196       100.00
+1446       
+1447       
+1448              flag_mock_                             Cumulative    Cumulative
+1449                72v3_p05    Frequency     Percent     Frequency      Percent
+1450        ---------------------------------------------------------------------
+1451                       0       94955       81.02         94955        81.02
+1452                       1       22241       18.98        117196       100.00
+1453       
+1454              flag_mock_                             Cumulative    Cumulative
+1455               72v24_p05    Frequency     Percent     Frequency      Percent
+46                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1456        ---------------------------------------------------------------------
+1457                       0       80394       68.60         80394        68.60
+1458                       1       36802       31.40        117196       100.00
+1459       
+1460             flag_01gy_                             Cumulative    Cumulative
+1461                3v1_p05    Frequency     Percent     Frequency      Percent
+1462       ---------------------------------------------------------------------
+1463                      0       70007       59.73         70007        59.73
+1464                      1       47189       40.27        117196       100.00
+1465       
+1466              flag_01gy_                             Cumulative    Cumulative
+1467                24v1_p05    Frequency     Percent     Frequency      Percent
+1468        ---------------------------------------------------------------------
+1469                       0       67617       57.70         67617        57.70
+1470                       1       49579       42.30        117196       100.00.
+1471       
+1472              flag_01gy_                             Cumulative    Cumulative
+1473                72v1_p05    Frequency     Percent     Frequency      Percent
+1474        ---------------------------------------------------------------------
+1475                       0       75940       64.80         75940        64.80
+1476                       1       41256       35.20        117196       100.00
+1477       
+1478             flag_01gy_                             Cumulative    Cumulative
+1479               24v3_p05    Frequency     Percent     Frequency      Percent
+1480       ---------------------------------------------------------------------
+1481                      0       65053       55.51         65053        55.51
+1482                      1       52143       44.49        117196       100.00
+1483       
+1484              flag_01gy_                             Cumulative    Cumulative
+1485                72v3_p05    Frequency     Percent     Frequency      Percent
+1486        ---------------------------------------------------------------------
+1487                       0       83271       71.05         83271        71.05
+1488                       1       33925       28.95        117196       100.00
+1489       
+1490             flag_01gy_                             Cumulative    Cumulative
+1491              72v24_p05    Frequency     Percent     Frequency      Percent
+1492       ---------------------------------------------------------------------
+1493                      0       76435       65.22         76435        65.22
+1494                      1       40761       34.78        117196       100.00
+1495       
+1496                                                     Cumulative    Cumulative
+1497        flag_1gy_3v1_p05    Frequency     Percent     Frequency      Percent
+1498        ---------------------------------------------------------------------
+1499                       0       71766       61.24         71766        61.24
+1500                       1       45430       38.76        117196       100.00
+1501       
+1502               flag_1gy_                             Cumulative    Cumulative
+1503                24v1_p05    Frequency     Percent     Frequency      Percent
+1504        ---------------------------------------------------------------------
+1505                       0       72439       61.81         72439        61.81
+1506                       1       44757       38.19        117196       100.00
+1507       
+1508               flag_1gy_                             Cumulative    Cumulative
+1509                72v1_p05    Frequency     Percent     Frequency      Percent
+1510        ---------------------------------------------------------------------
+1511                       0       80961       69.08         80961        69.08
+1512                       1       36235       30.92        117196       100.00
+1513       
+47                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1514              flag_1gy_                             Cumulative    Cumulative
+1515               24v3_p05    Frequency     Percent     Frequency      Percent
+1516       ---------------------------------------------------------------------
+1517                      0       70788       60.40         70788        60.40
+1518                      1       46408       39.60        117196       100.00
+1519       
+1520               flag_1gy_                             Cumulative    Cumulative
+1521                72v3_p05    Frequency     Percent     Frequency      Percent
+1522        ---------------------------------------------------------------------
+1523                       0       89413       76.29         89413        76.29
+1524                       1       27783       23.71        117196       100.00
+1525       
+1526             flag_1gy_                             Cumulative    Cumulative
+1527             72v24_p05    Frequency     Percent     Frequency      Percent
+1528       --------------------------------------------------------------------
+1529                     0       77960       66.52         77960        66.52
+1530                     1       39236       33.48        117196       100.00
+1531       
+1532              flag_01gy_v_
+1533              Mock_3h_sub_                             Cumulative    Cumulative
+1534                    1h_p05    Frequency     Percent     Frequency      Percent
+1535          ---------------------------------------------------------------------
+1536                         0      100318       85.60        100318        85.60
+1537                         1       16878       14.40        117196       100.00
+1538       
+1539             flag_01gy_v_
+1540            Mock_24h_sub_                             Cumulative    Cumulative
+1541                   1h_p05    Frequency     Percent     Frequency      Percent
+1542         ---------------------------------------------------------------------
+1543                        0      101831       86.89        101831        86.89
+1544                        1       15365       13.11        117196       100.00
+1545       
+1546             flag_01gy_v_
+1547            Mock_72h_sub_                             Cumulative    Cumulative
+1548                   1h_p05    Frequency     Percent     Frequency      Percent
+1549         ---------------------------------------------------------------------
+1550                        0      100504       85.76        100504        85.76
+1551                        1       16692       14.24        117196       100.00
+1552       
+1553       
+1554       flag_1gy_v_Mock_                             Cumulative    Cumulative
+1555          3h_sub_1h_p05    Frequency     Percent     Frequency      Percent
+1556       ---------------------------------------------------------------------
+1557                      0      103683       88.47        103683        88.47
+1558                      1       13513       11.53        117196       100.00
+1559       
+1560       flag_1gy_v_Mock_                             Cumulative    Cumulative
+1561         24h_sub_1h_p05    Frequency     Percent     Frequency      Percent
+1562       ---------------------------------------------------------------------
+1563                      0      104730       89.36        104730        89.36
+1564                      1       12466       10.64        117196       100.00
+1565       
+1566        flag_1gy_v_Mock_                             Cumulative    Cumulative
+1567          72h_sub_1h_p05    Frequency     Percent     Frequency      Percent
+1568        ---------------------------------------------------------------------
+1569                       0      102851       87.76        102851        87.76
+1570                       1       14345       12.24        117196       100.00
+1571       */
+48                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1572       
+1573       /* Check: X-1 Y vs Mock: 0.1x1 for each time point, then within treatment */
+1574       
+1575       data flag_p05_diffs;
+1576          set fus_summary2;
+1577          if p_01gy_v_Mock_3h_sub_1h = . then flag_01gy_3h_sub_1h=. ;
+1578          else if p_01gy_v_Mock_3h_sub_1h < 0.05 then flag_01gy_3h_sub_1h=1 ;
+1579          else  flag_01gy_3h_sub_1h=0 ;
+1580       
+1581          if p_01gy_v_Mock_24h_sub_1h = . then flag_01gy_24h_sub_1h=. ;
+1582          else if p_01gy_v_Mock_24h_sub_1h < 0.05 then flag_01gy_24h_sub_1h=1 ;
+1583          else  flag_01gy_24h_sub_1h=0 ;
+1584       
+1585          if p_01gy_v_Mock_72h_sub_1h = . then flag_01gy_72h_sub_1h=. ;
+1586          else if p_01gy_v_Mock_72h_sub_1h < 0.05 then flag_01gy_72h_sub_1h=1 ;
+1587          else  flag_01gy_72h_sub_1h=0 ;
+1588       
+1589          if p_1gy_v_Mock_3h_sub_1h = . then flag_1gy_3h_sub_1h=. ;
+1590          else if p_1gy_v_Mock_3h_sub_1h < 0.05 then flag_1gy_3h_sub_1h=1 ;
+1591          else  flag_1gy_3h_sub_1h=0 ;
+1592       
+1593          if p_1gy_v_Mock_24h_sub_1h = . then flag_1gy_24h_sub_1h=. ;
+1594          else if p_1gy_v_Mock_24h_sub_1h < 0.05 then flag_1gy_24h_sub_1h=1 ;
+1595          else  flag_1gy_24h_sub_1h=0 ;
+1596       
+1597          if p_1gy_v_Mock_72h_sub_1h = . then flag_1gy_72h_sub_1h=. ;
+1598          else if p_1gy_v_Mock_72h_sub_1h < 0.05 then flag_1gy_72h_sub_1h=1 ;
+1599          else  flag_1gy_72h_sub_1h=0 ;
+1600       
+1601       run;
+
+NOTE: There were 142631 observations read from the data set WORK.FUS_SUMMARY2.
+NOTE: The data set WORK.FLAG_P05_DIFFS has 142631 observations and 159 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.53 seconds
+      cpu time            0.54 seconds
+      
+
+1602       
+1603       proc freq data=flag_p05_diffs noprint;
+1604          tables flag_01gy_3h_sub_1h*flag_1gy_3h_sub_1h / out=p05_count;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05_DIFFS.
+NOTE: The data set WORK.P05_COUNT has 5 observations and 4 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.11 seconds
+      
+
+1605       proc print data=p05_count;
+1606       run;
+
+NOTE: There were 5 observations read from the data set WORK.P05_COUNT.
+NOTE: The PROCEDURE PRINT printed page 44.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+49                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+
+1607       
+1608       /*
+1609                      flag_
+1610       flag_01gy_    1gy_3h_
+1611        3h_sub_1h     sub_1h    COUNT    PERCENT
+1612       
+1613            .           .       21371      .
+1614            0           0       96534    82.3697
+1615            0           1        3784     3.2288
+1616            1           0        7149     6.1000
+1617            1           1        9729     8.3015
+1618       
+1619       */
+1620       
+1621       proc freq data=flag_p05_diffs noprint;
+1622          tables flag_01gy_24h_sub_1h*flag_1gy_24h_sub_1h / out=p05_count;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05_DIFFS.
+NOTE: The data set WORK.P05_COUNT has 5 observations and 4 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.14 seconds
+      
+
+1623       proc print data=p05_count;
+1624       run;
+
+NOTE: There were 5 observations read from the data set WORK.P05_COUNT.
+NOTE: The PROCEDURE PRINT printed page 45.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+1625       
+1626       /*
+1627       
+1628       flag_01gy_     flag_1gy_
+1629       24h_sub_1h    24h_sub_1h    COUNT    PERCENT
+1630       
+1631            .             .        21371      .
+1632            0             0        97889    83.5259
+1633            0             1         3942     3.3636
+1634            1             0         6841     5.8372
+1635            1             1         8524     7.2733
+1636       
+1637       */
+1638       
+1639       proc freq data=flag_p05_diffs noprint;
+1640          tables flag_01gy_72h_sub_1h*flag_1gy_72h_sub_1h / out=p05_count;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05_DIFFS.
+NOTE: The data set WORK.P05_COUNT has 5 observations and 4 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+      
+50                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+
+1641       proc print data=p05_count;
+1642       run;
+
+NOTE: There were 5 observations read from the data set WORK.P05_COUNT.
+NOTE: The PROCEDURE PRINT printed page 46.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+1643       
+1644       /*
+1645        flag_01gy_     flag_1gy_
+1646        72h_sub_1h    72h_sub_1h    COUNT    PERCENT
+1647       
+1648             .             .        21371      .
+1649             0             0        96056    81.9618
+1650             0             1         4448     3.7954
+1651             1             0         6795     5.7980
+1652             1             1         9897     8.4448
+1653       
+1654       
+1655       */
+1656       proc freq data=flag_p05_diffs noprint;
+1657          tables flag_01gy_3h_sub_1h*flag_01gy_24h_sub_1h*flag_01gy_72h_sub_1h / out=p05_count;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05_DIFFS.
+NOTE: The data set WORK.P05_COUNT has 9 observations and 5 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.12 seconds
+      
+
+1658       proc print data=p05_count;
+1659       run;
+
+NOTE: There were 9 observations read from the data set WORK.P05_COUNT.
+NOTE: The PROCEDURE PRINT printed page 47.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+1660       
+1661       /*
+1662        flag_01gy_    flag_01gy_    flag_01gy_
+1663         3h_sub_1h    24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+1664       
+1665             .             .             .        21371      .
+1666             0             0             0        86225    73.5733
+1667             0             0             1         5899     5.0334
+1668             0             1             0         5553     4.7382
+1669             0             1             1         2641     2.2535
+1670             1             0             0         6894     5.8825
+1671             1             0             1         2813     2.4003
+1672             1             1             0         1832     1.5632
+1673             1             1             1         5339     4.5556
+51                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1674       
+1675       
+1676       
+1677       */
+1678       
+1679       proc freq data=flag_p05_diffs noprint;
+1680          tables flag_1gy_3h_sub_1h*flag_1gy_24h_sub_1h*flag_1gy_72h_sub_1h / out=p05_count;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05_DIFFS.
+NOTE: The data set WORK.P05_COUNT has 9 observations and 5 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.11 seconds
+      
+
+1681       proc print data=p05_count;
+1682       run;
+
+NOTE: There were 9 observations read from the data set WORK.P05_COUNT.
+NOTE: The PROCEDURE PRINT printed page 48.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+1683       
+1684       /*
+1685         flag_
+1686        1gy_3h_     flag_1gy_     flag_1gy_
+1687         sub_1h    24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+1688       
+1689           .            .             .        21371      .
+1690           0            0             0        90450    77.1784
+1691           0            0             1         5946     5.0736
+1692           0            1             0         5018     4.2817
+1693           0            1             1         2269     1.9361
+1694           1            0             0         6048     5.1606
+1695           1            0             1         2286     1.9506
+1696           1            1             0         1335     1.1391
+1697           1            1             1         3844     3.2800
+1698       
+1699       */
+1700       
+1701       proc freq data=flag_p05_diffs noprint;
+1702          tables
+1702     ! flag_01gy_3h_sub_1h*flag_01gy_24h_sub_1h*flag_01gy_72h_sub_1h*flag_1gy_3h_sub_1h*flag_1gy_24h_sub_1h*flag_1gy_72h_sub_1h
+1702     ! / out=p05_count;
+
+NOTE: There were 142631 observations read from the data set WORK.FLAG_P05_DIFFS.
+NOTE: The data set WORK.P05_COUNT has 64 observations and 8 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.16 seconds
+      cpu time            0.16 seconds
+      
+
+1703       proc print data=p05_count;
+1704       run;
+
+52                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+NOTE: There were 64 observations read from the data set WORK.P05_COUNT.
+NOTE: The PROCEDURE PRINT printed pages 49-50.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+1705       
+1706       
+1707       /*
+1708       flag_01gy_   flag_01gy_   flag_01gy_   1gy_3h_    flag_1gy_    flag_1gy_
+1709        3h_sub_1h   24h_sub_1h   72h_sub_1h    sub_1h   24h_sub_1h   72h_sub_1h   COUNT   PERCENT
+1710       
+1711            .            .            .          .           .            .       21371     .
+1712            0            0            0          0           0            0       78716   67.1661
+1713            0            0            0          0           0            1        2179    1.8593
+1714            0            0            0          0           1            0        1830    1.5615
+1715            0            0            0          0           1            1         474    0.4045
+1716            0            0            0          1           0            0        1875    1.5999
+1717            0            0            0          1           0            1         468    0.3993
+1718            0            0            0          1           1            0         287    0.2449
+1719            0            0            0          1           1            1         396    0.3379
+1720            0            0            1          0           0            0        2504    2.1366
+1721            0            0            1          0           0            1        2761    2.3559
+1722            0            0            1          0           1            0          26    0.0222
+1723            0            0            1          0           1            1         280    0.2389
+1724            0            0            1          1           0            0          47    0.0401
+1725            0            0            1          1           0            1         172    0.1468
+1726            0            0            1          1           1            0           5    0.0043
+1727            0            0            1          1           1            1         104    0.0887
+1728            0            1            0          0           0            0        2743    2.3405
+1729            0            1            0          0           0            1          34    0.0290
+1730            0            1            0          0           1            0        2320    1.9796
+1731            0            1            0          0           1            1         180    0.1536
+1732            0            1            0          1           0            0          58    0.0495
+1733            0            1            0          1           0            1          15    0.0128
+1734            0            1            0          1           1            0         106    0.0904
+1735            0            1            0          1           1            1          97   0.08277
+1736            0            1            1          0           0            0         887   0.75685
+1737            0            1            1          0           0            1         315   0.26878
+1738            0            1            1          0           1            0         315   0.26878
+1739            0            1            1          0           1            1         970   0.82767
+1740            0            1            1          1           0            0          17   0.01451
+1741            0            1            1          1           0            1           4   0.00341
+1742            0            1            1          1           1            1         133   0.11349
+1743            1            0            0          0           0            0        3164   2.69975
+1744            1            0            0          0           0            1          88   0.07509
+1745            1            0            0          0           1            0          67   0.05717
+1746            1            0            0          0           1            1          42   0.03584
+1747            1            0            0          1           0            0        3057   2.60845
+1748            1            0            0          1           0            1         244   0.20820
+1749            1            0            0          1           1            0         123   0.10495
+1750            1            0            0          1           1            1         109   0.09301
+1751            1            0            1          0           0            0         888   0.75771
+1752            1            0            1          0           0            1         296   0.25257
+1753            1            0            1          0           1            0          14   0.01195
+1754            1            0            1          0           1            1          19   0.01621
+1755            1            0            1          1           0            0         424   0.36179
+53                                                         The SAS System                             08:47 Monday, December 4, 2017
+
+1756            1            0            1          1           0            1        1006   0.85839
+1757            1            0            1          1           1            0           1   0.00085
+1758            1            0            1          1           1            1         165   0.14079
+1759            1            1            0          0           0            0         694   0.59217
+1760            1            1            0          0           0            1          19   0.01621
+1761            1            1            0          0           1            0         193   0.16468
+1762            1            1            0          0           1            1           3   0.00256
+1763            1            1            0          1           0            0         290   0.24745
+1764            1            1            0          1           0            1           4   0.00341
+1765            1            1            0          1           1            0         533   0.45479
+1766            1            1            0          1           1            1          96   0.08191
+1767            1            1            1          0           0            0         854   0.72869
+1768            1            1            1          0           0            1         254   0.21673
+1769            1            1            1          0           1            0         253   0.21588
+1770            1            1            1          0           1            1         301   0.25683
+1771            1            1            1          1           0            0         280   0.23892
+1772            1            1            1          1           0            1         373   0.31827
+1773            1            1            1          1           1            0         280   0.23892
+1774            1            1            1          1           1            1        2744   2.34138
+1775       */
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           3:31.33
+      cpu time            2:06.92
+      

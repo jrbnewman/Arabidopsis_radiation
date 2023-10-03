@@ -1,0 +1,510 @@
+1                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M6) 
+      Licensed to UNIVERSITY OF FLORIDA-ADMIN, Site 70080455.
+NOTE: This session is executing on the Linux 5.4.0-107-generic (LIN X64) platform.
+
+
+
+NOTE: Analytical products:
+      
+      SAS/STAT 15.1
+      SAS/ETS 15.1
+      SAS/OR 15.1
+      SAS/IML 15.1
+      SAS/QC 15.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 5.4.0-107-generic #121-Ubuntu SMP Thu Mar 24 16:04:27 UTC 2022 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.06 seconds
+      cpu time            0.03 seconds
+      
+1          ods listing; ods html close;
+2          libname arabRNA "!HOME/concannon/DTRA/arabidopsis/sas_data";
+NOTE: Libref ARABRNA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /nfshome/jrbnewman/concannon/DTRA/arabidopsis/sas_data
+3          
+4          /* Normalize gene read counts using "copies per million" CPM: reads aligning to gene / 1,000,000
+5             [reads aligning to gene] * 10^6 / [total number of aligned reads in one sample] */
+6          
+7             %macro calcCPM(dataIn,dataOut);
+8          
+9          
+10         	   data counts_by_gene;
+11         		     set arabRNA.&dataIn.;
+12         	     run;
+13         
+14         	     /* sum expected_count by sample */
+2                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+15         
+16         	     proc sort data=counts_by_gene;
+17         		       by sample_id;
+18         	       proc means data=counts_by_gene noprint;
+19         		         by sample_id;
+20         			   var count;
+21         			     output out=total_counts_per_sample sum=total_counts;
+22         		     run;
+23         
+24         		     proc sort data=total_counts_per_sample;
+25         			       by sample_id;
+26         		       proc sort data=counts_by_gene;
+27         			         by sample_id;
+28         			 run;
+29         
+30         			 data counts_by_gene2;
+31         				   merge counts_by_gene (in=in1) total_counts_per_sample (in=in2);
+32         				     by sample_id;
+33         				       if in1 and in2;
+34         			       run;
+35         
+36         			       /* Calculate CPM from expected_counts */
+37         
+38         			       data calc_cpm;
+39         				         set counts_by_gene2;
+40         					   cpm = (count * 1000000)/total_counts;
+41         				   run;
+42         
+43         
+44         				   data arabRNA.&dataOut.;
+45         					     set calc_cpm;
+46         					       drop _TYPE_ _FREQ_;
+47         				       run;
+48         
+49            %mend;
+50         
+51         
+52            %calcCPM(counts_by_te_uniq,cpm_by_te_uniq);
+
+NOTE: There were 1234692 observations read from the data set ARABRNA.COUNTS_BY_TE_UNIQ.
+NOTE: The data set WORK.COUNTS_BY_GENE has 1234692 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           11.88 seconds
+      cpu time            0.84 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.COUNTS_BY_GENE has 1234692 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.69 seconds
+      cpu time            1.16 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+3                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+      real time           0.10 seconds
+      cpu time            0.10 seconds
+      
+
+
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.COUNTS_BY_GENE2 has 1234692 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.29 seconds
+      cpu time            0.29 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE2.
+NOTE: The data set WORK.CALC_CPM has 1234692 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.23 seconds
+      cpu time            0.24 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.CALC_CPM.
+NOTE: The data set ARABRNA.CPM_BY_TE_UNIQ has 1234692 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.45 seconds
+      cpu time            0.47 seconds
+      
+
+53            %calcCPM(counts_by_te_multi,cpm_by_te_multi);
+
+NOTE: There were 1234692 observations read from the data set ARABRNA.COUNTS_BY_TE_MULTI.
+NOTE: The data set WORK.COUNTS_BY_GENE has 1234692 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           14.11 seconds
+      cpu time            0.93 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.COUNTS_BY_GENE has 1234692 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.67 seconds
+4                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+      cpu time            1.11 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.11 seconds
+      
+
+
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.COUNTS_BY_GENE2 has 1234692 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.70 seconds
+      cpu time            0.37 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.COUNTS_BY_GENE2.
+NOTE: The data set WORK.CALC_CPM has 1234692 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.67 seconds
+      cpu time            0.35 seconds
+      
+
+
+NOTE: There were 1234692 observations read from the data set WORK.CALC_CPM.
+NOTE: The data set ARABRNA.CPM_BY_TE_MULTI has 1234692 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           3.11 seconds
+      cpu time            0.45 seconds
+      
+
+54            %calcCPM(counts_by_te_xscript_uniq,cpm_by_te_xscript_uniq);
+
+NOTE: There were 2345976 observations read from the data set ARABRNA.COUNTS_BY_TE_XSCRIPT_UNIQ.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           27.88 seconds
+      cpu time            1.55 seconds
+5                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.38 seconds
+      cpu time            2.14 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.17 seconds
+      cpu time            0.17 seconds
+      
+
+
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.COUNTS_BY_GENE2 has 2345976 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.34 seconds
+      cpu time            0.69 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE2.
+NOTE: The data set WORK.CALC_CPM has 2345976 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.28 seconds
+      cpu time            0.59 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.CALC_CPM.
+NOTE: The data set ARABRNA.CPM_BY_TE_XSCRIPT_UNIQ has 2345976 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.80 seconds
+      cpu time            0.89 seconds
+      
+
+6                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+55            %calcCPM(counts_by_te_xscript_multi,cpm_by_te_xscript_multi);
+
+NOTE: There were 2345976 observations read from the data set ARABRNA.COUNTS_BY_TE_XSCRIPT_MULTI.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           25.00 seconds
+      cpu time            1.78 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.40 seconds
+      cpu time            2.13 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.17 seconds
+      cpu time            0.19 seconds
+      
+
+
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.COUNTS_BY_GENE2 has 2345976 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.37 seconds
+      cpu time            0.71 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE2.
+NOTE: The data set WORK.CALC_CPM has 2345976 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.50 seconds
+      cpu time            0.61 seconds
+      
+
+
+7                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+NOTE: There were 2345976 observations read from the data set WORK.CALC_CPM.
+NOTE: The data set ARABRNA.CPM_BY_TE_XSCRIPT_MULTI has 2345976 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.82 seconds
+      cpu time            0.91 seconds
+      
+
+56            %calcCPM(counts_by_te_local_uniq,cpm_by_te_local_uniq);
+
+NOTE: There were 2345976 observations read from the data set ARABRNA.COUNTS_BY_TE_LOCAL_UNIQ.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           21.29 seconds
+      cpu time            1.58 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.83 seconds
+      cpu time            2.12 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.17 seconds
+      cpu time            0.18 seconds
+      
+
+
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.COUNTS_BY_GENE2 has 2345976 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.45 seconds
+      cpu time            0.70 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE2.
+8                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+NOTE: The data set WORK.CALC_CPM has 2345976 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.29 seconds
+      cpu time            0.61 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.CALC_CPM.
+NOTE: The data set ARABRNA.CPM_BY_TE_LOCAL_UNIQ has 2345976 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.79 seconds
+      cpu time            0.93 seconds
+      
+
+57            %calcCPM(counts_by_te_local_multi,cpm_by_te_local_multi);
+
+NOTE: There were 2345976 observations read from the data set ARABRNA.COUNTS_BY_TE_LOCAL_MULTI.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           23.77 seconds
+      cpu time            1.74 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.COUNTS_BY_GENE has 2345976 observations and 8 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.40 seconds
+      cpu time            2.15 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.18 seconds
+      
+
+
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.TOTAL_COUNTS_PER_SAMPLE has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE.
+NOTE: There were 36 observations read from the data set WORK.TOTAL_COUNTS_PER_SAMPLE.
+NOTE: The data set WORK.COUNTS_BY_GENE2 has 2345976 observations and 11 variables.
+9                                                          The SAS System                               13:29 Monday, April 11, 2022
+
+NOTE: DATA statement used (Total process time):
+      real time           1.35 seconds
+      cpu time            0.72 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.COUNTS_BY_GENE2.
+NOTE: The data set WORK.CALC_CPM has 2345976 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.32 seconds
+      cpu time            0.62 seconds
+      
+
+
+NOTE: There were 2345976 observations read from the data set WORK.CALC_CPM.
+NOTE: The data set ARABRNA.CPM_BY_TE_LOCAL_MULTI has 2345976 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.82 seconds
+      cpu time            0.93 seconds
+      
+
+58         
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2:50.13
+      cpu time            31.40 seconds
+      

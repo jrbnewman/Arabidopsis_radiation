@@ -1,0 +1,29 @@
+                                                           The SAS System                         12:54 Sunday, December 3, 2017   1
+
+                                        sign_01gy_    sign_01gy_    sign_01gy_
+                                        v_Mock_3h_     v_Mock_       v_Mock_
+                                 Obs      sub_1h      24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+
+                                   1        D             D             D          2355     1.9910
+                                   2        D             D             N           905     0.7651
+                                   3        D             N             D          1241     1.0492
+                                   4        D             N             N          3563     3.0123
+                                   5        D             N             U           108     0.0913
+                                   6        D             U             N            13     0.0110
+                                   7        D             U             U             7     0.0059
+                                   8        N             D             D           983     0.8311
+                                   9        N             D             N          2139     1.8084
+                                  10        N             D             U             5     0.0042
+                                  11        N             N             D          2928     2.4754
+                                  12        N             N             N         87114    73.6494
+                                  13        N             N             U          3007     2.5422
+                                  14        N             U             D             6     0.0051
+                                  15        N             U             N          3457     2.9227
+                                  16        N             U             U          1658     1.4017
+                                  17        U             D             N             7     0.0059
+                                  18        U             D             U             1     0.0008
+                                  19        U             N             D             3     0.0025
+                                  20        U             N             N          3389     2.8652
+                                  21        U             N             U          1474     1.2462
+                                  22        U             U             N           919     0.7770
+                                  23        U             U             U          3000     2.5363

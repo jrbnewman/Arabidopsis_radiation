@@ -1,0 +1,139 @@
+1                                                          The SAS System                             11:51 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.13 seconds
+      cpu time            0.03 seconds
+      
+1          ods listing; ods html close;
+2          
+3          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+4          libname tair "!PATCON/useful_arabidopsis_data/TAIR10/sas_data";
+NOTE: Libref TAIR was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/useful_arabidopsis_data/TAIR10/sas_data
+2                                                          The SAS System                             11:51 Sunday, December 3, 2017
+
+5          
+6           /* Import coverage counts for fragments and sum tech reps */
+7          
+8              data WORK.FRAGMENT_COUNTS    ;
+9              %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+10             infile
+11         '!PATCON/arabidopsis/alignment_output/coverage_counts_fragments_arab.csv' delimiter = ',' MISSOVER DSD
+12         lrecl=32767 firstobs=2 ;
+13                informat sample_id $78. ;
+14                informat fragment_id $15. ;
+15                informat mapped_reads best32. ;
+16                informat read_length best32. ;
+17                informat region_length best32. ;
+18                informat region_depth best32. ;
+19                informat reads_in_region best32. ;
+20                informat apn best32. ;
+21                informat rpkm best32. ;
+22                informat mean best32. ;
+23                informat std best32. ;
+24                informat cv best32. ;
+25                format sample_id $78. ;
+26                format fragment_id $15. ;
+27                format mapped_reads best12. ;
+28                format read_length best12. ;
+29                format region_length best12. ;
+30                format region_depth best12. ;
+31                format reads_in_region best12. ;
+32                format apn best12. ;
+33                format rpkm best12. ;
+34                format mean best12. ;
+35                format std best12. ;
+36                format cv best12. ;
+37              input
+38                          sample_id $
+39                          fragment_id $
+40                          mapped_reads
+41                          read_length
+42                          region_length
+43                          region_depth
+44                          reads_in_region
+45                          apn
+46                          rpkm
+47                          mean
+48                          std
+49                          cv
+50              ;
+51              if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+52              run;
+
+NOTE: The infile '!PATCON/arabidopsis/alignment_output/coverage_counts_fragments_arab.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/alignment_output/coverage_counts_fragments_arab.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Sun Dec  3 11:09:55 2017,
+      File Size (bytes)=6251071170
+
+NOTE: 108645 records were read from the infile '!PATCON/arabidopsis/alignment_output/coverage_counts_fragments_arab.csv'.
+      The minimum record length was 109.
+3                                                          The SAS System                             11:51 Sunday, December 3, 2017
+
+      The maximum record length was 198.
+ERROR: User asked for termination
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: SAS set option OBS=0 and will continue to check statements. This might cause NOTE: No observations in data set.
+WARNING: The data set WORK.FRAGMENT_COUNTS may be incomplete.  When this step was stopped there were 108644 observations and 12 
+         variables.
+NOTE: DATA statement used (Total process time):
+      real time           9.57 seconds
+      cpu time            0.94 seconds
+      
+ERROR: Errors printed on page 3.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           9.80 seconds
+      cpu time            1.01 seconds
+      

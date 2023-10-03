@@ -1,0 +1,782 @@
+                                                           The SAS System                         08:47 Monday, December 4, 2017   1
+
+                                                       The CONTENTS Procedure
+
+             Data Set Name        WORK.FUS_SUMMARY                                         Observations          142631
+             Member Type          DATA                                                     Variables             153   
+             Engine               V9                                                       Indexes               0     
+             Created              12/04/2017 08:49:43                                      Observation Length    2296  
+             Last Modified        12/04/2017 08:49:43                                      Deleted Observations  0     
+             Protection                                                                    Compressed            NO    
+             Data Set Type                                                                 Sorted                NO    
+             Label                                                                                                     
+             Data Representation  SOLARIS_X86_64, LINUX_X86_64, ALPHA_TRU64, LINUX_IA64                                
+             Encoding             latin1  Western (ISO)                                                                
+
+
+                                                 Engine/Host Dependent Information
+
+              Data Set Page Size          131072                                                                      
+              Number of Data Set Pages    2503                                                                        
+              First Data Page             1                                                                           
+              Max Obs per Page            57                                                                          
+              Obs in First Data Page      47                                                                          
+              Number of Data Set Repairs  0                                                                           
+              Filename                    /mnt/store/sas_work/SAS_work95D80000748D_ufgi-immigrans/fus_summary.sas7bdat
+              Release Created             9.0401M0                                                                    
+              Host Created                Linux                                                                       
+              Inode Number                142606865                                                                   
+              Access Permission           rw-r--r--                                                                   
+              Owner Name                  jrbnewman                                                                   
+              File Size (bytes)           328204288                                                                   
+
+
+                                             Alphabetic List of Variables and Attributes
+ 
+                              #    Variable                           Type    Len    Format     Informat
+
+                             82    Estimate_01gy_24h_v_1h             Num       8    D8.4               
+                             83    Estimate_01gy_24h_v_3h             Num       8    D8.4               
+                             84    Estimate_01gy_3h_v_1h              Num       8    D8.4               
+                             85    Estimate_01gy_72h_v_1h             Num       8    D8.4               
+                             86    Estimate_01gy_72h_v_24h            Num       8    D8.4               
+                             87    Estimate_01gy_72h_v_3h             Num       8    D8.4               
+                             88    Estimate_01gy_v_Mock_1h            Num       8    D8.4               
+                             89    Estimate_01gy_v_Mock_24h           Num       8    D8.4               
+                             90    Estimate_01gy_v_Mock_24h_sub_1h    Num       8    D8.4               
+                             91    Estimate_01gy_v_Mock_3h            Num       8    D8.4               
+                             92    Estimate_01gy_v_Mock_3h_sub_1h     Num       8    D8.4               
+                             93    Estimate_01gy_v_Mock_72h           Num       8    D8.4               
+                             94    Estimate_01gy_v_Mock_72h_sub_1h    Num       8    D8.4               
+                             95    Estimate_1gy_24h_v_1h              Num       8    D8.4               
+                             96    Estimate_1gy_24h_v_3h              Num       8    D8.4               
+                             97    Estimate_1gy_3h_v_1h               Num       8    D8.4               
+                             98    Estimate_1gy_72h_v_1h              Num       8    D8.4               
+                             99    Estimate_1gy_72h_v_24h             Num       8    D8.4               
+                            100    Estimate_1gy_72h_v_3h              Num       8    D8.4               
+                            101    Estimate_1gy_v_01gy_1h             Num       8    D8.4               
+                            102    Estimate_1gy_v_01gy_24h            Num       8    D8.4               
+                            103    Estimate_1gy_v_01gy_3h             Num       8    D8.4               
+                            104    Estimate_1gy_v_01gy_72h            Num       8    D8.4               
+                                                           The SAS System                         08:47 Monday, December 4, 2017   2
+
+                                                       The CONTENTS Procedure
+
+                                             Alphabetic List of Variables and Attributes
+ 
+                              #    Variable                           Type    Len    Format     Informat
+
+                            105    Estimate_1gy_v_Mock_1h             Num       8    D8.4               
+                            106    Estimate_1gy_v_Mock_24h            Num       8    D8.4               
+                            107    Estimate_1gy_v_Mock_24h_sub_1h     Num       8    D8.4               
+                            108    Estimate_1gy_v_Mock_3h             Num       8    D8.4               
+                            109    Estimate_1gy_v_Mock_3h_sub_1h      Num       8    D8.4               
+                            110    Estimate_1gy_v_Mock_72h            Num       8    D8.4               
+                            111    Estimate_1gy_v_Mock_72h_sub_1h     Num       8    D8.4               
+                            112    Estimate_mock_24h_v_1h             Num       8    D8.4               
+                            113    Estimate_mock_24h_v_3h             Num       8    D8.4               
+                            114    Estimate_mock_3h_v_1h              Num       8    D8.4               
+                            115    Estimate_mock_72h_v_1h             Num       8    D8.4               
+                            116    Estimate_mock_72h_v_24h            Num       8    D8.4               
+                            117    Estimate_mock_72h_v_3h             Num       8    D8.4               
+                             71    LSmeans_01gy_24                    Num       8    D8.4               
+                             73    LSmeans_01gy_72                    Num       8    D8.4               
+                             70    LSmeans_01gy_1h                    Num       8    D8.4               
+                             72    LSmeans_01gy_3h                    Num       8    D8.4               
+                             74    LSmeans_1gy_1h                     Num       8    D8.4               
+                             75    LSmeans_1gy_24h                    Num       8    D8.4               
+                             76    LSmeans_1gy_3h                     Num       8    D8.4               
+                             77    LSmeans_1gy_72h                    Num       8    D8.4               
+                             79    LSmeans_Mock_24                    Num       8    D8.4               
+                             81    LSmeans_Mock_72                    Num       8    D8.4               
+                             78    LSmeans_Mock_1h                    Num       8    D8.4               
+                             80    LSmeans_Mock_3h                    Num       8    D8.4               
+                             31    P_time                             Num       8    BEST32.            
+                             32    P_treatment                        Num       8    BEST32.            
+                             33    P_trt_by_time                      Num       8    BEST32.            
+                              4    chr                                Char      2    $2.        $2.     
+                             19    flag_01gy_1hr_on                   Num       8                       
+                             20    flag_01gy_24hr_on                  Num       8                       
+                             21    flag_01gy_3hr_on                   Num       8                       
+                             22    flag_01gy_72hr_on                  Num       8                       
+                             12    flag_01gy_on                       Num       8                       
+                             23    flag_1gy_1hr_on                    Num       8                       
+                             24    flag_1gy_24hr_on                   Num       8                       
+                             25    flag_1gy_3hr_on                    Num       8                       
+                             26    flag_1gy_72hr_on                   Num       8                       
+                             13    flag_1gy_on                        Num       8                       
+                             15    flag_1hr_on                        Num       8                       
+                             17    flag_24hr_on                       Num       8                       
+                             16    flag_3hr_on                        Num       8                       
+                             18    flag_72gy_on                       Num       8                       
+                             11    flag_Alternative                   Num       8                       
+                             10    flag_Common                        Num       8                       
+                              9    flag_Constitutive                  Num       8                       
+                             27    flag_Mock_1hr_on                   Num       8                       
+                             28    flag_Mock_24hr_on                  Num       8                       
+                             29    flag_Mock_3hr_on                   Num       8                       
+                             30    flag_Mock_72hr_on                  Num       8                       
+                             14    flag_Mock_on                       Num       8                       
+                              8    flag_multigene                     Num       8    BEST12.    BEST32. 
+                                                           The SAS System                         08:47 Monday, December 4, 2017   3
+
+                                                       The CONTENTS Procedure
+
+                                             Alphabetic List of Variables and Attributes
+ 
+                              #    Variable                           Type    Len    Format     Informat
+
+                              1    fusion_id                          Char     10    $10.       $10.    
+                              5    fusion_start                       Num       8    BEST12.    BEST32. 
+                              6    fusion_stop                        Num       8    BEST12.    BEST32. 
+                              2    gene_id                            Char    450                       
+                             34    p_01gy_24h_v_1h                    Num       8    BEST32.            
+                             35    p_01gy_24h_v_3h                    Num       8    BEST32.            
+                             36    p_01gy_3h_v_1h                     Num       8    BEST32.            
+                             37    p_01gy_72h_v_1h                    Num       8    BEST32.            
+                             38    p_01gy_72h_v_24h                   Num       8    BEST32.            
+                             39    p_01gy_72h_v_3h                    Num       8    BEST32.            
+                             40    p_01gy_v_Mock_1h                   Num       8    BEST32.            
+                             41    p_01gy_v_Mock_24h                  Num       8    BEST32.            
+                             42    p_01gy_v_Mock_24h_sub_1h           Num       8    BEST32.            
+                             43    p_01gy_v_Mock_3h                   Num       8    BEST32.            
+                             44    p_01gy_v_Mock_3h_sub_1h            Num       8    BEST32.            
+                             45    p_01gy_v_Mock_72h                  Num       8    BEST32.            
+                             46    p_01gy_v_Mock_72h_sub_1h           Num       8    BEST32.            
+                             47    p_1gy_24h_v_1h                     Num       8    BEST32.            
+                             48    p_1gy_24h_v_3h                     Num       8    BEST32.            
+                             49    p_1gy_3h_v_1h                      Num       8    BEST32.            
+                             50    p_1gy_72h_v_1h                     Num       8    BEST32.            
+                             51    p_1gy_72h_v_24h                    Num       8    BEST32.            
+                             52    p_1gy_72h_v_3h                     Num       8    BEST32.            
+                             53    p_1gy_v_01gy_1h                    Num       8    BEST32.            
+                             54    p_1gy_v_01gy_24h                   Num       8    BEST32.            
+                             55    p_1gy_v_01gy_3h                    Num       8    BEST32.            
+                             56    p_1gy_v_01gy_72h                   Num       8    BEST32.            
+                             57    p_1gy_v_Mock_1h                    Num       8    BEST32.            
+                             58    p_1gy_v_Mock_24h                   Num       8    BEST32.            
+                             59    p_1gy_v_Mock_24h_sub_1h            Num       8    BEST32.            
+                             60    p_1gy_v_Mock_3h                    Num       8    BEST32.            
+                             61    p_1gy_v_Mock_3h_sub_1h             Num       8    BEST32.            
+                             62    p_1gy_v_Mock_72h                   Num       8    BEST32.            
+                             63    p_1gy_v_Mock_72h_sub_1h            Num       8    BEST32.            
+                             64    p_mock_24h_v_1h                    Num       8    BEST32.            
+                             65    p_mock_24h_v_3h                    Num       8    BEST32.            
+                             66    p_mock_3h_v_1h                     Num       8    BEST32.            
+                             67    p_mock_72h_v_1h                    Num       8    BEST32.            
+                             68    p_mock_72h_v_24h                   Num       8    BEST32.            
+                             69    p_mock_72h_v_3h                    Num       8    BEST32.            
+                            118    sign_01gy_24h_v_1h                 Char      1                       
+                            119    sign_01gy_24h_v_3h                 Char      1                       
+                            120    sign_01gy_3h_v_1h                  Char      1                       
+                            121    sign_01gy_72h_v_1h                 Char      1                       
+                            122    sign_01gy_72h_v_24h                Char      1                       
+                            123    sign_01gy_72h_v_3h                 Char      1                       
+                            124    sign_01gy_v_Mock_1h                Char      1                       
+                            125    sign_01gy_v_Mock_24h               Char      1                       
+                            126    sign_01gy_v_Mock_24h_sub_1h        Char      1                       
+                            127    sign_01gy_v_Mock_3h                Char      1                       
+                            128    sign_01gy_v_Mock_3h_sub_1h         Char      1                       
+                            129    sign_01gy_v_Mock_72h               Char      1                       
+                                                           The SAS System                         08:47 Monday, December 4, 2017   4
+
+                                                       The CONTENTS Procedure
+
+                                             Alphabetic List of Variables and Attributes
+ 
+                              #    Variable                           Type    Len    Format     Informat
+
+                            130    sign_01gy_v_Mock_72h_sub_1h        Char      1                       
+                            131    sign_1gy_24h_v_1h                  Char      1                       
+                            132    sign_1gy_24h_v_3h                  Char      1                       
+                            133    sign_1gy_3h_v_1h                   Char      1                       
+                            134    sign_1gy_72h_v_1h                  Char      1                       
+                            135    sign_1gy_72h_v_24h                 Char      1                       
+                            136    sign_1gy_72h_v_3h                  Char      1                       
+                            137    sign_1gy_v_01gy_1h                 Char      1                       
+                            138    sign_1gy_v_01gy_24h                Char      1                       
+                            139    sign_1gy_v_01gy_3h                 Char      1                       
+                            140    sign_1gy_v_01gy_72h                Char      1                       
+                            141    sign_1gy_v_Mock_1h                 Char      1                       
+                            142    sign_1gy_v_Mock_24h                Char      1                       
+                            143    sign_1gy_v_Mock_24h_sub_1h         Char      1                       
+                            144    sign_1gy_v_Mock_3h                 Char      1                       
+                            145    sign_1gy_v_Mock_3h_sub_1h          Char      1                       
+                            146    sign_1gy_v_Mock_72h                Char      1                       
+                            147    sign_1gy_v_Mock_72h_sub_1h         Char      1                       
+                            148    sign_mock_24h_v_1h                 Char      1                       
+                            149    sign_mock_24h_v_3h                 Char      1                       
+                            150    sign_mock_3h_v_1h                  Char      1                       
+                            151    sign_mock_72h_v_1h                 Char      1                       
+                            152    sign_mock_72h_v_24h                Char      1                       
+                            153    sign_mock_72h_v_3h                 Char      1                       
+                              7    strand                             Char      1    $1.        $1.     
+                              3    symbol_cat                         Char    900                       
+                                                           The SAS System                         08:47 Monday, December 4, 2017   5
+
+                                                         The FREQ Procedure
+
+                                                                           Cumulative    Cumulative
+                                 flag_time_p05    Frequency     Percent     Frequency      Percent
+                                 ------------------------------------------------------------------
+                                             0       31727       26.82         31727        26.82  
+                                             1       86555       73.18        118282       100.00  
+
+                                                      Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017   6
+
+                                                         The FREQ Procedure
+
+                                                                          Cumulative    Cumulative
+                                 flag_trt_p05    Frequency     Percent     Frequency      Percent
+                                 -----------------------------------------------------------------
+                                            0       96764       81.81         96764        81.81  
+                                            1       21518       18.19        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017   7
+
+                                                         The FREQ Procedure
+
+                                      flag_trt_                             Cumulative    Cumulative
+                                       time_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       98705       83.45         98705        83.45  
+                                              1       19577       16.55        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017   8
+
+                                                         The FREQ Procedure
+
+                                  flag_01vMock_                             Cumulative    Cumulative
+                                          1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       95902       81.08         95902        81.08  
+                                              1       22380       18.92        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017   9
+
+                                                         The FREQ Procedure
+
+                                  flag_01vMock_                             Cumulative    Cumulative
+                                          3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      107542       90.92        107542        90.92  
+                                              1       10740        9.08        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  10
+
+                                                         The FREQ Procedure
+
+                                  flag_01vMock_                             Cumulative    Cumulative
+                                         24_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      106881       90.36        106881        90.36  
+                                              1       11401        9.64        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  11
+
+                                                         The FREQ Procedure
+
+                                  flag_01vMock_                             Cumulative    Cumulative
+                                         72_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      104386       88.25        104386        88.25  
+                                              1       13896       11.75        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  12
+
+                                                         The FREQ Procedure
+
+                                   flag_1vMock_                             Cumulative    Cumulative
+                                          1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      101132       85.50        101132        85.50  
+                                              1       17150       14.50        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  13
+
+                                                         The FREQ Procedure
+
+                                   flag_1vMock_                             Cumulative    Cumulative
+                                          3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      102665       86.80        102665        86.80  
+                                              1       15617       13.20        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  14
+
+                                                         The FREQ Procedure
+
+                                   flag_1vMock_                             Cumulative    Cumulative
+                                         24_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      109110       92.25        109110        92.25  
+                                              1        9172        7.75        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  15
+
+                                                         The FREQ Procedure
+
+                                   flag_1vMock_                             Cumulative    Cumulative
+                                         72_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      108637       91.85        108637        91.85  
+                                              1        9645        8.15        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  16
+
+                                                         The FREQ Procedure
+
+                                   flag_1v01gy_                             Cumulative    Cumulative
+                                          1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      111272       94.07        111272        94.07  
+                                              1        7010        5.93        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  17
+
+                                                         The FREQ Procedure
+
+                                   flag_1v01gy_                             Cumulative    Cumulative
+                                          3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      100639       85.08        100639        85.08  
+                                              1       17643       14.92        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  18
+
+                                                         The FREQ Procedure
+
+                                   flag_1v01gy_                             Cumulative    Cumulative
+                                         24_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      107241       90.67        107241        90.67  
+                                              1       11041        9.33        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  19
+
+                                                         The FREQ Procedure
+
+                                   flag_1v01gy_                             Cumulative    Cumulative
+                                         72_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      111997       94.69        111997        94.69  
+                                              1        6285        5.31        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  20
+
+                                                         The FREQ Procedure
+
+                                     flag_mock_                             Cumulative    Cumulative
+                                        3v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       82275       69.56         82275        69.56  
+                                              1       36007       30.44        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  21
+
+                                                         The FREQ Procedure
+
+                                     flag_mock_                             Cumulative    Cumulative
+                                       24v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       82157       69.46         82157        69.46  
+                                              1       36125       30.54        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  22
+
+                                                         The FREQ Procedure
+
+                                     flag_mock_                             Cumulative    Cumulative
+                                       72v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       90106       76.18         90106        76.18  
+                                              1       28176       23.82        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  23
+
+                                                         The FREQ Procedure
+
+                                     flag_mock_                             Cumulative    Cumulative
+                                       24v3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       70987       60.02         70987        60.02  
+                                              1       47295       39.98        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  24
+
+                                                         The FREQ Procedure
+
+                                     flag_mock_                             Cumulative    Cumulative
+                                       72v3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       95910       81.09         95910        81.09  
+                                              1       22372       18.91        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  25
+
+                                                         The FREQ Procedure
+
+                                     flag_mock_                             Cumulative    Cumulative
+                                      72v24_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       81263       68.70         81263        68.70  
+                                              1       37019       31.30        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  26
+
+                                                         The FREQ Procedure
+
+                                     flag_01gy_                             Cumulative    Cumulative
+                                        3v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       70793       59.85         70793        59.85  
+                                              1       47489       40.15        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  27
+
+                                                         The FREQ Procedure
+
+                                     flag_01gy_                             Cumulative    Cumulative
+                                       24v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       68396       57.82         68396        57.82  
+                                              1       49886       42.18        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  28
+
+                                                         The FREQ Procedure
+
+                                     flag_01gy_                             Cumulative    Cumulative
+                                       72v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       76766       64.90         76766        64.90  
+                                              1       41516       35.10        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  29
+
+                                                         The FREQ Procedure
+
+                                     flag_01gy_                             Cumulative    Cumulative
+                                       24v3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       65795       55.63         65795        55.63  
+                                              1       52487       44.37        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  30
+
+                                                         The FREQ Procedure
+
+                                     flag_01gy_                             Cumulative    Cumulative
+                                       72v3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       84185       71.17         84185        71.17  
+                                              1       34097       28.83        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  31
+
+                                                         The FREQ Procedure
+
+                                     flag_01gy_                             Cumulative    Cumulative
+                                      72v24_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       77246       65.31         77246        65.31  
+                                              1       41036       34.69        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  32
+
+                                                         The FREQ Procedure
+
+                                                                            Cumulative    Cumulative
+                               flag_1gy_3v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       72614       61.39         72614        61.39  
+                                              1       45668       38.61        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  33
+
+                                                         The FREQ Procedure
+
+                                      flag_1gy_                             Cumulative    Cumulative
+                                       24v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       73227       61.91         73227        61.91  
+                                              1       45055       38.09        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  34
+
+                                                         The FREQ Procedure
+
+                                      flag_1gy_                             Cumulative    Cumulative
+                                       72v1_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       81810       69.17         81810        69.17  
+                                              1       36472       30.83        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  35
+
+                                                         The FREQ Procedure
+
+                                      flag_1gy_                             Cumulative    Cumulative
+                                       24v3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       71587       60.52         71587        60.52  
+                                              1       46695       39.48        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  36
+
+                                                         The FREQ Procedure
+
+                                      flag_1gy_                             Cumulative    Cumulative
+                                       72v3_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       90369       76.40         90369        76.40  
+                                              1       27913       23.60        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  37
+
+                                                         The FREQ Procedure
+
+                                      flag_1gy_                             Cumulative    Cumulative
+                                      72v24_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0       78768       66.59         78768        66.59  
+                                              1       39514       33.41        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  38
+
+                                                         The FREQ Procedure
+
+                                   flag_01gy_v_
+                                   Mock_3h_sub_                             Cumulative    Cumulative
+                                         1h_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      101297       85.64        101297        85.64  
+                                              1       16985       14.36        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  39
+
+                                                         The FREQ Procedure
+
+                                   flag_01gy_v_
+                                  Mock_24h_sub_                             Cumulative    Cumulative
+                                         1h_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      102827       86.93        102827        86.93  
+                                              1       15455       13.07        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  40
+
+                                                         The FREQ Procedure
+
+                                   flag_01gy_v_
+                                  Mock_72h_sub_                             Cumulative    Cumulative
+                                         1h_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      101506       85.82        101506        85.82  
+                                              1       16776       14.18        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  41
+
+                                                         The FREQ Procedure
+
+                               flag_1gy_v_Mock_                             Cumulative    Cumulative
+                                  3h_sub_1h_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      104690       88.51        104690        88.51  
+                                              1       13592       11.49        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  42
+
+                                                         The FREQ Procedure
+
+                               flag_1gy_v_Mock_                             Cumulative    Cumulative
+                                 24h_sub_1h_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      105736       89.39        105736        89.39  
+                                              1       12546       10.61        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  43
+
+                                                         The FREQ Procedure
+
+                               flag_1gy_v_Mock_                             Cumulative    Cumulative
+                                 72h_sub_1h_p05    Frequency     Percent     Frequency      Percent
+                               ---------------------------------------------------------------------
+                                              0      103870       87.82        103870        87.82  
+                                              1       14412       12.18        118282       100.00  
+
+                                                     Frequency Missing = 24349
+                                                           The SAS System                         08:47 Monday, December 4, 2017  44
+
+                                                                flag_
+                                                 flag_01gy_    1gy_3h_
+                                          Obs     3h_sub_1h     sub_1h    COUNT    PERCENT
+
+                                           1          .           .       24349      .    
+                                           2          0           0       97480    82.4132
+                                           3          0           1        3817     3.2270
+                                           4          1           0        7210     6.0956
+                                           5          1           1        9775     8.2641
+                                                           The SAS System                         08:47 Monday, December 4, 2017  45
+
+                                               flag_01gy_     flag_1gy_
+                                        Obs    24h_sub_1h    24h_sub_1h    COUNT    PERCENT
+
+                                         1          .             .        24349      .    
+                                         2          0             0        98851    83.5723
+                                         3          0             1         3976     3.3615
+                                         4          1             0         6885     5.8208
+                                         5          1             1         8570     7.2454
+                                                           The SAS System                         08:47 Monday, December 4, 2017  46
+
+                                               flag_01gy_     flag_1gy_
+                                        Obs    72h_sub_1h    72h_sub_1h    COUNT    PERCENT
+
+                                         1          .             .        24349      .    
+                                         2          0             0        97025    82.0285
+                                         3          0             1         4481     3.7884
+                                         4          1             0         6845     5.7870
+                                         5          1             1         9931     8.3960
+                                                           The SAS System                         08:47 Monday, December 4, 2017  47
+
+                                        flag_01gy_    flag_01gy_    flag_01gy_
+                                 Obs     3h_sub_1h    24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+
+                                  1          .             .             .        24349      .    
+                                  2          0             0             0        87114    73.6494
+                                  3          0             0             1         5935     5.0177
+                                  4          0             1             0         5596     4.7311
+                                  5          0             1             1         2652     2.2421
+                                  6          1             0             0         6952     5.8775
+                                  7          1             0             1         2826     2.3892
+                                  8          1             1             0         1844     1.5590
+                                  9          1             1             1         5363     4.5341
+                                                           The SAS System                         08:47 Monday, December 4, 2017  48
+
+                                           flag_
+                                          1gy_3h_     flag_1gy_     flag_1gy_
+                                   Obs     sub_1h    24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+
+                                    1        .            .             .        24349      .    
+                                    2        0            0             0        91377    77.2535
+                                    3        0            0             1         5973     5.0498
+                                    4        0            1             0         5050     4.2695
+                                    5        0            1             1         2290     1.9361
+                                    6        1            0             0         6096     5.1538
+                                    7        1            0             1         2290     1.9361
+                                    8        1            1             0         1347     1.1388
+                                    9        1            1             1         3859     3.2625
+                                                           The SAS System                         08:47 Monday, December 4, 2017  49
+
+                                                                flag_
+                     flag_01gy_    flag_01gy_    flag_01gy_    1gy_3h_     flag_1gy_     flag_1gy_
+              Obs     3h_sub_1h    24h_sub_1h    72h_sub_1h     sub_1h    24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+
+                1         .             .             .           .            .             .        24349      .    
+                2         0             0             0           0            0             0        79550    67.2545
+                3         0             0             0           0            0             1         2186     1.8481
+                4         0             0             0           0            1             0         1846     1.5607
+                5         0             0             0           0            1             1          482     0.4075
+                6         0             0             0           1            0             0         1892     1.5996
+                7         0             0             0           1            0             1          472     0.3990
+                8         0             0             0           1            1             0          291     0.2460
+                9         0             0             0           1            1             1          395     0.3339
+               10         0             0             1           0            0             0         2522     2.1322
+               11         0             0             1           0            0             1         2775     2.3461
+               12         0             0             1           0            1             0           28     0.0237
+               13         0             0             1           0            1             1          276     0.2333
+               14         0             0             1           1            0             0           46     0.0389
+               15         0             0             1           1            0             1          175     0.1480
+               16         0             0             1           1            1             0            5     0.0042
+               17         0             0             1           1            1             1          108     0.0913
+               18         0             1             0           0            0             0         2767     2.3393
+               19         0             1             0           0            0             1           34     0.0287
+               20         0             1             0           0            1             0         2327     1.9673
+               21         0             1             0           0            1             1          188     0.1589
+               22         0             1             0           1            0             0           58     0.0490
+               23         0             1             0           1            0             1           15     0.0127
+               24         0             1             0           1            1             0          109     0.0922
+               25         0             1             0           1            1             1           98     0.0829
+               26         0             1             1           0            0             0          889     0.7516
+               27         0             1             1           0            0             1          316     0.2672
+               28         0             1             1           0            1             0          320     0.2705
+               29         0             1             1           0            1             1          974     0.8235
+               30         0             1             1           1            0             0           16     0.0135
+               31         0             1             1           1            0             1            4     0.0034
+               32         0             1             1           1            1             1          133     0.1124
+               33         1             0             0           0            0             0         3196     2.7020
+               34         1             0             0           0            0             1           89     0.0752
+               35         1             0             0           0            1             0           68     0.0575
+               36         1             0             0           0            1             1           43     0.0364
+               37         1             0             0           1            0             0         3079     2.6031
+               38         1             0             0           1            0             1          246     0.2080
+               39         1             0             0           1            1             0          122     0.1031
+               40         1             0             0           1            1             1          109     0.0922
+               41         1             0             1           0            0             0          894     0.7558
+               42         1             0             1           0            0             1          295     0.2494
+               43         1             0             1           0            1             0           14     0.0118
+               44         1             0             1           0            1             1           19     0.0161
+               45         1             0             1           1            0             0          431     0.3644
+               46         1             0             1           1            0             1         1003     0.8480
+               47         1             0             1           1            1             0            1     0.0008
+               48         1             0             1           1            1             1          169     0.1429
+               49         1             1             0           0            0             0          700     0.5918
+               50         1             1             0           0            0             1           19     0.0161
+               51         1             1             0           0            1             0          193     0.1632
+               52         1             1             0           0            1             1            3     0.0025
+               53         1             1             0           1            0             0          292     0.2469
+               54         1             1             0           1            0             1            4     0.0034
+                                                           The SAS System                         08:47 Monday, December 4, 2017  50
+
+                                                                flag_
+                     flag_01gy_    flag_01gy_    flag_01gy_    1gy_3h_     flag_1gy_     flag_1gy_
+              Obs     3h_sub_1h    24h_sub_1h    72h_sub_1h     sub_1h    24h_sub_1h    72h_sub_1h    COUNT    PERCENT
+
+               55         1             1             0           1            1             0          535    0.45231
+               56         1             1             0           1            1             1           98    0.08285
+               57         1             1             1           0            0             0          859    0.72623
+               58         1             1             1           0            0             1          259    0.21897
+               59         1             1             1           0            1             0          254    0.21474
+               60         1             1             1           0            1             1          305    0.25786
+               61         1             1             1           1            0             0          282    0.23841
+               62         1             1             1           1            0             1          371    0.31366
+               63         1             1             1           1            1             0          284    0.24010
+               64         1             1             1           1            1             1         2749    2.32411

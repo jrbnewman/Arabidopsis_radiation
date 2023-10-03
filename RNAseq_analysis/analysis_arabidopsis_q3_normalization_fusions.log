@@ -1,0 +1,534 @@
+1                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-101-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-101-generic #124~14.04.1-Ubuntu SMP Fri Nov 10 19:05:36 UTC 2017 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.14 seconds
+      cpu time            0.03 seconds
+      
+1          ods listing; ods html close;
+2          
+3          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+4          
+5          /* Upper-quartile normalizing the fusion counts. Then, I'm also going to line center the data (like with
+6             CEGS1), using UQ/mean/median of the log normalized APN per treatment*time */
+7          
+2                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+8          data coverage_data;
+9             set rs.arab_fusion_counts_w_key;
+10         run;
+
+NOTE: There were 5134716 observations read from the data set RS.ARAB_FUSION_COUNTS_W_KEY.
+NOTE: The data set WORK.COVERAGE_DATA has 5134716 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.15 seconds
+      cpu time            1.17 seconds
+      
+
+11         
+12         data coverage_data_apn0;
+13            set coverage_data;
+14            if apn gt 0;
+15         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COVERAGE_DATA.
+NOTE: The data set WORK.COVERAGE_DATA_APN0 has 4198450 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.39 seconds
+      cpu time            0.86 seconds
+      
+
+16         
+17         /* quartiles */
+18         proc sort data=coverage_data_apn0;
+19            by sample_number;
+20         run;
+
+NOTE: There were 4198450 observations read from the data set WORK.COVERAGE_DATA_APN0.
+NOTE: The data set WORK.COVERAGE_DATA_APN0 has 4198450 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.39 seconds
+      cpu time            3.05 seconds
+      
+
+21         
+22         proc univariate data=coverage_data_apn0 noprint;
+23           by sample_number;
+24           var apn;
+25           output out=quartiles_apn0 Q3=Q3;
+26           run;
+
+NOTE: The data set WORK.QUARTILES_APN0 has 36 observations and 2 variables.
+NOTE: PROCEDURE UNIVARIATE used (Total process time):
+      real time           3.19 seconds
+      cpu time            3.19 seconds
+      
+
+27         
+28         /* Calculate the Q3 of Q3 for normalizations */
+29         proc means data=quartiles_apn0 noprint;
+30                     var q3;
+31                     output out=q3_q3 q3=q3;
+32                     run;
+
+NOTE: There were 36 observations read from the data set WORK.QUARTILES_APN0.
+3                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+NOTE: The data set WORK.Q3_Q3 has 1 observations and 3 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+33         
+34         data _null_;
+35            set q3_q3;
+36            call symput('q3q3',q3);
+37         run;
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      36:23   
+NOTE: There were 1 observations read from the data set WORK.Q3_Q3.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+38         
+39         %put &q3q3.;
+120.58759398
+40         
+41         /* Q3 of Q3 = 120.83228417 */
+42         
+43         /* Now we need to merge the stats back into the original dataset */
+44         
+45             proc sort data=coverage_data;
+46                 by sample_number;
+47                 run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COVERAGE_DATA.
+NOTE: The data set WORK.COVERAGE_DATA has 5134716 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.76 seconds
+      cpu time            3.64 seconds
+      
+
+48         
+49             proc sort data=quartiles_apn0;
+50                 by sample_number;
+51                 run;
+
+NOTE: There were 36 observations read from the data set WORK.QUARTILES_APN0.
+NOTE: The data set WORK.QUARTILES_APN0 has 36 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+52         
+53         /* merge and oops test */
+54         
+55             data coverage_data_w_q3 oops_apn0;
+56                 merge coverage_data (in=in1) quartiles_apn0 (in=in2);
+57                 by sample_number;
+58                 if in1 and in2 then output coverage_data_w_q3;
+4                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+59                 else output oops_apn0;
+60                 run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COVERAGE_DATA.
+NOTE: There were 36 observations read from the data set WORK.QUARTILES_APN0.
+NOTE: The data set WORK.COVERAGE_DATA_W_Q3 has 5134716 observations and 7 variables.
+NOTE: The data set WORK.OOPS_APN0 has 0 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.55 seconds
+      cpu time            1.56 seconds
+      
+
+61         
+62         /* Calculate the adjustments per sample */
+63         /* Divide the across-sample UQ by the sample UQ and then output */
+64         /* Then we want to export this as plot the distributions */
+65         
+66         data fusion_counts_q3_norm;
+67                 set coverage_data_w_q3;
+68                 log_apn=log(apn + 1);
+69         
+70                 * Q3 normalization ;
+71                 q3_q3_apn=(apn/q3) * &q3q3.;
+72                 q3_q3_ff=&q3q3./q3;
+73                 log_q3_q3_apn=log(q3_q3_apn + 1);
+74         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.COVERAGE_DATA_W_Q3.
+NOTE: The data set WORK.FUSION_COUNTS_Q3_NORM has 5134716 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.66 seconds
+      cpu time            1.66 seconds
+      
+
+75         
+76         /* Line centering */
+77         
+78         *Get design file, as I need treatment, genotype and timepoint;
+79         
+80         data sample_key;
+81           set rs.arab_design_file;
+82           length condition $20.;
+83           condition=catx("_",treatment,time);
+84           keep sample_number condition treatment time;
+85         run;
+
+NOTE: There were 180 observations read from the data set RS.ARAB_DESIGN_FILE.
+NOTE: The data set WORK.SAMPLE_KEY has 180 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+86         
+87         proc sort data=sample_key nodup;
+88            by sample_number;
+
+NOTE: There were 180 observations read from the data set WORK.SAMPLE_KEY.
+5                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+NOTE: 144 duplicate observations were deleted.
+NOTE: The data set WORK.SAMPLE_KEY has 36 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+89         proc sort data=fusion_counts_q3_norm;
+90            by sample_number;
+91         run;
+
+NOTE: There were 5134716 observations read from the data set WORK.FUSION_COUNTS_Q3_NORM.
+NOTE: The data set WORK.FUSION_COUNTS_Q3_NORM has 5134716 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3.19 seconds
+      cpu time            4.22 seconds
+      
+
+92         
+93         data norm_q3_w_key;
+94            merge sample_key (in=in1) fusion_counts_q3_norm (in=in2);
+95            by sample_number;
+96            if in1 and in2;
+97         run;
+
+NOTE: There were 36 observations read from the data set WORK.SAMPLE_KEY.
+NOTE: There were 5134716 observations read from the data set WORK.FUSION_COUNTS_Q3_NORM.
+NOTE: The data set WORK.NORM_Q3_W_KEY has 5134716 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.92 seconds
+      cpu time            1.92 seconds
+      
+
+98         
+99         * centering by genotype, treatment and time;
+100        proc sort data=norm_q3_w_key;
+101           by treatment time;
+
+NOTE: There were 5134716 observations read from the data set WORK.NORM_Q3_W_KEY.
+NOTE: The data set WORK.NORM_Q3_W_KEY has 5134716 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           4.54 seconds
+      cpu time            4.61 seconds
+      
+
+102        proc means data=norm_q3_w_key noprint;
+103           by treatment time;
+104           var log_q3_q3_apn;
+105           output out=means
+106           mean(log_q3_q3_apn)=mean_log_q3_apn
+107           median(log_q3_q3_apn)=median_log_q3_apn
+108           q3(log_q3_q3_apn)=q3_log_q3_apn;
+109        run;
+
+NOTE: There were 5134716 observations read from the data set WORK.NORM_Q3_W_KEY.
+NOTE: The data set WORK.MEANS has 12 observations and 7 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           3.42 seconds
+6                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+      cpu time            3.43 seconds
+      
+
+110        
+111        proc sort data=means;
+112           by treatment time;
+113        run;
+
+NOTE: There were 12 observations read from the data set WORK.MEANS.
+NOTE: The data set WORK.MEANS has 12 observations and 7 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+114        
+115        data norm_q3_w_key2;
+116           merge norm_q3_w_key (in=in1) means (in=in2);
+117           by treatment time;
+118           if in1;
+119           drop _type_ _freq_;
+120        run;
+
+NOTE: There were 5134716 observations read from the data set WORK.NORM_Q3_W_KEY.
+NOTE: There were 12 observations read from the data set WORK.MEANS.
+NOTE: The data set WORK.NORM_Q3_W_KEY2 has 5134716 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2.94 seconds
+      cpu time            2.94 seconds
+      
+
+121        
+122        /* Calculate centered values */
+123        
+124        data fusion_counts_q3_norm_cent;
+125           set norm_q3_w_key2;
+126           mean_log_q3_center=log_q3_q3_apn - mean_log_q3_apn;
+127           median_log_q3_center=log_q3_q3_apn - median_log_q3_apn;
+128           q3_log_q3_center=log_q3_q3_apn - q3_log_q3_apn;
+129        run;
+
+NOTE: There were 5134716 observations read from the data set WORK.NORM_Q3_W_KEY2.
+NOTE: The data set WORK.FUSION_COUNTS_Q3_NORM_CENT has 5134716 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.82 seconds
+      cpu time            1.83 seconds
+      
+
+130        
+131        data rs.arab_fusion_counts_q3_norm_cent;
+132           set fusion_counts_q3_norm_cent;
+133        run;
+
+NOTE: There were 5134716 observations read from the data set WORK.FUSION_COUNTS_Q3_NORM_CENT.
+NOTE: The data set RS.ARAB_FUSION_COUNTS_Q3_NORM_CENT has 5134716 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           18.74 seconds
+      cpu time            1.98 seconds
+7                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+      
+
+134        
+135        /* Export data so we can make plots */
+136        
+137        
+138            proc sort data=fusion_counts_q3_norm_cent;
+139                by sample_number;
+140                run;
+
+NOTE: There were 5134716 observations read from the data set WORK.FUSION_COUNTS_Q3_NORM_CENT.
+NOTE: The data set WORK.FUSION_COUNTS_Q3_NORM_CENT has 5134716 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           6.74 seconds
+      cpu time            5.36 seconds
+      
+
+141        
+142        data counts_q3_norm_cent_gt0;
+143           set fusion_counts_q3_norm_cent;
+144           if apn gt 0;
+145        run;
+
+NOTE: There were 5134716 observations read from the data set WORK.FUSION_COUNTS_Q3_NORM_CENT.
+NOTE: The data set WORK.COUNTS_Q3_NORM_CENT_GT0 has 4198450 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.58 seconds
+      cpu time            1.59 seconds
+      
+
+146        
+147        
+148        /* Export CSV for plotting */
+149        
+150        proc export data= counts_q3_norm_cent_gt0
+150      ! outfile='!PATCON/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv' dbms=csv replace;
+151            putnames=yes;
+152            run;
+
+153         /**********************************************************************
+154         *   PRODUCT:   SAS
+155         *   VERSION:   9.4
+156         *   CREATOR:   External File Interface
+157         *   DATE:      03DEC17
+158         *   DESC:      Generated SAS Datastep Code
+159         *   TEMPLATE SOURCE:  (None Specified.)
+160         ***********************************************************************/
+161            data _null_;
+162            %let _EFIERR_ = 0; /* set the ERROR detection macro variable */
+163            %let _EFIREC_ = 0;     /* clear export record count macro variable */
+164            file '!PATCON/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv' delimiter=',' DSD DROPOVER
+164      ! lrecl=32767;
+165            if _n_ = 1 then        /* write column names or labels */
+166             do;
+167               put
+168                  "sample_number"
+169               ','
+170                  "treatment"
+8                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+171               ','
+172                  "time"
+173               ','
+174                  "condition"
+175               ','
+176                  "replicate"
+177               ','
+178                  "fusion_id"
+179               ','
+180                  "apn"
+181               ','
+182                  "Q3"
+183               ','
+184                  "log_apn"
+185               ','
+186                  "q3_q3_apn"
+187               ','
+188                  "q3_q3_ff"
+189               ','
+190                  "log_q3_q3_apn"
+191               ','
+192                  "mean_log_q3_apn"
+193               ','
+194                  "median_log_q3_apn"
+195               ','
+196                  "q3_log_q3_apn"
+197               ','
+198                  "mean_log_q3_center"
+199               ','
+200                  "median_log_q3_center"
+201               ','
+202                  "q3_log_q3_center"
+203               ;
+204             end;
+205           set  COUNTS_Q3_NORM_CENT_GT0   end=EFIEOD;
+206               format sample_number best12. ;
+207               format treatment $5. ;
+208               format time best12. ;
+209               format condition $20. ;
+210               format replicate best12. ;
+211               format fusion_id $10. ;
+212               format apn best12. ;
+213               format Q3 best12. ;
+214               format log_apn best12. ;
+215               format q3_q3_apn best12. ;
+216               format q3_q3_ff best12. ;
+217               format log_q3_q3_apn best12. ;
+218               format mean_log_q3_apn best12. ;
+219               format median_log_q3_apn best12. ;
+220               format q3_log_q3_apn best12. ;
+221               format mean_log_q3_center best12. ;
+222               format median_log_q3_center best12. ;
+223               format q3_log_q3_center best12. ;
+224             do;
+225               EFIOUT + 1;
+226               put sample_number @;
+227               put treatment $ @;
+228               put time @;
+9                                                          The SAS System                             11:53 Sunday, December 3, 2017
+
+229               put condition $ @;
+230               put replicate @;
+231               put fusion_id $ @;
+232               put apn @;
+233               put Q3 @;
+234               put log_apn @;
+235               put q3_q3_apn @;
+236               put q3_q3_ff @;
+237               put log_q3_q3_apn @;
+238               put mean_log_q3_apn @;
+239               put median_log_q3_apn @;
+240               put q3_log_q3_apn @;
+241               put mean_log_q3_center @;
+242               put median_log_q3_center @;
+243               put q3_log_q3_center ;
+244               ;
+245             end;
+246            if _ERROR_ then call symputx('_EFIERR_',1);  /* set ERROR detection macro variable */
+247            if EFIEOD then call symputx('_EFIREC_',EFIOUT);
+248            run;
+
+NOTE: The file '!PATCON/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv' is:
+      Filename=/home/jrbnewman/concannon/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv,
+      Owner Name=jrbnewman,Group Name=jrbnewman,
+      Access Permission=-rwx------,
+      Last Modified=Sun Dec  3 11:55:21 2017
+
+NOTE: 4198451 records were written to the file '!PATCON/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv'.
+      The minimum record length was 161.
+      The maximum record length was 211.
+NOTE: There were 4198450 observations read from the data set WORK.COUNTS_Q3_NORM_CENT_GT0.
+NOTE: DATA statement used (Total process time):
+      real time           41.25 seconds
+      cpu time            23.34 seconds
+      
+
+4198450 records created in !PATCON/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv from COUNTS_Q3_NORM_CENT_GT0.
+  
+  
+NOTE: "!PATCON/arabidopsis/analysis_output/fusions_q3_norm_apn_centered_gt0.csv" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           41.57 seconds
+      cpu time            23.39 seconds
+      
+
+249        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           1:42.31
+      cpu time            1:06.50
+      

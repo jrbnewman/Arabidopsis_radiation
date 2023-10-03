@@ -1,0 +1,433 @@
+1                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M0) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 4.4.0-121-generic (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 12.3 (maintenance)
+      SAS/ETS 12.3 (maintenance)
+      SAS/OR 12.3 (maintenance)
+      SAS/IML 12.3 (maintenance)
+      SAS/QC 12.3 (maintenance)
+
+NOTE: Additional host information:
+
+ Linux LIN X64 4.4.0-121-generic #145~14.04.1-Ubuntu SMP Mon Apr 16 18:40:43 UTC 2018 x86_64 Unrecognized Linux Distribution 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           1.85 seconds
+      cpu time            0.01 seconds
+      
+1          /* Running model -- by fusion, time: time*treatment, plate as random */
+2          
+3          ods listing; ods html close;
+4          
+5          libname rs "!PATCON/arabidopsis/sas_data";
+NOTE: Libref RS was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /home/jrbnewman/concannon/arabidopsis/sas_data
+6          
+7          
+2                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+8          /* Get list of "on" fusions */
+9          * as we are now doing contrasts that involve mock-only or treatment-only comparisons, I am changing;
+10         * this from "on in all treatments" to "on in any treatment";
+11         * Can always drop fusions later, but before FDR;
+12         
+13         data on_gene;
+14            set rs.arab_flag_gene_on_cpm_gt0;
+15            if flag_gene_on_mock_cpm0=1 or flag_gene_on_01gy_cpm0=1 or flag_gene_on_1gy_cpm0=1 ;
+16            keep gene_id;
+17         run;
+
+NOTE: There were 33977 observations read from the data set RS.ARAB_FLAG_GENE_ON_CPM_GT0.
+NOTE: The data set WORK.ON_GENE has 22889 observations and 1 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.02 seconds
+      
+
+18         
+19         
+20         /* Merge in with count data */
+21         
+22         
+23         proc sort data=on_gene;
+24            by gene_id;
+
+NOTE: There were 22889 observations read from the data set WORK.ON_GENE.
+NOTE: The data set WORK.ON_GENE has 22889 observations and 1 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+25         proc sort data=rs.cpm_norm_counts_by_gene;
+26            by gene_id;
+27         run;
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.07 seconds
+      
+
+28         
+29         data gene_counts_on;
+30            merge rs.cpm_norm_counts_by_gene (in=in1) on_gene (in=in2);
+31            by gene_id;
+32            if in1 and in2;
+33            log_cpm = log(cpm+1);
+34         run;
+
+NOTE: There were 1223172 observations read from the data set RS.CPM_NORM_COUNTS_BY_GENE.
+NOTE: There were 22889 observations read from the data set WORK.ON_GENE.
+NOTE: The data set WORK.GENE_COUNTS_ON has 824004 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           10.29 seconds
+      cpu time            1.35 seconds
+      
+3                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+
+35         
+36         /* Merge in design file
+37            Want variables: treatment, time */
+38         
+39         /* Model for contrasts */
+40         
+41         *Cat together genotype, time and treatment, then find order for contrasts;
+42         
+43         data gene_counts_on2;
+44           set gene_counts_on;
+45           length time_trt $20.;
+46           time_trt = catx('_', time, treatment);
+47         run;
+
+NOTE: There were 824004 observations read from the data set WORK.GENE_COUNTS_ON.
+NOTE: The data set WORK.GENE_COUNTS_ON2 has 824004 observations and 16 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.94 seconds
+      cpu time            0.95 seconds
+      
+
+48         
+49         proc freq data=gene_counts_on2 noprint;
+50           tables time_trt / out=order;
+51         run;
+
+NOTE: There were 824004 observations read from the data set WORK.GENE_COUNTS_ON2.
+NOTE: The data set WORK.ORDER has 12 observations and 3 variables.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.20 seconds
+      
+
+52         
+53         proc print data=order;
+54         run;
+
+NOTE: There were 12 observations read from the data set WORK.ORDER.
+NOTE: The PROCEDURE PRINT printed page 1.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+55         
+56         
+57         *12 levels;
+58         /* ORDER IS:
+59         
+60         1_0.1gy
+61         1_1gy
+62         1_Mock
+63         24_0.1gy
+64         24_1gy
+65         24_Mock
+66         3_0.1gy
+67         3_1gy
+4                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+68         3_Mock
+69         72_0.1gy
+70         72_1gy
+71         72_Mock
+72         
+73         */
+74         
+75         proc sort data=gene_counts_on2;
+76            by gene_id time;
+77            run;
+
+NOTE: There were 824004 observations read from the data set WORK.GENE_COUNTS_ON2.
+NOTE: The data set WORK.GENE_COUNTS_ON2 has 824004 observations and 16 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3.06 seconds
+      cpu time            1.89 seconds
+      
+
+78         
+79         ods listing close;
+80         
+81         
+82         %macro runModels(measure,outname);
+83         
+84         proc mixed data=gene_counts_on2;
+85           by gene_id;
+86           class time treatment time_trt;
+87           model &measure. = time_trt / htype=1;
+88         
+89           lsmeans time_trt;
+90                           /* Order of contrasts:     1hr              24hr             3h               72h
+91                                                      0.1gy 1gy Mock   0.1gy 1gy Mock   0.1gy 1gy Mock   0.1gy 1gy Mock */
+92           contrast '0.1gy-Mock: 1h'  time_trt        1     0    -1    0     0   0      0     0   0      0     0   0  ;
+93           contrast '1gy-Mock: 1h'    time_trt        0     1    -1    0     0   0      0     0   0      0     0   0  ;
+94           contrast '1gy-0.1gy: 1h'   time_trt        -1    1     0    0     0   0      0     0   0      0     0   0  ;
+95         
+96           contrast '0.1gy-Mock: 24h' time_trt        0     0     0    1     0   -1     0     0   0      0     0   0  ;
+97           contrast '1gy-Mock: 24h'   time_trt        0     0     0    0     1   -1     0     0   0      0     0   0  ;
+98           contrast '1gy-0.1gy: 24h'  time_trt        0     0     0    -1    1   0      0     0   0      0     0   0  ;
+99         
+100          contrast '0.1gy-Mock: 3h'  time_trt        0     0     0    0     0   0      1     0  -1      0     0   0     ;
+101          contrast '1gy-Mock: 3h'    time_trt        0     0     0    0     0   0      0     1  -1      0     0   0     ;
+102          contrast '1gy-0.1gy: 3h'   time_trt        0     0     0    0     0   0     -1     1   0      0     0   0     ;
+103        
+104          contrast '0.1gy-Mock: 72h' time_trt        0     0     0    0     0   0      0     0   0      1     0  -1    ;
+105          contrast '1gy-Mock: 72h'   time_trt        0     0     0    0     0   0      0     0   0      0     1  -1  ;
+106          contrast '1gy-0.1gy: 72h'  time_trt        0     0     0    0     0   0      0     0   0     -1     1   0  ;
+107        
+108          contrast 'Mock: 3h-1h'     time_trt        0     0    -1    0     0   0      0     0   1      0     0   0  ;
+109          contrast 'Mock: 24h-1h'    time_trt        0     0    -1    0     0   1      0     0   0      0     0   0  ;
+110          contrast 'Mock: 72h-1h'    time_trt        0     0    -1    0     0   0      0     0   0      0     0   1  ;
+111          contrast 'Mock: 24h-3h'    time_trt        0     0     0    0     0   1      0     0  -1      0     0   0  ;
+112          contrast 'Mock: 72h-3h'    time_trt        0     0     0    0     0   0      0     0  -1      0     0   1  ;
+113          contrast 'Mock: 72h-24h'   time_trt        0     0     0    0     0  -1      0     0   0      0     0   1  ;
+114        
+115          contrast '0.1gy: 3h-1h'    time_trt       -1     0     0    0     0   0      1     0   0      0     0   0   ;
+116          contrast '0.1gy: 24h-1h'   time_trt       -1     0     0    1     0   0      0     0   0      0     0   0  ;
+117          contrast '0.1gy: 72h-1h'   time_trt       -1     0     0    0     0   0      0     0   0      1     0   0  ;
+5                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+118          contrast '0.1gy: 24h-3h'   time_trt        0     0     0    1     0   0     -1     0   0      0     0   0  ;
+119          contrast '0.1gy: 72h-3h'   time_trt        0     0     0    0     0   0     -1     0   0      1     0   0  ;
+120          contrast '0.1gy: 72h-24h'  time_trt        0     0     0   -1     0   0      0     0   0      1     0   0  ;
+121        
+122          contrast '1gy: 3h-1h'      time_trt        0    -1     0    0     0   0      0     1   0      0     0   0  ;
+123          contrast '1gy: 24h-1h'     time_trt        0    -1     0    0     1   0      0     0   0      0     0   0  ;
+124          contrast '1gy: 72h-1h'     time_trt        0    -1     0    0     0   0      0     0   0      0     1   0  ;
+125          contrast '1gy: 24h-3h'     time_trt        0     0     0    0     1   0      0    -1   0      0     0   0  ;
+126          contrast '1gy: 72h-3h'     time_trt        0     0     0    0     0   0      0    -1   0      0     1   0  ;
+127          contrast '1gy: 72h-24h'    time_trt        0     0     0    0    -1   0      0     0   0      0     1   0  ;
+128        
+129        contrast '0.1gy 3h-1h = Mock 3h-1h' time_trt    -1  0   1     0      0  0      1     0   -1     0     0    0 ;
+130        contrast '0.1gy 24h-1h = Mock 24h-1h' time_trt  -1  0   1     1      0  -1     0     0    0     0     0    0 ;
+131        contrast '0.1gy 72h-1h = Mock 72h-1h' time_trt  -1  0   1     0      0  0      0      0  0      1     0   -1 ;
+132        
+133        contrast '1gy 3h-1h = Mock 3h-1h' time_trt       0  -1  1     0      0  0      1     0   -1     0     0    0 ;
+134        contrast '1gy 24h-1h = Mock 24h-1h' time_trt     0  -1  1     1      0  -1     0     0    0     0     0    0 ;
+135        contrast '1gy 72h-1h = Mock 72h-1h' time_trt     0  -1  1     0      0  0      0      0  0      1     0   -1 ;
+136        
+137          estimate '0.1gy-Mock: 1h'  time_trt        1     0    -1    0     0   0      0     0   0      0     0   0  ;
+138          estimate '1gy-Mock: 1h'    time_trt        0     1    -1    0     0   0      0     0   0      0     0   0  ;
+139          estimate '1gy-0.1gy: 1h'   time_trt        -1    1     0    0     0   0      0     0   0      0     0   0  ;
+140        
+141          estimate '0.1gy-Mock: 24h' time_trt        0     0     0    1     0   -1     0     0   0      0     0   0  ;
+142          estimate '1gy-Mock: 24h'   time_trt        0     0     0    0     1   -1     0     0   0      0     0   0  ;
+143          estimate '1gy-0.1gy: 24h'  time_trt        0     0     0    -1    1   0      0     0   0      0     0   0  ;
+144        
+145          estimate '0.1gy-Mock: 3h'  time_trt        0     0     0    0     0   0      1     0  -1      0     0   0     ;
+146          estimate '1gy-Mock: 3h'    time_trt        0     0     0    0     0   0      0     1  -1      0     0   0     ;
+147          estimate '1gy-0.1gy: 3h'   time_trt        0     0     0    0     0   0     -1     1   0      0     0   0     ;
+148        
+149          estimate '0.1gy-Mock: 72h' time_trt        0     0     0    0     0   0      0     0   0      1     0  -1    ;
+150          estimate '1gy-Mock: 72h'   time_trt        0     0     0    0     0   0      0     0   0      0     1  -1  ;
+151          estimate '1gy-0.1gy: 72h'  time_trt        0     0     0    0     0   0      0     0   0     -1     1   0  ;
+152        
+153          estimate 'Mock: 3h-1h'     time_trt        0     0    -1    0     0   0      0     0   1      0     0   0  ;
+154          estimate 'Mock: 24h-1h'    time_trt        0     0    -1    0     0   1      0     0   0      0     0   0  ;
+155          estimate 'Mock: 72h-1h'    time_trt        0     0    -1    0     0   0      0     0   0      0     0   1  ;
+156          estimate 'Mock: 24h-3h'    time_trt        0     0     0    0     0   1      0     0  -1      0     0   0  ;
+157          estimate 'Mock: 72h-3h'    time_trt        0     0     0    0     0   0      0     0  -1      0     0   1  ;
+158          estimate 'Mock: 72h-24h'   time_trt        0     0     0    0     0  -1      0     0   0      0     0   1  ;
+159        
+160          estimate '0.1gy: 3h-1h'    time_trt       -1     0     0    0     0   0      1     0   0      0     0   0   ;
+161          estimate '0.1gy: 24h-1h'   time_trt       -1     0     0    1     0   0      0     0   0      0     0   0  ;
+162          estimate '0.1gy: 72h-1h'   time_trt       -1     0     0    0     0   0      0     0   0      1     0   0  ;
+163          estimate '0.1gy: 24h-3h'   time_trt        0     0     0    1     0   0     -1     0   0      0     0   0  ;
+164          estimate '0.1gy: 72h-3h'   time_trt        0     0     0    0     0   0     -1     0   0      1     0   0  ;
+165          estimate '0.1gy: 72h-24h'  time_trt        0     0     0   -1     0   0      0     0   0      1     0   0  ;
+166        
+167          estimate '1gy: 3h-1h'      time_trt        0    -1     0    0     0   0      0     1   0      0     0   0  ;
+168          estimate '1gy: 24h-1h'     time_trt        0    -1     0    0     1   0      0     0   0      0     0   0  ;
+169          estimate '1gy: 72h-1h'     time_trt        0    -1     0    0     0   0      0     0   0      0     1   0  ;
+170          estimate '1gy: 24h-3h'     time_trt        0     0     0    0     1   0      0    -1   0      0     0   0  ;
+171          estimate '1gy: 72h-3h'     time_trt        0     0     0    0     0   0      0    -1   0      0     1   0  ;
+172          estimate '1gy: 72h-24h'    time_trt        0     0     0    0    -1   0      0     0   0      0     1   0  ;
+173        
+174        estimate '0.1gy 3h-1h = Mock 3h-1h' time_trt    -1  0   1     0      0  0      1     0   -1     0     0    0 ;
+175        estimate '0.1gy 24h-1h = Mock 24h-1h' time_trt  -1  0   1     1      0  -1     0     0    0     0     0    0 ;
+6                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+176        estimate '0.1gy 72h-1h = Mock 72h-1h' time_trt  -1  0   1     0      0  0      0      0  0      1     0   -1 ;
+177        
+178        estimate '1gy 3h-1h = Mock 3h-1h' time_trt       0  -1  1     0      0  0      1     0   -1     0     0    0 ;
+179        estimate '1gy 24h-1h = Mock 24h-1h' time_trt     0  -1  1     1      0  -1     0     0    0     0     0    0 ;
+180        estimate '1gy 72h-1h = Mock 72h-1h' time_trt     0  -1  1     0      0  0      0      0  0      1     0   -1 ;
+181        
+182        
+183        ods output tests1=tests1 lsmeans=lsmeans contrasts=contrasts estimates=estimates ;
+184        run;
+185        quit;
+186        
+187        
+188        /* Make permenant */
+189        
+190        
+191        data rs.arab_gene_cntrs_tests1_&outname. ;
+192          set tests1 ;
+193          run ;
+194        
+195        data rs.arab_gene_cntrs_lsmeans_&outname. ;
+196          set lsmeans ;
+197          run ;
+198        
+199        data rs.arab_gene_cntrs_constr_&outname. ;
+200          set contrasts ;
+201          run ;
+202        
+203        data rs.arab_gene_cntrs_estim_&outname. ;
+204          set estimates ;
+205          run ;
+206        
+207        
+208        %mend;
+209        
+210        %runModels(log_cpm,lcpm);
+NOTE: The data set WORK.ESTIMATES has 824004 observations and 7 variables.
+NOTE: The data set WORK.CONTRASTS has 824004 observations and 6 variables.
+NOTE: The data set WORK.LSMEANS has 274668 observations and 8 variables.
+NOTE: The data set WORK.TESTS1 has 22889 observations and 6 variables.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           39.51 seconds
+      cpu time            38.84 seconds
+      
+
+
+NOTE: There were 22889 observations read from the data set WORK.TESTS1.
+NOTE: The data set RS.ARAB_GENE_CNTRS_TESTS1_LCPM has 22889 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.38 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 274668 observations read from the data set WORK.LSMEANS.
+NOTE: The data set RS.ARAB_GENE_CNTRS_LSMEANS_LCPM has 274668 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.30 seconds
+      cpu time            0.12 seconds
+7                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+      
+
+
+NOTE: There were 824004 observations read from the data set WORK.CONTRASTS.
+NOTE: The data set RS.ARAB_GENE_CNTRS_CONSTR_LCPM has 824004 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           11.73 seconds
+      cpu time            0.39 seconds
+      
+
+
+NOTE: There were 824004 observations read from the data set WORK.ESTIMATES.
+NOTE: The data set RS.ARAB_GENE_CNTRS_ESTIM_LCPM has 824004 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           14.02 seconds
+      cpu time            0.40 seconds
+      
+
+211        %runModels(cpm,cpm);
+NOTE: The data set WORK.ESTIMATES has 824004 observations and 7 variables.
+NOTE: The data set WORK.CONTRASTS has 824004 observations and 6 variables.
+NOTE: The data set WORK.LSMEANS has 274668 observations and 8 variables.
+NOTE: The data set WORK.TESTS1 has 22889 observations and 6 variables.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           39.27 seconds
+      cpu time            39.14 seconds
+      
+
+
+NOTE: There were 22889 observations read from the data set WORK.TESTS1.
+NOTE: The data set RS.ARAB_GENE_CNTRS_TESTS1_CPM has 22889 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.40 seconds
+      cpu time            0.02 seconds
+      
+
+
+NOTE: There were 274668 observations read from the data set WORK.LSMEANS.
+NOTE: The data set RS.ARAB_GENE_CNTRS_LSMEANS_CPM has 274668 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4.00 seconds
+      cpu time            0.12 seconds
+      
+
+
+NOTE: There were 824004 observations read from the data set WORK.CONTRASTS.
+NOTE: The data set RS.ARAB_GENE_CNTRS_CONSTR_CPM has 824004 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           12.33 seconds
+      cpu time            0.48 seconds
+      
+
+
+NOTE: There were 824004 observations read from the data set WORK.ESTIMATES.
+NOTE: The data set RS.ARAB_GENE_CNTRS_ESTIM_CPM has 824004 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           13.29 seconds
+      cpu time            0.49 seconds
+8                                                          The SAS System                               09:07 Thursday, May 10, 2018
+
+      
+
+212        
+213        
+214        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2:37.14
+      cpu time            1:24.60
+      

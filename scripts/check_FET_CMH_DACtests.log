@@ -1,0 +1,466 @@
+1                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M1 MBCS3170) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 3.10.0-1160.80.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 13.1
+      SAS/ETS 13.1
+      SAS/OR 13.1
+      SAS/IML 13.1
+      SAS/QC 13.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.80.1.el7.x86_64 #1 SMP Sat Oct 8 18:13:21 UTC 2022 x86_64 Red Hat Enterprise Linux Server release 7.9 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.17 seconds
+      cpu time            0.02 seconds
+      
+1          libname wgbslocB '/blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data';
+NOTE: Libref WGBSLOCB was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data
+2          libname wgbslocL '/blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data';
+NOTE: Libref WGBSLOCL was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data
+3          
+4          
+5          ods listing;
+2                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+6          ods html close;
+7          options nosyntaxcheck;
+8          
+9          proc datasets lib=work kill noprint;
+NOTE: Deleting WORK.REGSTRY (memtype=ITEMSTOR).
+NOTE: File WORK.REGSTRY (memtype=ITEMSTOR) cannot be deleted because it is in use.
+10         run;
+
+11         quit;
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+12         
+13         
+14         
+15         
+16         data cmh1_brass_1p4cGy1h_0cGy1h;  set wgbslocB.cmh_brass_1p4cGy1h_0cGy1h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH_BRASS_1P4CGY1H_0CGY1H.
+NOTE: The data set WORK.CMH1_BRASS_1P4CGY1H_0CGY1H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+17         data cmh1_brass_10cGy1h_0cGy1h;  set wgbslocB.cmh_brass_10cGy1h_0cGy1h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH_BRASS_10CGY1H_0CGY1H.
+NOTE: The data set WORK.CMH1_BRASS_10CGY1H_0CGY1H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+18         data cmh1_brass_1p4cGy72h_0cGy72h;  set wgbslocB.cmh_brass_1p4cGy72h_0cGy72h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH_BRASS_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH1_BRASS_1P4CGY72H_0CGY72H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+19         data cmh1_brass_10cGy72h_0cGy72h;  set wgbslocB.cmh_brass_10cGy72h_0cGy72h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH_BRASS_10CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH1_BRASS_10CGY72H_0CGY72H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+20         data cmh1_long_1p4cGy72h_0cGy72h;  set wgbslocB.cmh_long_1p4cGy72h_0cGy72h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH_LONG_1P4CGY72H_0CGY72H.
+3                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+NOTE: The data set WORK.CMH1_LONG_1P4CGY72H_0CGY72H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+21         
+22         
+23         data cmh2_brass_1p4cGy1h_0cGy1h;  set wgbslocB.cmh2_brass_1p4cGy1h_0cGy1h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH2_BRASS_1P4CGY1H_0CGY1H.
+NOTE: The data set WORK.CMH2_BRASS_1P4CGY1H_0CGY1H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+24         data cmh2_brass_10cGy1h_0cGy1h;  set wgbslocB.cmh2_brass_10cGy1h_0cGy1h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH2_BRASS_10CGY1H_0CGY1H.
+NOTE: The data set WORK.CMH2_BRASS_10CGY1H_0CGY1H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+25         data cmh2_brass_1p4cGy72h_0cGy72h;  set wgbslocB.cmh2_brass_1p4cGy72h_0cGy72h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH2_BRASS_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH2_BRASS_1P4CGY72H_0CGY72H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+26         data cmh2_brass_10cGy72h_0cGy72h;  set wgbslocB.cmh2_brass_10cGy72h_0cGy72h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH2_BRASS_10CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH2_BRASS_10CGY72H_0CGY72H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+27         data cmh2_long_1p4cGy72h_0cGy72h;  set wgbslocB.cmh2_long_1p4cGy72h_0cGy72h; if _n_ <=20; run;
+
+NOTE: There were 0 observations read from the data set WGBSLOCB.CMH2_LONG_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH2_LONG_1P4CGY72H_0CGY72H has 0 observations and 0 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+28         
+29         
+30         data cmh1_all;
+31           set cmh1_brass_1p4cGy1h_0cGy1h (in=in1)
+32               cmh1_brass_10cGy1h_0cGy1h (in=in2)
+4                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+33               cmh1_brass_1p4cGy72h_0cGy72h (in=in3)
+34               cmh1_brass_10cGy72h_0cGy72h (in=in4)
+35               cmh1_long_1p4cGy72h_0cGy72h (in=in5);
+36           length comparison $32.;
+37           if in1 then comparison = "cmh1_brass_1p4cGy1h_0cGy1h";
+38           if in2 then comparison = "cmh1_brass_10cGy1h_0cGy1h";
+39           if in3 then comparison = "cmh1_brass_1p4cGy72h_0cGy72h";
+40           if in4 then comparison = "cmh1_brass_10cGy72h_0cGy72h";
+41           if in5 then comparison = "cmh1_long_1p4cGy72h_0cGy72h";
+42         run;
+
+NOTE: There were 0 observations read from the data set WORK.CMH1_BRASS_1P4CGY1H_0CGY1H.
+NOTE: There were 0 observations read from the data set WORK.CMH1_BRASS_10CGY1H_0CGY1H.
+NOTE: There were 0 observations read from the data set WORK.CMH1_BRASS_1P4CGY72H_0CGY72H.
+NOTE: There were 0 observations read from the data set WORK.CMH1_BRASS_10CGY72H_0CGY72H.
+NOTE: There were 0 observations read from the data set WORK.CMH1_LONG_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH1_ALL has 0 observations and 1 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+43         
+44         data cmh2_all;
+45           set cmh2_brass_1p4cGy1h_0cGy1h (in=in1)
+46               cmh2_brass_10cGy1h_0cGy1h (in=in2)
+47               cmh2_brass_1p4cGy72h_0cGy72h (in=in3)
+48               cmh2_brass_10cGy72h_0cGy72h (in=in4)
+49               cmh2_long_1p4cGy72h_0cGy72h (in=in5);
+50           length comparison $32.;
+51           if in1 then comparison = "cmh2_brass_1p4cGy1h_0cGy1h";
+52           if in2 then comparison = "cmh2_brass_10cGy1h_0cGy1h";
+53           if in3 then comparison = "cmh2_brass_1p4cGy72h_0cGy72h";
+54           if in4 then comparison = "cmh2_brass_10cGy72h_0cGy72h";
+55           if in5 then comparison = "cmh2_long_1p4cGy72h_0cGy72h";
+56         run;
+
+NOTE: There were 0 observations read from the data set WORK.CMH2_BRASS_1P4CGY1H_0CGY1H.
+NOTE: There were 0 observations read from the data set WORK.CMH2_BRASS_10CGY1H_0CGY1H.
+NOTE: There were 0 observations read from the data set WORK.CMH2_BRASS_1P4CGY72H_0CGY72H.
+NOTE: There were 0 observations read from the data set WORK.CMH2_BRASS_10CGY72H_0CGY72H.
+NOTE: There were 0 observations read from the data set WORK.CMH2_LONG_1P4CGY72H_0CGY72H.
+NOTE: The data set WORK.CMH2_ALL has 0 observations and 1 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+57         
+58         
+59         
+60         
+61         
+62         
+63         data fet_brass_0cGy1h100U_0cGy1h0U;
+64           set wgbslocB.fet_brass_0cGy1h100U_0cGy1h0U;
+65           if _n_ <= 20;
+66         run;
+5                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+
+NOTE: There were 11640033 observations read from the data set WGBSLOCB.FET_BRASS_0CGY1H100U_0CGY1H0U.
+NOTE: The data set WORK.FET_BRASS_0CGY1H100U_0CGY1H0U has 20 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.60 seconds
+      cpu time            0.59 seconds
+      
+
+67         
+68         data fet_brass_0cGy72h100U_0cGy72h0U;
+69           set wgbslocB.fet_brass_0cGy72h100U_0cGy72h0U;
+70           if _n_ <= 20;
+71         run;
+
+NOTE: There were 10730722 observations read from the data set WGBSLOCB.FET_BRASS_0CGY72H100U_0CGY72H0U.
+NOTE: The data set WORK.FET_BRASS_0CGY72H100U_0CGY72H0U has 20 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.55 seconds
+      cpu time            0.55 seconds
+      
+
+72         
+73         data fet_brass_10cGy1h100U_10cGy1h0U;
+74           set wgbslocB.fet_brass_0cGy1h100U_0cGy1h0U;
+75           if _n_ <= 20;
+76         run;
+
+NOTE: There were 11640033 observations read from the data set WGBSLOCB.FET_BRASS_0CGY1H100U_0CGY1H0U.
+NOTE: The data set WORK.FET_BRASS_10CGY1H100U_10CGY1H0U has 20 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.60 seconds
+      cpu time            0.58 seconds
+      
+
+77         
+78         data fet_brass_10cGy72h100U_10cGy72h0U;
+                _________________________________
+                307
+ERROR 307-185: The data set name cannot have more than 32 characters.
+
+79           set wgbslocB.fet_brass_0cGy1h100U_0cGy1h0U;
+80           if _n_ <= 20;
+81         run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+82         
+83         data fet_brass_1p4cGy1h100U_1p4cGy1h0U;
+                _________________________________
+                307
+ERROR 307-185: The data set name cannot have more than 32 characters.
+
+84           set wgbslocB.fet_brass_0cGy1h100U_0cGy1h0U;
+85           if _n_ <= 20;
+6                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+86         run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+87         
+88         data fet_brass_1p4cGy72h100U_1p4cGy72h0U;
+                ___________________________________
+                307
+ERROR 307-185: The data set name cannot have more than 32 characters.
+
+89           set wgbslocB.fet_brass_0cGy72h100U_0cGy72h0U;
+90           if _n_ <= 20;
+91         run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+92         
+93         
+94         data fet_long_0cGy72h100U_0cGy72h0U;
+95           set wgbslocB.fet_brass_0cGy72h100U_0cGy72h0U;
+96           if _n_ <= 20;
+97         run;
+
+NOTE: There were 10730722 observations read from the data set WGBSLOCB.FET_BRASS_0CGY72H100U_0CGY72H0U.
+NOTE: The data set WORK.FET_LONG_0CGY72H100U_0CGY72H0U has 20 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.54 seconds
+      cpu time            0.55 seconds
+      
+
+98         data fet_long_1p4cGy72h100U_1p4cGy72h0U;
+                __________________________________
+                307
+ERROR 307-185: The data set name cannot have more than 32 characters.
+
+99           set wgbslocB.fet_brass_0cGy72h100U_0cGy72h0U;
+100          if _n_ <= 20;
+101        run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+102        
+103        data fet_all;
+104           set fet_brass_0cGy1h100U_0cGy1h0U (in=in1)
+105               fet_brass_0cGy72h100U_0cGy72h0U (in=in2)
+106               fet_brass_10cGy1h100U_10cGy1h0U (in=in3)
+7                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+107               fet_brass_10cGy72h100U_10cGy72h0U (in=in4)
+                  _________________________________
+                  307
+108               fet_brass_1p4cGy1h100U_1p4cGy1h0U (in=in5)
+                  _________________________________
+                  307
+109               fet_brass_1p4cGy72h100U_1p4cGy72h0U (in=in6)
+                  ___________________________________
+                  307
+ERROR 307-185: The data set name cannot have more than 32 characters.
+
+110               fet_long_1p4cGy1h100U_1p4cGy1h0U (in=in7)
+111               fet_long_1p4cGy72h100U_1p4cGy72h0U (in=in8);
+                  __________________________________
+                  307
+ERROR: File WORK.FET_LONG_1P4CGY1H100U_1P4CGY1H0U.DATA does not exist.
+ERROR 307-185: The data set name cannot have more than 32 characters.
+
+112           length dataset $32.;
+113           if in1 then dataset="fet_brass_0cGy1h100U_0cGy1h0U";
+114           if in2 then dataset="fet_brass_0cGy72h100U_0cGy72h0U";
+115           if in3 then dataset="fet_brass_10cGy1h100U_10cGy1h0U";
+116           if in4 then dataset="fet_brass_10cGy72h100U_10cGy72h0U";
+117           if in5 then dataset="fet_brass_1p4cGy1h100U_1p4cGy1h0U";
+118           if in6 then dataset="fet_brass_1p4cGy72h100U_1p4cGy72h0U";
+119           if in7 then dataset="fet_long_1p4cGy1h100U_1p4cGy1h0U";
+120           if in8 then dataset="fet_long_1p4cGy72h100U_1p4cGy72h0U";
+121        run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.FET_ALL may be incomplete.  When this step was stopped there were 0 observations and 25 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+122        
+123        
+124        proc export data=cmh1_all outfile="/blue/concannon/share/jnewman/mingqi_arab/brassica_dac_CMH1_check.csv";
+NOTE: The previous statement has been deleted.
+125          dbms=csv replace;
+             ____
+             180
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+126        run;
+
+NOTE: Export cancelled.  Output file /blue/concannon/share/jnewman/mingqi_arab/brassica_dac_CMH1_check.csv already exists. Specify 
+      REPLACE option to overwrite it.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+127        
+
+
+128        proc export data=cmh2_all outfile="/blue/concannon/share/jnewman/mingqi_arab/brassica_dac_CMH2_check.csv";
+8                                                          The SAS System                                21:25 Friday, April 7, 2023
+
+NOTE: The previous statement has been deleted.
+129          dbms=csv replace;
+             ____
+             180
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+130        run;
+
+NOTE: Export cancelled.  Output file /blue/concannon/share/jnewman/mingqi_arab/brassica_dac_CMH2_check.csv already exists. Specify 
+      REPLACE option to overwrite it.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+131        
+
+
+132        proc export data=fet_all outfile="/blue/concannon/share/jnewman/mingqi_arab/brassica_dac_FET_check.csv";
+NOTE: The previous statement has been deleted.
+133          dbms=csv replace;
+             ____
+             180
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+134        run;
+
+NOTE: Export cancelled.  Output file /blue/concannon/share/jnewman/mingqi_arab/brassica_dac_FET_check.csv already exists. Specify 
+      REPLACE option to overwrite it.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+135        
+
+
+ERROR: Errors printed on pages 5,6,7,8.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2.99 seconds
+      cpu time            2.35 seconds
+      

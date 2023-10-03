@@ -1,0 +1,1539 @@
+1                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Copyright (c) 2002-2012 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M1 MBCS3170) 
+      Licensed to UNIVERSITY OF FLORIDA - SFA T&R, Site 70095659.
+NOTE: This session is executing on the Linux 3.10.0-1160.80.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 13.1
+      SAS/ETS 13.1
+      SAS/OR 13.1
+      SAS/IML 13.1
+      SAS/QC 13.1
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.80.1.el7.x86_64 #1 SMP Sat Oct 8 18:13:21 UTC 2022 x86_64 Red Hat Enterprise Linux Server release 7.9 
+      (Maipo) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.26 seconds
+      cpu time            0.03 seconds
+      
+1          *libname wgbsB '!HOME/concannon/DTRA/brassica_emseq/sas_data';
+2          *libname wgbslocB '/TB14/TB14/sandbox/dtra_sandbox/brass_wgbs';
+3          *libname wgbslocL '/TB14/TB14/sandbox/idaho_sandbox/brass_long_wgbs';
+4          
+5          libname wgbslocB '/blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data';
+NOTE: Libref WGBSLOCB was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_wgbs_sas_data
+6          libname wgbslocL '/blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data';
+NOTE: Libref WGBSLOCL was successfully assigned as follows: 
+      Engine:        V9 
+2                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+      Physical Name: /blue/concannon/share/jrbnewman/idaho/brassica_longday_wgbs_sas_data
+7          
+8          
+9          ods listing;
+10         ods html close;
+11         options nosyntaxcheck;
+12         
+13         proc datasets lib=work kill noprint;
+NOTE: Deleting WORK.REGSTRY (memtype=ITEMSTOR).
+NOTE: File WORK.REGSTRY (memtype=ITEMSTOR) cannot be deleted because it is in use.
+14         run;
+
+15         quit;
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+16         
+17         
+18         /* DMCs:
+19         
+20         (1) Subset only sites with at least 10 mapped reads in both conditions, and methylated in at least one condition
+21         (2) Run a Fisher's exact test on each site
+22         (3) FDR correction on FETs
+23         (4) Calculate methylation difference
+24         (5) Flag FDR 5% and diff >10%
+25         
+26         */
+27         
+28         /* Prep data by condition -- may speed things up a little */
+29         
+30         %macro prepData(project,trt,trt2,time);
+31         
+32         	data counts;
+33         		%if &project.=brass %then %do;
+34         			set wgbslocB.methylation_data_cg_chg_chh;
+35         			if chr = "Mt" then delete;
+36         			if chr = "Pt" then delete;
+37         			where units="0U" and treatment="&trt2." and time = "&time." ;
+38         		%end;
+39         		%else %do;
+40         			set wgbslocL.methylation_data_cg_chg_chh;
+41         			if chr = "Mt" then delete;
+42         			if chr = "Pt" then delete;
+43         			where units="0U" and treatment="&trt2." ;
+44         			time = "72h";
+45         		%end;
+46         	run;
+47         
+48         	proc sort data=counts;
+49         		by chr start_pos stop_pos site_type treatment time units;
+50         	proc means data=counts noprint;
+51         		by chr start_pos stop_pos site_type treatment time units;
+52         		var total_C methyl_C perc_methyl;
+53         		output out=counts2 sum(total_C)=total_C_&trt.&time. sum(methyl_C)=methyl_C_&trt.&time.
+53       ! mean(perc_methyl)=perc_methyl_&trt.&time.;
+3                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+54         	run;
+55         
+56         	data cov;
+57         		%if &project.=brass %then %do;
+58         			set wgbslocB.flag_coverage_10x_cg_chg_chh;
+59         			where flag_&trt._&time._coverage_ge_10x=1;
+60         		%end;
+61         		%else %do;
+62         			set wgbslocL.flag_coverage_10x_cg_chg_chh;
+63         			where flag_&trt._coverage_ge_10x=1;
+64         		%end;
+65         		keep site_type chr start_pos stop_pos;
+66         	run;
+67         
+68         	proc sort data=cov;
+69         		by site_type chr start_pos stop_pos;
+70         	proc sort data=counts2;
+71         		by site_type chr start_pos stop_pos;
+72         	run;
+73         
+74         	data counts_&project._&trt.&time.;
+75         		merge counts2 (in=in1) cov (in=in2);
+76         		by site_type chr start_pos stop_pos;
+77         		if in1 and in2;
+78         	run;
+79         
+80         %mend;
+81         
+82         %prepData(brass,0cGy,0cGy,1h);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 209084023 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='0cGy') and (time='1h');
+NOTE: The data set WORK.COUNTS has 209084023 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:45.78
+      cpu time            22:43.91
+      
+
+
+NOTE: There were 209084023 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 209084023 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:58.34
+      cpu time            3:51.43
+      
+
+
+NOTE: There were 209084023 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 108516008 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:18.37
+      cpu time            2:17.89
+      
+
+NOTE: Data file WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+4                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 82683052 observations read from the data set WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_0cGy_1h_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 82683052 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:45.67
+      cpu time            1:45.56
+      
+
+
+NOTE: There were 82683052 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 82683052 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           43.09 seconds
+      cpu time            42.97 seconds
+      
+
+
+NOTE: There were 108516008 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 108516008 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:27.47
+      cpu time            1:21.35
+      
+
+
+NOTE: There were 108516008 observations read from the data set WORK.COUNTS2.
+NOTE: There were 82683052 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_BRASS_0CGY1H has 82683052 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           49.45 seconds
+      cpu time            49.41 seconds
+      
+
+83         %prepData(brass,0cGy,0cGy,72h);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 210521979 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='0cGy') and (time='72h');
+NOTE: The data set WORK.COUNTS has 210521979 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:56.28
+      cpu time            22:16.42
+      
+
+
+NOTE: There were 210521979 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 210521979 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:51.20
+      cpu time            3:43.85
+      
+
+
+5                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: There were 210521979 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 109186322 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:26.13
+      cpu time            2:25.57
+      
+
+NOTE: Data file WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 81619145 observations read from the data set WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_0cGy_72h_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 81619145 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:46.78
+      cpu time            1:46.67
+      
+
+
+NOTE: There were 81619145 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 81619145 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           44.55 seconds
+      cpu time            43.65 seconds
+      
+
+
+NOTE: There were 109186322 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 109186322 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:33.46
+      cpu time            1:28.20
+      
+
+
+NOTE: There were 109186322 observations read from the data set WORK.COUNTS2.
+NOTE: There were 81619145 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_BRASS_0CGY72H has 81619145 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           50.99 seconds
+      cpu time            50.89 seconds
+      
+
+84         %prepData(brass,10cGy,10cGy,1h);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 211559323 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='10cGy') and (time='1h');
+NOTE: The data set WORK.COUNTS has 211559323 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:28.09
+      cpu time            22:26.17
+      
+
+
+6                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: There were 211559323 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 211559323 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           2:57.07
+      cpu time            2:53.91
+      
+
+
+NOTE: There were 211559323 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 109304845 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:24.20
+      cpu time            2:23.71
+      
+
+NOTE: Data file WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 90341023 observations read from the data set WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_10cGy_1h_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 90341023 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:47.32
+      cpu time            1:47.27
+      
+
+
+NOTE: There were 90341023 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 90341023 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           45.92 seconds
+      cpu time            45.46 seconds
+      
+
+
+NOTE: There were 109304845 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 109304845 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:28.37
+      cpu time            1:22.20
+      
+
+
+NOTE: There were 109304845 observations read from the data set WORK.COUNTS2.
+NOTE: There were 90341023 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_BRASS_10CGY1H has 90341023 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           51.07 seconds
+      cpu time            51.02 seconds
+      
+
+85         %prepData(brass,10cGy,10cGy,72h);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 213484308 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+7                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+      WHERE (units='0U') and (treatment='10cGy') and (time='72h');
+NOTE: The data set WORK.COUNTS has 213484308 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:31.66
+      cpu time            22:24.54
+      
+
+
+NOTE: There were 213484308 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 213484308 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:36.26
+      cpu time            3:32.99
+      
+
+
+NOTE: There were 213484308 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 110136547 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:24.03
+      cpu time            2:23.80
+      
+
+NOTE: Data file WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 91537442 observations read from the data set WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_10cGy_72h_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 91537442 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:46.99
+      cpu time            1:46.96
+      
+
+
+NOTE: There were 91537442 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 91537442 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           56.32 seconds
+      cpu time            46.72 seconds
+      
+
+
+NOTE: There were 110136547 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 110136547 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:27.75
+      cpu time            1:24.78
+      
+
+
+NOTE: There were 110136547 observations read from the data set WORK.COUNTS2.
+NOTE: There were 91537442 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_BRASS_10CGY72H has 91537442 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           51.30 seconds
+      cpu time            51.26 seconds
+8                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+      
+
+86         %prepData(brass,1p4cGy,1p4cGy,1h);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 212583863 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='1p4cGy') and (time='1h');
+NOTE: The data set WORK.COUNTS has 212583863 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:26.85
+      cpu time            22:17.00
+      
+
+
+NOTE: There were 212583863 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 212583863 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:02.01
+      cpu time            2:54.65
+      
+
+
+NOTE: There were 212583863 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 109944280 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:25.46
+      cpu time            2:25.21
+      
+
+NOTE: Data file WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 88619204 observations read from the data set WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_1p4cGy_1h_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 88619204 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:46.50
+      cpu time            1:46.43
+      
+
+
+NOTE: There were 88619204 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 88619204 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           44.37 seconds
+      cpu time            44.21 seconds
+      
+
+
+NOTE: There were 109944280 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 109944280 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:28.92
+      cpu time            1:22.83
+      
+9                                                          The SAS System                                10:59 Friday, April 7, 2023
+
+
+
+NOTE: There were 109944280 observations read from the data set WORK.COUNTS2.
+NOTE: There were 88619204 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_BRASS_1P4CGY1H has 88619204 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           50.60 seconds
+      cpu time            50.55 seconds
+      
+
+87         %prepData(brass,1p4cGy,1p4cGy,72h);
+NOTE: Data file WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 212383187 observations read from the data set WGBSLOCB.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='1p4cGy') and (time='72h');
+NOTE: The data set WORK.COUNTS has 212383187 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           22:17.89
+      cpu time            22:14.94
+      
+
+
+NOTE: There were 212383187 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 212383187 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:06.76
+      cpu time            3:03.35
+      
+
+
+NOTE: There were 212383187 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 110090541 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:25.68
+      cpu time            2:25.49
+      
+
+NOTE: Data file WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.DATA is in a format that is native to another host, or the file encoding does 
+      not match the session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and 
+      might reduce performance.
+
+NOTE: There were 87756515 observations read from the data set WGBSLOCB.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_1p4cGy_72h_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 87756515 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:45.68
+      cpu time            1:45.61
+      
+
+
+NOTE: There were 87756515 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 87756515 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           43.99 seconds
+      cpu time            43.76 seconds
+      
+10                                                         The SAS System                                10:59 Friday, April 7, 2023
+
+
+
+NOTE: There were 110090541 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 110090541 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:26.41
+      cpu time            1:25.62
+      
+
+
+NOTE: There were 110090541 observations read from the data set WORK.COUNTS2.
+NOTE: There were 87756515 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_BRASS_1P4CGY72H has 87756515 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           50.55 seconds
+      cpu time            50.52 seconds
+      
+
+88         %prepData(long,0cGy,0cGy,72h);
+
+NOTE: There were 211840608 observations read from the data set WGBSLOCL.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='0cGy');
+NOTE: The data set WORK.COUNTS has 211840608 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:07.44
+      cpu time            1:06.19
+      
+
+
+NOTE: There were 211840608 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 211840608 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:12.83
+      cpu time            3:10.59
+      
+
+
+NOTE: There were 211840608 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 108966460 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:25.25
+      cpu time            2:25.12
+      
+
+
+NOTE: There were 90423713 observations read from the data set WGBSLOCL.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_0cGy_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 90423713 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           12.05 seconds
+      cpu time            12.01 seconds
+      
+
+
+NOTE: There were 90423713 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 90423713 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           46.08 seconds
+11                                                         The SAS System                                10:59 Friday, April 7, 2023
+
+      cpu time            45.87 seconds
+      
+
+
+NOTE: There were 108966460 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 108966460 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:25.76
+      cpu time            1:24.52
+      
+
+
+NOTE: There were 108966460 observations read from the data set WORK.COUNTS2.
+NOTE: There were 90423713 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_LONG_0CGY72H has 90423713 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           50.88 seconds
+      cpu time            50.83 seconds
+      
+
+89         %prepData(long,1p4cGy,1_4cGy,72h);
+
+NOTE: There were 210242992 observations read from the data set WGBSLOCL.METHYLATION_DATA_CG_CHG_CHH.
+      WHERE (units='0U') and (treatment='1_4cGy');
+NOTE: The data set WORK.COUNTS has 210242992 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:07.17
+      cpu time            1:06.24
+      
+
+
+NOTE: There were 210242992 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS has 210242992 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           3:16.56
+      cpu time            3:12.18
+      
+
+
+NOTE: There were 210242992 observations read from the data set WORK.COUNTS.
+NOTE: The data set WORK.COUNTS2 has 108373705 observations and 12 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           2:19.26
+      cpu time            2:19.02
+      
+
+
+NOTE: There were 88000517 observations read from the data set WGBSLOCL.FLAG_COVERAGE_10X_CG_CHG_CHH.
+      WHERE flag_1p4cGy_coverage_ge_10x=1;
+NOTE: The data set WORK.COV has 88000517 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           11.83 seconds
+      cpu time            11.80 seconds
+      
+
+
+NOTE: There were 88000517 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COV has 88000517 observations and 4 variables.
+12                                                         The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           45.05 seconds
+      cpu time            44.75 seconds
+      
+
+
+NOTE: There were 108373705 observations read from the data set WORK.COUNTS2.
+NOTE: The data set WORK.COUNTS2 has 108373705 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:24.92
+      cpu time            1:23.66
+      
+
+
+NOTE: There were 108373705 observations read from the data set WORK.COUNTS2.
+NOTE: There were 88000517 observations read from the data set WORK.COV.
+NOTE: The data set WORK.COUNTS_LONG_1P4CGY72H has 88000517 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           50.68 seconds
+      cpu time            50.65 seconds
+      
+
+90         
+91         
+92         /* Stack data, prep, and run FETs */
+93         
+94         %macro runFET(project,condit1,condit2);
+95         
+96         	proc sort data=counts_&project._&condit1.;
+97         		by site_type chr start_pos stop_pos;
+98         	proc sort data=counts_&project._&condit2.;
+99         		by site_type chr start_pos stop_pos;
+100        	run;
+101        
+102        	data methyl_data;
+103        		merge counts_&project._&condit1. (in=in1) counts_&project._&condit2. (in=in2);
+104        		by site_type chr start_pos stop_pos;
+105        		if in1 and in2;
+106        	run;
+107        
+108        	data methyl_data2;
+109        		set methyl_data;
+110        		unmethyl_C_&condit1. = total_C_&condit1. - methyl_C_&condit1.;
+111        		unmethyl_C_&condit2. = total_C_&condit2. - methyl_C_&condit2.;
+112        	run;
+113        
+114        
+115        	proc transpose data=methyl_data2 out=methyl_data2_sbys;
+116        		by site_type chr start_pos stop_pos;
+117        		var unmethyl_C_&condit1. methyl_C_&condit1.
+118        		unmethyl_C_&condit2. methyl_C_&condit2.;
+119        	run;
+120        
+121        
+122        
+123        	data methyl_data2_sbys2;
+124        		set methyl_data2_sbys;
+125        		length condition $10.;
+13                                                         The SAS System                                10:59 Friday, April 7, 2023
+
+126        		if _NAME_ = "unmethyl_C_&condit1." then do;
+127        			condition = "&condit1.";
+128        			flag_methylated=0;
+129        		end;
+130        		if _NAME_ = "methyl_C_&condit1." then do;
+131        			condition = "&condit1.";
+132        			flag_methylated=1;
+133        		end;
+134        		if _NAME_ = "unmethyl_C_&condit2." then do;
+135        			condition = "&condit2.";
+136        			flag_methylated=0;
+137        		end;
+138        		if _NAME_ = "methyl_C_&condit2." then do;
+139        			condition = "&condit2.";
+140        			flag_methylated=1;
+141        		end;
+142        		rename col1=count;
+143        	run;
+144        
+145        
+146        	proc printto log="/blue/concannon/share/jrbnewman/FET_DMC_brass_&project._&condit1._&condit2._blue.log";
+147        	run;
+148        
+149        
+150        	proc sort data=methyl_data2_sbys2;
+151        		by site_type chr start_pos stop_pos;
+152        	run;
+153        
+154        
+155        	proc freq data=methyl_data2_sbys2 noprint;
+156        		by site_type chr start_pos stop_pos;
+157        		weight count;
+158        		exact fisher;
+159        		tables condition * flag_methylated / chisq cmh fisher or relrisk riskdiff;
+160        		output out=fet_dmc fisher chisq cmh agree  or relrisk riskdiff;
+161        	run;
+162        
+163        
+164        	proc printto ;
+165        	run;
+166        
+167        	/* Make permament */
+168        	data wgbslocB.DMC_&project._&condit1._&condit2.;
+169        		set fet_dmc;
+170        	run;
+171        
+172        %mend;
+173        
+174        
+175        %runFET(brass,10cGy1h,0cGy1h);
+
+NOTE: There were 90341023 observations read from the data set WORK.COUNTS_BRASS_10CGY1H.
+NOTE: The data set WORK.COUNTS_BRASS_10CGY1H has 90341023 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:05.42
+      cpu time            1:04.56
+      
+
+14                                                         The SAS System                                10:59 Friday, April 7, 2023
+
+
+NOTE: There were 82683052 observations read from the data set WORK.COUNTS_BRASS_0CGY1H.
+NOTE: The data set WORK.COUNTS_BRASS_0CGY1H has 82683052 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           55.50 seconds
+      cpu time            54.48 seconds
+      
+
+
+NOTE: There were 90341023 observations read from the data set WORK.COUNTS_BRASS_10CGY1H.
+NOTE: There were 82683052 observations read from the data set WORK.COUNTS_BRASS_0CGY1H.
+NOTE: The data set WORK.METHYL_DATA has 81360948 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           42.66 seconds
+      cpu time            42.50 seconds
+      
+
+
+NOTE: There were 81360948 observations read from the data set WORK.METHYL_DATA.
+NOTE: The data set WORK.METHYL_DATA2 has 81360948 observations and 17 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20.36 seconds
+      cpu time            20.20 seconds
+      
+
+
+NOTE: There were 81360948 observations read from the data set WORK.METHYL_DATA2.
+NOTE: The data set WORK.METHYL_DATA2_SBYS has 325443792 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1:59.19
+      cpu time            1:58.87
+      
+
+
+NOTE: There were 325443792 observations read from the data set WORK.METHYL_DATA2_SBYS.
+NOTE: The data set WORK.METHYL_DATA2_SBYS2 has 325443792 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:13.84
+      cpu time            1:06.47
+      
+
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 47442694 observations read from the data set WORK.FET_DMC.
+NOTE: The data set WGBSLOCB.DMC_BRASS_10CGY1H_0CGY1H has 47442694 observations and 103 variables.
+5043645                                                    The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: DATA statement used (Total process time):
+      real time           1:04.79
+      cpu time            1:01.61
+      
+
+176        %runFET(brass,1p4cGy1h,0cGy1h);
+
+NOTE: There were 88619204 observations read from the data set WORK.COUNTS_BRASS_1P4CGY1H.
+NOTE: The data set WORK.COUNTS_BRASS_1P4CGY1H has 88619204 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           58.97 seconds
+      cpu time            58.25 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 88619204 observations read from the data set WORK.COUNTS_BRASS_1P4CGY1H.
+NOTE: There were 82683052 observations read from the data set WORK.COUNTS_BRASS_0CGY1H.
+NOTE: The data set WORK.METHYL_DATA has 80307730 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           42.88 seconds
+      cpu time            42.74 seconds
+      
+
+
+NOTE: There were 80307730 observations read from the data set WORK.METHYL_DATA.
+NOTE: The data set WORK.METHYL_DATA2 has 80307730 observations and 17 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20.63 seconds
+      cpu time            20.36 seconds
+      
+
+
+NOTE: There were 80307730 observations read from the data set WORK.METHYL_DATA2.
+NOTE: The data set WORK.METHYL_DATA2_SBYS has 321230920 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1:56.56
+      cpu time            1:56.33
+      
+
+
+NOTE: There were 321230920 observations read from the data set WORK.METHYL_DATA2_SBYS.
+NOTE: The data set WORK.METHYL_DATA2_SBYS2 has 321230920 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:09.27
+      cpu time            1:03.91
+      
+
+
+10012366                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 45711020 observations read from the data set WORK.FET_DMC.
+NOTE: The data set WGBSLOCB.DMC_BRASS_1P4CGY1H_0CGY1H has 45711020 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           59.91 seconds
+      cpu time            59.52 seconds
+      
+
+177        %runFET(brass,10cGy72h,0cGy72h);
+
+NOTE: There were 91537442 observations read from the data set WORK.COUNTS_BRASS_10CGY72H.
+NOTE: The data set WORK.COUNTS_BRASS_10CGY72H has 91537442 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:07.36
+      cpu time            1:03.35
+      
+
+
+NOTE: There were 81619145 observations read from the data set WORK.COUNTS_BRASS_0CGY72H.
+NOTE: The data set WORK.COUNTS_BRASS_0CGY72H has 81619145 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           55.57 seconds
+      cpu time            52.24 seconds
+      
+
+
+NOTE: There were 91537442 observations read from the data set WORK.COUNTS_BRASS_10CGY72H.
+NOTE: There were 81619145 observations read from the data set WORK.COUNTS_BRASS_0CGY72H.
+NOTE: The data set WORK.METHYL_DATA has 80441375 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           41.77 seconds
+      cpu time            41.63 seconds
+      
+
+
+NOTE: There were 80441375 observations read from the data set WORK.METHYL_DATA.
+NOTE: The data set WORK.METHYL_DATA2 has 80441375 observations and 17 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20.12 seconds
+      cpu time            19.95 seconds
+      
+
+
+NOTE: There were 80441375 observations read from the data set WORK.METHYL_DATA2.
+NOTE: The data set WORK.METHYL_DATA2_SBYS has 321765500 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1:56.35
+      cpu time            1:56.09
+      
+
+
+NOTE: There were 321765500 observations read from the data set WORK.METHYL_DATA2_SBYS.
+NOTE: The data set WORK.METHYL_DATA2_SBYS2 has 321765500 observations and 8 variables.
+10012367                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: DATA statement used (Total process time):
+      real time           1:03.17
+      cpu time            1:02.98
+      
+
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+15198239                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+NOTE: There were 53917380 observations read from the data set WORK.FET_DMC.
+NOTE: The data set WGBSLOCB.DMC_BRASS_10CGY72H_0CGY72H has 53917380 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:14.97
+      cpu time            1:11.36
+      
+
+178        %runFET(brass,1p4cGy72h,0cGy72h);
+
+NOTE: There were 87756515 observations read from the data set WORK.COUNTS_BRASS_1P4CGY72H.
+NOTE: The data set WORK.COUNTS_BRASS_1P4CGY72H has 87756515 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:01.80
+      cpu time            58.93 seconds
+      
+
+
+NOTE: Input data set is already sorted, no sorting done.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 87756515 observations read from the data set WORK.COUNTS_BRASS_1P4CGY72H.
+NOTE: There were 81619145 observations read from the data set WORK.COUNTS_BRASS_0CGY72H.
+NOTE: The data set WORK.METHYL_DATA has 78435246 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           43.43 seconds
+      cpu time            43.24 seconds
+      
+
+
+NOTE: There were 78435246 observations read from the data set WORK.METHYL_DATA.
+NOTE: The data set WORK.METHYL_DATA2 has 78435246 observations and 17 variables.
+NOTE: DATA statement used (Total process time):
+      real time           20.93 seconds
+      cpu time            20.76 seconds
+      
+
+
+NOTE: There were 78435246 observations read from the data set WORK.METHYL_DATA2.
+NOTE: The data set WORK.METHYL_DATA2_SBYS has 313740984 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           1:59.82
+      cpu time            1:59.53
+      
+
+
+NOTE: There were 313740984 observations read from the data set WORK.METHYL_DATA2_SBYS.
+NOTE: The data set WORK.METHYL_DATA2_SBYS2 has 313740984 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:05.01
+      cpu time            1:04.78
+      
+
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 62394426 observations read from the data set WORK.FET_DMC.
+NOTE: The data set WGBSLOCB.DMC_BRASS_1P4CGY72H_0CGY72H has 62394426 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:26.62
+      cpu time            1:23.71
+      
+
+179        %runFET(long,1p4cGy72h,0cGy72h);
+
+NOTE: There were 88000517 observations read from the data set WORK.COUNTS_LONG_1P4CGY72H.
+NOTE: The data set WORK.COUNTS_LONG_1P4CGY72H has 88000517 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:00.56
+      cpu time            58.62 seconds
+      
+
+
+NOTE: There were 90423713 observations read from the data set WORK.COUNTS_LONG_0CGY72H.
+NOTE: The data set WORK.COUNTS_LONG_0CGY72H has 90423713 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1:08.67
+      cpu time            1:05.91
+      
+
+
+NOTE: There were 88000517 observations read from the data set WORK.COUNTS_LONG_1P4CGY72H.
+NOTE: There were 90423713 observations read from the data set WORK.COUNTS_LONG_0CGY72H.
+NOTE: The data set WORK.METHYL_DATA has 85499390 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           44.93 seconds
+      cpu time            44.78 seconds
+      
+
+
+NOTE: There were 85499390 observations read from the data set WORK.METHYL_DATA.
+NOTE: The data set WORK.METHYL_DATA2 has 85499390 observations and 17 variables.
+NOTE: DATA statement used (Total process time):
+20603791                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+      real time           22.03 seconds
+      cpu time            21.82 seconds
+      
+
+
+NOTE: There were 85499390 observations read from the data set WORK.METHYL_DATA2.
+NOTE: The data set WORK.METHYL_DATA2_SBYS has 341997560 observations and 6 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           2:06.23
+      cpu time            2:06.03
+      
+
+
+NOTE: There were 341997560 observations read from the data set WORK.METHYL_DATA2_SBYS.
+NOTE: The data set WORK.METHYL_DATA2_SBYS2 has 341997560 observations and 8 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:08.73
+      cpu time            1:08.16
+      
+
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 90392002 observations read from the data set WORK.FET_DMC.
+NOTE: The data set WGBSLOCB.DMC_LONG_1P4CGY72H_0CGY72H has 90392002 observations and 103 variables.
+NOTE: DATA statement used (Total process time):
+      real time           2:07.52
+      cpu time            1:58.31
+      
+
+180        
+181        proc datasets lib=work kill noprint;
+NOTE: Deleting WORK.COUNTS (memtype=DATA).
+NOTE: Deleting WORK.COUNTS2 (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_BRASS_0CGY1H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_BRASS_0CGY72H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_BRASS_10CGY1H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_BRASS_10CGY72H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_BRASS_1P4CGY1H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_BRASS_1P4CGY72H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_LONG_0CGY72H (memtype=DATA).
+NOTE: Deleting WORK.COUNTS_LONG_1P4CGY72H (memtype=DATA).
+NOTE: Deleting WORK.COV (memtype=DATA).
+NOTE: Deleting WORK.FET_DMC (memtype=DATA).
+NOTE: Deleting WORK.METHYL_DATA (memtype=DATA).
+NOTE: Deleting WORK.METHYL_DATA2 (memtype=DATA).
+NOTE: Deleting WORK.METHYL_DATA2_SBYS (memtype=DATA).
+NOTE: Deleting WORK.METHYL_DATA2_SBYS2 (memtype=DATA).
+NOTE: Deleting WORK.REGSTRY (memtype=ITEMSTOR).
+NOTE: File WORK.REGSTRY (memtype=ITEMSTOR) cannot be deleted because it is in use.
+NOTE: Deleting WORK.SASMACR (memtype=CATALOG).
+NOTE: File WORK.SASMACR (memtype=CATALOG) cannot be deleted because it is in use.
+182        run;
+
+183        quit;
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           5.40 seconds
+      cpu time            5.07 seconds
+      
+
+184        
+185        
+186        
+187        %macro prepData(project,trt,trt2,units,time);
+188        
+189        	data counts;
+190        		%if &project.=brass %then %do;
+26978519                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+191        			set wgbslocB.methylation_data_gc;
+192        			if chr = "Mt" then delete;
+193        			if chr = "Pt" then delete;
+194        			where units="&units." and treatment="&trt2." and time = "&time." ;
+195        		%end;
+196        		%else %do;
+197        			set wgbslocL.methylation_data_gc;
+198        			if chr = "Mt" then delete;
+199        			if chr = "Pt" then delete;
+200        			where units="&units." and treatment="&trt2." ;
+201        			time = "72h";
+202        		%end;
+203        	run;
+204        
+205        	proc sort data=counts;
+206        		by chr start_pos stop_pos site_type treatment time units;
+207        	proc means data=counts noprint;
+208        		by chr start_pos stop_pos site_type treatment time units;
+209        		var total_C methyl_C perc_methyl;
+210        		output out=counts2 sum(total_C)=total_C_&trt.&time.&units. sum(methyl_C)=methyl_C_&trt.&time.&units.
+210      ! mean(perc_methyl)=perc_methyl_&trt.&time.&units.;
+211        	run;
+212        
+213        
+214        
+215        	data cov;
+216        		%if &project.=brass %then %do;
+217        			set wgbslocB.flag_coverage_10x_gc;
+218        			where flag_&trt._&time._&units._coverage_ge_10x=1;
+219        		%end;
+220        		%else %do;
+221        			set wgbslocL.flag_coverage_10x_gc;
+222        			where flag_&trt._&units_cov_ge_10x=1;
+223        		%end;
+224        		keep site_type chr start_pos stop_pos;
+225        	run;
+226        
+227        
+228        	proc sort data=cov;
+229        		by site_type chr start_pos stop_pos;
+230        	proc sort data=counts2;
+231        		by site_type chr start_pos stop_pos;
+232        	run;
+233        
+234        	data counts_&trt.&time.&units.;
+235        		merge counts2 (in=in1) cov (in=in2);
+236        		by site_type chr start_pos stop_pos;
+237        		if in1 and in2;
+238        	run;
+239        
+240        %mend;
+241        
+242        
+243        
+244        *%prepData(brass,0cGy,0cGy,0U,1h);
+245        *%prepData(brass,0cGy,0cGy,0U,72h);
+246        *%prepData(brass,10cGy,0cGy,0U,1h);
+247        *%prepData(brass,10cGy,0cGy,0U,72h);
+26978520                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+248        *%prepData(brass,1p4cGy,1p4cGy,0U,1h);
+249        *%prepData(brass,1p4cGy,1p4cGy,0U,72h);
+250        *%prepData(long,0cGy,0cGy,0U,72h);
+251        *%prepData(long,1p4cGy,1_4cGy,0U,72h);
+252        *%prepData(brass,0cGy,0cGy,100U,1h);
+253        *%prepData(brass,0cGy,0cGy,100U,72h);
+254        *%prepData(brass,10cGy,0cGy,100U,1h);
+255        *%prepData(brass,10cGy,0cGy,100U,72h);
+256        *%prepData(brass,1p4cGy,1p4cGy,100U,1h);
+257        *%prepData(brass,1p4cGy,1p4cGy,100U,72h);
+258        *%prepData(long,0cGy,0cGy,100U,72h);
+259        *%prepData(long,1p4cGy,1_4cGy,100U,72h);
+260        
+261        
+262        /* Stack data, prep, and run FETs */
+263        
+264        %macro runFET(project, condit1, condit2);
+265        
+266        	proc sort data=counts_&project._&condit1.;
+267        		by site_type chr start_pos stop_pos;
+268        	proc sort data=counts_&project._&condit2.;
+269        		by site_type chr start_pos stop_pos;
+270        	run;
+271        
+272        	data methyl_data_1;
+273        		merge counts_&project._&condit1. (in=in1) counts_&project._&condit2. (in=in2);
+274        		by site_type chr start_pos stop_pos;
+275        		if in1 and in2;
+276        	run;
+277        
+278        	data methyl_data2_1;
+279        		set methyl_data_1;
+280        		unmethyl_C_&condit1. = total_C_&condit1. - methyl_C_&condit1.;
+281        		unmethyl_C_&condit2. = total_C_&condit2. - methyl_C_&condit2.;
+282        	run;
+283        
+284        
+285        
+286        	proc sort data=methyl_data2_1;
+287        		by site_type chr start_pos stop_pos;
+288        
+289        	proc transpose data=methyl_data2_1 out=methyl_data2_1_sbys;
+290        		by site_type chr start_pos stop_pos;
+291        		var unmethyl_C_&condit1. methyl_C_&condit1.
+292        		unmethyl_C_&condit2. methyl_C_&condit2.;
+293        	run;
+294        
+295        
+296        	data methyl_data2_1_sbys2;
+297        		set methyl_data2_1_sbys;
+298        		length condition $10.;
+299        		if _NAME_ = "unmethyl_C_&condit1." then do;
+300        			condition = "&condit1.";
+301        			flag_methylated=0;
+302        		end;
+303        		if _NAME_ = "methyl_C_&condit1." then do;
+304        			condition = "&condit1.";
+305        			flag_methylated=1;
+26978521                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+306        		end;
+307        		if _NAME_ = "unmethyl_C_&condit2." then do;
+308        			condition = "&condit2.";
+309        			flag_methylated=0;
+310        		end;
+311        		if _NAME_ = "methyl_C_&condit2." then do;
+312        			condition = "&condit2.";
+313        			flag_methylated=1;
+314        		end;
+315        		rename col1=count;
+316        	run;
+317        
+318        
+319        
+320        	proc printto log="/blue/concannon/share/jrbnewman/FETbyDose_DAC_brass_&project._&condit1._&condit2._blue.log";
+321        	run;
+322        
+323        
+324        
+325        
+326        	proc sort data=methyl_data2_1_sbys2;
+327        		by site_type chr start_pos stop_pos condition flag_methylated;
+328        	run;
+329        
+330        	proc freq data=methyl_data2_1_sbys2 noprint;
+331        		by site_type chr start_pos stop_pos;
+332        		weight count;
+333        		exact fisher;
+334        		tables condition * flag_methylated / chisq fisher  or ;
+335        		output out=fet_dmc fisher chisq  or ;
+336        	run;
+337        
+338        
+339        	proc printto ;
+340        	run;
+341        
+342        	/* Make permament */
+343        
+344        	data wgbslocB.FET_&project._&condit1._&condit2.;
+345        		set fet_dmc;
+346        	run;
+347        
+348        %mend;
+349        
+350        
+351        *%runFET(brass,0cGy1h100U,0cGy1h0U);
+352        *%runFET(brass,0cGy72h100U,0cGy72h0U);
+353        *%runFET(brass,1p4cGy1h100U,1p4cGy1h0U);
+354        *%runFET(brass,1p4cGy72h100U,1p4cGy72h0U);
+355        *%runFET(brass,10cGy1h100U,0cGy1h0U);
+356        *%runFET(brass,10cGy72h100U,0cGy72h0U);
+357        
+358        *%runFET(long,0cGy72h100U,0cGy72h0U);
+359        *%runFET(long,1p4cGy72h100U,1p4cGy72h0U);
+360        
+361        
+362        
+363        /* 2x2x2 DAC test */
+26978522                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+364        
+365        
+366        %macro runFET(project, condit1, condit2);
+367        
+368        	proc sort data=counts_&project._&condit1.0U;
+369        		by site_type chr start_pos stop_pos;
+370        	proc sort data=counts_&project._&condit1.100U;
+371        		by site_type chr start_pos stop_pos;
+372        	proc sort data=counts_&project._&condit2.0U;
+373        		by site_type chr start_pos stop_pos;
+374        	proc sort data=counts_&project._&condit2.100U;
+375        		by site_type chr start_pos stop_pos;
+376        	run;
+377        
+378        	data methyl_data_1;
+379        		merge counts_&project._&condit1.100U (in=in1) counts_&project._&condit1.0U (in=in2);
+380        		by site_type chr start_pos stop_pos;
+381        		if in1 and in2;
+382        	run;
+383        
+384        	data methyl_data_2;
+385        		merge counts_&project._&condit2.100U (in=in1) counts_&project._&condit2.0U (in=in2);
+386        		by site_type chr start_pos stop_pos;
+387        		if in1 and in2;
+388        	run;
+389        
+390        	data methyl_data2_1;
+391        		set methyl_data_1;
+392        		unmethyl_C_&condit1.100U = total_C_&condit1.100U - methyl_C_&condit1.100U;
+393        		unmethyl_C_&condit1.0U = total_C_&condit1.0U - methyl_C_&condit1.0U;
+394        	run;
+395        
+396        
+397        	data methyl_data2_2;
+398        		set methyl_data_2;
+399        		unmethyl_C_&condit2.100U = total_C_&condit2.100U - methyl_C_&condit2.100U;
+400        		unmethyl_C_&condit2.0U = total_C_&condit2.0U - methyl_C_&condit2.0U;
+401        	run;
+402        
+403        
+404        	data sites1;
+405        		set methyl_Data2_1;
+406        		keep site_type chr start_pos stop_pos;
+407        	run;
+408        
+409        	data sites2;
+410        		set methyl_Data2_2;
+411        		keep site_type chr start_pos stop_pos;
+412        	run;
+413        
+414        	proc sort data=sites1 nodup;
+415        		by site_type chr start_pos stop_pos;
+416        	proc sort data=sites2 nodup;
+417        		by site_type chr start_pos stop_pos;
+418        	run;
+419        
+420        
+421        	data sites2keep;
+26978523                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+422        		merge sites1 (in=in1) sites2 (in=in2);
+423        		by site_type chr start_pos stop_pos;
+424        		if in1 and in2;
+425        	run;
+426        
+427        	proc sort data=sites2keep;
+428        		by site_type chr start_pos stop_pos;
+429        	proc sort data=methyl_data2_1;
+430        		by site_type chr start_pos stop_pos;
+431        	proc sort data=methyl_data2_2;
+432        		by site_type chr start_pos stop_pos;
+433        	run;
+434        
+435        
+436        	data methyl_data2_1a;
+437        		merge sites2keep (in=in1) methyl_data2_1 (in=in2);
+438        		by site_type chr start_pos stop_pos;
+439        		if in1 and in2;
+440        	run;
+441        
+442        	data methyl_data2_2a;
+443        		merge sites2keep (in=in1) methyl_data2_2 (in=in2);
+444        		by site_type chr start_pos stop_pos;
+445        		if in1 and in2;
+446        	run;
+447        
+448        
+449        	proc transpose data=methyl_data2_1a out=methyl_data2_1_sbys;
+450        		by site_type chr start_pos stop_pos;
+451        		var unmethyl_C_&condit1._100U methyl_C_&condit1._100U
+452        		unmethyl_C_&condit1._0U methyl_C_&condit1._0U;
+453        	run;
+454        
+455        	proc transpose data=methyl_data2_2a out=methyl_data2_2_sbys;
+456        		by site_type chr start_pos stop_pos;
+457        		var unmethyl_C_&condit2._100U methyl_C_&condit2._100U
+458        		unmethyl_C_&condit2._0U methyl_C_&condit2._0U;
+459        	run;
+460        
+461        
+462        	data methyl_data2_1_sbys2;
+463        		set methyl_data2_1_sbys;
+464        		length condition $10.;
+465        		length unit $4.;
+466        		if _NAME_ = "unmethyl_C_&condit1._100U" then do;
+467        			condition = "&condit1.";
+468        			unit = "100U";
+469        			flag_methylated=0;
+470        		end;
+471        		if _NAME_ = "methyl_C_&condit1._100U" then do;
+472        			condition = "&condit1.";
+473        			unit = "100U";
+474        			flag_methylated=1;
+475        		end;
+476        		if _NAME_ = "unmethyl_C_&condit1._0U" then do;
+477        			condition = "&condit1.";
+478        			unit = "0U";
+479        			flag_methylated=0;
+26978524                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+480        		end;
+481        		if _NAME_ = "methyl_C_&condit1._0U" then do;
+482        			condition = "&condit1.";
+483        			unit = "0U";
+484        			flag_methylated=1;
+485        		end;
+486        		rename col1=count;
+487        	run;
+488        
+489        
+490        
+491        	data methyl_data2_2_sbys2;
+492        		set methyl_data2_2_sbys;
+493        		length condition $10.;
+494        		length unit $4.;
+495        		if _NAME_ = "unmethyl_C_&condit2._100U" then do;
+496        			condition = "&condit2.";
+497        			unit = "100U";
+498        			flag_methylated=0;
+499        		end;
+500        		if _NAME_ = "methyl_C_&condit2._100U" then do;
+501        			condition = "&condit2.";
+502        			unit = "100U";
+503        			flag_methylated=1;
+504        		end;
+505        		if _NAME_ = "unmethyl_C_&condit2._0U" then do;
+506        			condition = "&condit2.";
+507        			unit = "0U";
+508        			flag_methylated=0;
+509        		end;
+510        		if _NAME_ = "methyl_C_&condit2._0U" then do;
+511        			condition = "&condit2.";
+512        			unit = "0U";
+513        			flag_methylated=1;
+514        		end;
+515        		rename col1=count;
+516        	run;
+517        
+518        	data methyl_datA_fet;
+519        		set methyl_data2_1_sbys2 methyl_data2_2_sbys2;
+520        	run;
+521        
+522        
+523        	proc printto log="/blue/concannon/share/jrbnewman/FET_DAC3_arab_&condit1._&condit2._blue.log";
+524        	run;
+525        
+526        	proc sort data=methyl_data_fet;
+527        		by site_type chr start_pos stop_pos condition unit flag_methylated;
+528        	run;
+529        
+530        	proc freq data=methyl_data_fet noprint;
+531        		by site_type chr start_pos stop_pos;
+532        		weight count;
+533        		exact fisher;
+534        		tables condition * unit * flag_methylated / cmh chisq or;
+535        		output out=fet_dmc fisher chisq or  cmh;
+536        	run;
+537        
+26978525                                                   The SAS System                                10:59 Friday, April 7, 2023
+
+538        
+539        	proc freq data=methyl_data_fet noprint;
+540        		by site_type chr start_pos stop_pos;
+541        		weight count;
+542        		exact fisher;
+543        		tables unit * condition * flag_methylated / chisq cmh fisher commonriskdiff  or relrisk riskdiff;
+544        		output out=fet_dmc2 fisher chisq cmh agree or relrisk riskdiff ;
+545        	run;
+546        
+547        	proc printto ;
+548        	run;
+549        
+550        	/* Make permament */
+551        
+552        	data wgbslocB.CMH_&project._&condit1._&condit2.;
+553        		set fet_dmc;
+554        	run;
+555        
+556        	data wgbslocB.CMH2_&project._&condit1._&condit2.;
+557        		set fet_dmc2;
+558        	run;
+559        
+560        %mend;
+561        
+562        
+563        *%runFET(brass, 1p4cGy1h, 0cGy1h);
+564        *%runFET(brass, 10cGy1h, 0cGy1h);
+565        *%runFET(brass, 1p4cGy72h, 0cGy72h);
+566        *%runFET(brass, 10cGy72h, 0cGy72h);
+567        *%runFET(long, 1p4cGy72h, 0cGy72h);
+568        
+569        
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           8:16:35.97
+      cpu time            8:12:01.64
+      
